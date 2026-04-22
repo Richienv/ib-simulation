@@ -170,6 +170,18 @@ table tr:last-child td { border-bottom: none; }
 .tab-row button { background: none; border: none; padding: 10px 14px; font-size: 13px; color: var(--ink-3); font-family: inherit; cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; }
 .tab-row button.active { color: var(--ink); border-bottom-color: var(--accent); }
 .results-footer { display: flex; justify-content: space-between; margin-top: 28px; gap: 12px; flex-wrap: wrap; }
+.radio-row { display: flex; gap: 6px; flex-wrap: wrap; }
+.radio-pill { position: relative; display: inline-flex; align-items: center; padding: 8px 14px; border: 1px solid var(--border-2); border-radius: 8px; font-size: 13px; cursor: pointer; user-select: none; background: var(--surface); transition: all 0.15s; }
+.radio-pill input[type="radio"] { position: absolute; opacity: 0; inset: 0; cursor: pointer; }
+.radio-pill:has(input:checked) { background: var(--accent-soft); border-color: var(--accent); color: var(--accent-dark); font-weight: 500; }
+.radio-pill:hover { border-color: var(--ink-3); }
+.radio-pill:has(input:checked):hover { border-color: var(--accent); }
+.calibration-card { border-left: 3px solid var(--accent); }
+.calibration-status-pass { color: var(--green); font-weight: 600; }
+.calibration-status-fail { color: var(--red); font-weight: 600; }
+.calibration-status-warn { color: var(--amber); font-weight: 600; }
+.calibration-row td { vertical-align: top; }
+.calibration-why { font-size: 12px; color: var(--accent-dark); cursor: pointer; text-decoration: underline dotted; }
 </style>
 </head>
 <body>
@@ -409,34 +421,41 @@ table tr:last-child td { border-bottom: none; }
     <h3 class="card-title">Decisions for this market</h3>
     <div class="grid-2">
       <div class="field">
-        <label>Menu Localization</label>
-        <select id="cm-menu">
-          <option value="low">Standardized</option>
-          <option value="some" selected>Some Localization</option>
-          <option value="high">Localized</option>
-        </select>
-        <div class="hint">Localize more when cultural distance is high.</div>
+        <label>Menu Adaptation</label>
+        <div class="radio-row" id="cm-adaptation-group">
+          <label class="radio-pill"><input type="radio" name="cm-adaptation" value="0"   > <span>Standardized</span></label>
+          <label class="radio-pill"><input type="radio" name="cm-adaptation" value="0.5" checked> <span>Partial</span></label>
+          <label class="radio-pill"><input type="radio" name="cm-adaptation" value="1"   > <span>Full Local</span></label>
+        </div>
+        <div class="hint">Localize more when cultural distance is high; Local demand lifts, VC rises slightly.</div>
       </div>
       <div class="field">
         <label>Sourcing</label>
-        <select id="cm-source">
-          <option value="local">Mostly Local</option>
-          <option value="mix" selected>Mix Local &amp; International</option>
-          <option value="home">Mostly Global</option>
-        </select>
-        <div class="hint">Global = economies of scale BUT tariffs &amp; logistics. Local = safe in trade wars.</div>
+        <div class="radio-row" id="cm-source-group">
+          <label class="radio-pill"><input type="radio" name="cm-source" value="local" > <span>Local</span></label>
+          <label class="radio-pill"><input type="radio" name="cm-source" value="global" checked> <span>Global</span></label>
+        </div>
+        <div class="hint">Global earns the 2% sourcing royalty (when active) but is exposed to tariffs during Trade War.</div>
       </div>
     </div>
     <div id="cm-wosjv-fields" class="grid-2">
       <div class="field">
-        <label>Average Price per Meal: <strong id="cm-price-val">$25</strong></label>
-        <input type="range" id="cm-price" min="10" max="50" step="0.5" value="25">
-        <div class="hint">Reference: competitor price is shown above.</div>
+        <label>Price stance <span class="muted" id="cm-price-val">—</span></label>
+        <div class="radio-row" id="cm-price-group">
+          <label class="radio-pill"><input type="radio" name="cm-price" value="aggressive"> <span>Aggressive (0.8×)</span></label>
+          <label class="radio-pill"><input type="radio" name="cm-price" value="match" checked> <span>Match (1.0×)</span></label>
+          <label class="radio-pill"><input type="radio" name="cm-price" value="premium"> <span>Premium (1.2×)</span></label>
+        </div>
+        <div class="hint">Market price multiplier vs the GDP-adjusted reference price (shown in "Cost &amp; Market Data").</div>
       </div>
       <div class="field">
-        <label>Promotion per Outlet: <strong id="cm-promo-val">$25K</strong></label>
-        <input type="range" id="cm-promo" min="0" max="100000" step="2500" value="25000">
-        <div class="hint">Diminishing returns past ~$50K; more impact when rivalry is high.</div>
+        <label>Promotion per outlet <span class="muted" id="cm-promo-val">—</span></label>
+        <div class="radio-row" id="cm-promo-group">
+          <label class="radio-pill"><input type="radio" name="cm-promo" value="low"> <span>Low ($100K)</span></label>
+          <label class="radio-pill"><input type="radio" name="cm-promo" value="med" checked> <span>Medium ($200K)</span></label>
+          <label class="radio-pill"><input type="radio" name="cm-promo" value="high"> <span>High ($400K)</span></label>
+        </div>
+        <div class="hint">Diminishing returns past the promo half-saturation point; tune against rivalry.</div>
       </div>
     </div>
   </div>
@@ -492,6 +511,38 @@ table tr:last-child td { border-bottom: none; }
     <div class="card">
       <h3 class="card-title">Profit by Ownership</h3>
       <div style="overflow-x:auto;"><table id="tbl-profit-ownership"></table></div>
+    </div>
+  </div>
+
+  <!-- CALIBRATION CHECK (spec §Calibration approach) -->
+  <div class="card calibration-card">
+    <div class="card-header" style="display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;">
+      <div>
+        <h3 class="card-title" style="margin-bottom:2px;">Calibration Check</h3>
+        <p class="card-sub" style="margin:0;">
+          <span id="cal-summary">—</span> ·
+          <label style="display:inline-flex;align-items:center;gap:6px;font-size:13px;">
+            <input type="checkbox" id="cal-auto" checked> Auto-run on coefficient change
+          </label>
+        </p>
+      </div>
+      <div style="display:flex;gap:8px;">
+        <button class="btn btn-sm btn-ghost" onclick="calibrationAdd()">Add scenario</button>
+        <button class="btn btn-sm btn-ghost" onclick="calibrationOpenImport()">Import from HBR</button>
+        <button class="btn btn-sm btn-primary" onclick="calibrationRunAll()">Run all</button>
+      </div>
+    </div>
+    <div style="overflow-x:auto;"><table id="tbl-calibration"></table></div>
+    <div id="cal-import-panel" class="hidden" style="margin-top:14px;border:1px dashed var(--border-2);border-radius:8px;padding:14px;">
+      <p class="card-sub" style="margin:0 0 8px;">
+        Paste observed HBR rows, one per line:
+        <code style="background:var(--surface-2);padding:2px 6px;border-radius:4px;">country,mode,year,adaptation,priceChoice,promoChoice,sourcing,outlets,actualPlayerProfit,tolerancePct</code>
+      </p>
+      <textarea id="cal-import-text" rows="6" style="width:100%;font-family:ui-monospace,Menlo,monospace;font-size:12px;padding:8px;border:1px solid var(--border-2);border-radius:6px;"></textarea>
+      <div style="margin-top:8px;display:flex;gap:8px;">
+        <button class="btn btn-sm btn-primary" onclick="calibrationImportSubmit()">Import rows</button>
+        <button class="btn btn-sm btn-ghost" onclick="document.getElementById('cal-import-panel').classList.add('hidden')">Cancel</button>
+      </div>
     </div>
   </div>
 
@@ -613,20 +664,161 @@ table tr:last-child td { border-bottom: none; }
 
 function _deepClone(x) { return JSON.parse(JSON.stringify(x)); }
 
-// Original hardcoded country data (backed up as Teaching Note defaults)
+// Original hardcoded country data (each country fully editable in the Countries tab).
+// Population values are 2024 World Bank (absolute people).
 const _BASE_COUNTRIES = {
-  US: {code:'US', name:'USA',       gdpPerCapita:70249, gdpGrowth:1.6, populationGrowth:0.5,  tariff:3.0,  countryRiskScore:85, industryRivalryScore:80, hofstede:[40,91,62,46,26,68]},
-  UK: {code:'UK', name:'UK',        gdpPerCapita:46510, gdpGrowth:1.4, populationGrowth:0.3,  tariff:5.0,  countryRiskScore:85, industryRivalryScore:80, hofstede:[35,89,66,35,51,69]},
-  DE: {code:'DE', name:'Germany',   gdpPerCapita:51204, gdpGrowth:1.3, populationGrowth:-0.09,tariff:5.0,  countryRiskScore:85, industryRivalryScore:60, hofstede:[35,67,66,65,83,40]},
-  FR: {code:'FR', name:'France',    gdpPerCapita:43659, gdpGrowth:1.5, populationGrowth:0.17, tariff:5.0,  countryRiskScore:85, industryRivalryScore:60, hofstede:[68,71,43,86,63,48]},
-  JP: {code:'JP', name:'Japan',     gdpPerCapita:39313, gdpGrowth:1.0, populationGrowth:-0.57,tariff:5.0,  countryRiskScore:85, industryRivalryScore:60, hofstede:[54,46,95,92,88,42]},
-  CN: {code:'CN', name:'China',     gdpPerCapita:12556, gdpGrowth:5.0, populationGrowth:-0.1, tariff:14.0, countryRiskScore:55, industryRivalryScore:60, hofstede:[80,20,66,30,87,24]},
-  IN: {code:'IN', name:'India',     gdpPerCapita:2257,  gdpGrowth:6.2, populationGrowth:0.84, tariff:14.0, countryRiskScore:55, industryRivalryScore:40, hofstede:[77,48,56,40,51,26]},
-  BR: {code:'BR', name:'Brazil',    gdpPerCapita:7507,  gdpGrowth:1.8, populationGrowth:0.49, tariff:14.0, countryRiskScore:55, industryRivalryScore:40, hofstede:[69,38,49,76,44,59]},
-  AU: {code:'AU', name:'Australia', gdpPerCapita:60443, gdpGrowth:2.1, populationGrowth:0.92, tariff:3.0,  countryRiskScore:85, industryRivalryScore:80, hofstede:[38,90,61,51,21,71]},
-  CA: {code:'CA', name:'Canada',    gdpPerCapita:51988, gdpGrowth:1.9, populationGrowth:0.8,  tariff:3.0,  countryRiskScore:85, industryRivalryScore:80, hofstede:[39,80,52,48,36,68]},
-  EG: {code:'EG', name:'Egypt',     gdpPerCapita:3699,  gdpGrowth:6.0, populationGrowth:1.41, tariff:14.0, countryRiskScore:30, industryRivalryScore:40, hofstede:[70,25,45,80,7, 4]},
-  ZA: {code:'ZA', name:'S Africa',  gdpPerCapita:7055,  gdpGrowth:1.3, populationGrowth:0.96, tariff:14.0, countryRiskScore:30, industryRivalryScore:40, hofstede:[49,65,63,49,34,63]},
+  US: {code:'US', name:'USA',       gdpPerCapita:70249, gdpGrowth:1.6, populationGrowth:0.5,  population:333000000,  tariff:3.0,  countryRiskScore:85, industryRivalryScore:80, hofstede:[40,91,62,46,26,68]},
+  UK: {code:'UK', name:'UK',        gdpPerCapita:46510, gdpGrowth:1.4, populationGrowth:0.3,  population:68000000,   tariff:5.0,  countryRiskScore:85, industryRivalryScore:80, hofstede:[35,89,66,35,51,69]},
+  DE: {code:'DE', name:'Germany',   gdpPerCapita:51204, gdpGrowth:1.3, populationGrowth:-0.09,population:84000000,   tariff:5.0,  countryRiskScore:85, industryRivalryScore:60, hofstede:[35,67,66,65,83,40]},
+  FR: {code:'FR', name:'France',    gdpPerCapita:43659, gdpGrowth:1.5, populationGrowth:0.17, population:68000000,   tariff:5.0,  countryRiskScore:85, industryRivalryScore:60, hofstede:[68,71,43,86,63,48]},
+  JP: {code:'JP', name:'Japan',     gdpPerCapita:39313, gdpGrowth:1.0, populationGrowth:-0.57,population:125000000,  tariff:5.0,  countryRiskScore:85, industryRivalryScore:60, hofstede:[54,46,95,92,88,42]},
+  CN: {code:'CN', name:'China',     gdpPerCapita:12556, gdpGrowth:5.0, populationGrowth:-0.1, population:1412000000, tariff:14.0, countryRiskScore:55, industryRivalryScore:60, hofstede:[80,20,66,30,87,24]},
+  IN: {code:'IN', name:'India',     gdpPerCapita:2257,  gdpGrowth:6.2, populationGrowth:0.84, population:1428000000, tariff:14.0, countryRiskScore:55, industryRivalryScore:40, hofstede:[77,48,56,40,51,26]},
+  BR: {code:'BR', name:'Brazil',    gdpPerCapita:7507,  gdpGrowth:1.8, populationGrowth:0.49, population:216000000,  tariff:14.0, countryRiskScore:55, industryRivalryScore:40, hofstede:[69,38,49,76,44,59]},
+  AU: {code:'AU', name:'Australia', gdpPerCapita:60443, gdpGrowth:2.1, populationGrowth:0.92, population:26000000,   tariff:3.0,  countryRiskScore:85, industryRivalryScore:80, hofstede:[38,90,61,51,21,71]},
+  CA: {code:'CA', name:'Canada',    gdpPerCapita:51988, gdpGrowth:1.9, populationGrowth:0.8,  population:40000000,   tariff:3.0,  countryRiskScore:85, industryRivalryScore:80, hofstede:[39,80,52,48,36,68]},
+  EG: {code:'EG', name:'Egypt',     gdpPerCapita:3699,  gdpGrowth:6.0, populationGrowth:1.41, population:112000000,  tariff:14.0, countryRiskScore:30, industryRivalryScore:40, hofstede:[70,25,45,80,7, 4]},
+  ZA: {code:'ZA', name:'S Africa',  gdpPerCapita:7055,  gdpGrowth:1.3, populationGrowth:0.96, population:62000000,   tariff:14.0, countryRiskScore:30, industryRivalryScore:40, hofstede:[49,65,63,49,34,63]},
+};
+
+// ---------------------------------------------------------------------------
+// EVENT PRESETS — HBR Default (Teaching Note schedule) + Spec Default (Canonical
+// Algorithm Spec §5). Spec Default is active on first load.
+// ---------------------------------------------------------------------------
+const _HBR_DEFAULT_EVENTS = {
+  y3_financial:    { enabled:true,  label:'Global Financial Crisis (Y3)',   desc:'-20% meals everywhere (-10% in CN/IN)',                             type:'news',   year:3, countries:Object.keys(_BASE_COUNTRIES),
+                     impact:{ kind:'revMult', value:0.80, exceptionCountries:['CN','IN'], exceptionValue:0.90 } },
+  y4_trade_war:    { enabled:true,  label:'Trade War (Y4–Y5)',               desc:'Tariffs up sharply on imports. Ends Y6.',                            type:'news',   year:4, yearEnd:5, countries:Object.keys(_BASE_COUNTRIES),
+                     impact:{ kind:'tradeWar', tariffAmp:2.0, revMult:0.95 } },
+  y5_minimum_wage: { enabled:true,  label:'Minimum Wage hike (Y5)',          desc:'+20% fixed costs for WOS/JV (not franchise).',                       type:'news',   year:5, countries:Object.keys(_BASE_COUNTRIES),
+                     impact:{ kind:'fixedMult', value:1.20, excludeModes:['F'] } },
+  y3_weather:      { enabled:false, label:'Extreme Weather (Y3)',            desc:'-25% sales + +15% VC (outlets closed 1 quarter).',                   type:'crisis', year:3, countries:[],
+                     impact:{ kind:'revMult', value:0.75, costMult:1.15 } },
+  y4_opportunism:  { enabled:false, label:'Partner Opportunism (Y4–Y5)',     desc:'-15% player share, JV/F only, lasts 2 years.',                       type:'crisis', year:4, yearEnd:5, countries:[],
+                     impact:{ kind:'opportunism', value:0.85, excludeModes:['WOS'] } },
+  y5_political:    { enabled:true,  label:'Political Crisis (Y5)',           desc:'Forces WOS exit from high-risk countries; JV/F survive with -30% rev.', type:'crisis', year:5, countries:['BR','CN','EG','IN','ZA'],
+                     impact:{ kind:'political', forceExitModes:['WOS'], survivorRevMult:0.70 } },
+};
+const _SPEC_DEFAULT_EVENTS = {
+  peak_globalization: { enabled:true,  label:'Peak Globalization (Y1)',      desc:'Global sourcing royalty 2% active; no negative modifiers.',          type:'news',   year:1, countries:Object.keys(_BASE_COUNTRIES),
+                        impact:{ kind:'sourcingRoyalty', active:true } },
+  trade_war:          { enabled:true,  label:'Trade War (Y2 onward)',         desc:'Disables sourcing royalty; global-source VC hit by tariff_i.',       type:'news',   year:2, yearEnd:6, countries:Object.keys(_BASE_COUNTRIES),
+                        impact:{ kind:'tradeWar', tariffAmp:1.0, revMult:1.0 } },
+  financial_crisis:   { enabled:true,  label:'Financial Crisis (Y3)',         desc:'-15% demand globally for one year.',                                 type:'crisis', year:3, countries:Object.keys(_BASE_COUNTRIES),
+                        impact:{ kind:'revMult', value:0.85 } },
+  extreme_weather:    { enabled:false, label:'Extreme Weather (Y4)',          desc:'-20% demand + 15% VC in affected countries.',                        type:'crisis', year:4, countries:[],
+                        impact:{ kind:'revMult', value:0.80, costMult:1.15 } },
+  partner_opportunism:{ enabled:false, label:'Partner Opportunism (Y4)',      desc:'-15% player share, JV/F only.',                                      type:'crisis', year:4, countries:[],
+                        impact:{ kind:'opportunism', value:0.85, excludeModes:['WOS'] } },
+  political_crisis:   { enabled:true,  label:'Political Crisis (Y5)',         desc:'Forces WOS exit + -30% rev for JV/F in affected countries.',         type:'crisis', year:5, countries:['BR','CN','EG','IN','ZA'],
+                        impact:{ kind:'political', forceExitModes:['WOS'], survivorRevMult:0.70 } },
+};
+const EVENT_PRESETS = { spec: _SPEC_DEFAULT_EVENTS, hbr: _HBR_DEFAULT_EVENTS };
+
+// ---------------------------------------------------------------------------
+// ALGORITHM COEFFICIENT TABLE — fully per the Canonical Algorithm Spec §6.
+// Each coefficient is {value, min, max, pinned, rngMin, rngMax, desc}.
+// `min/max` = validation bounds (editor clamps input); `rngMin/rngMax` = uniform
+// draw range when unpinned. Structured coefficients (per-mode / per-category) are
+// nested; every leaf is a Coefficient tuple.
+// ---------------------------------------------------------------------------
+function _coef(value, rngMin, rngMax, min, max, desc, pinned) {
+  return { value, min, max, pinned: !!pinned, rngMin, rngMax, desc };
+}
+const _DEFAULT_ALGORITHM = {
+  // Demand primitives
+  M_base:             _coef(150000, 100000, 200000, 10000,  500000, 'Baseline meals/outlet/yr (~410/day at default)', false),
+  price_elasticity:   _coef(-1.5,   -2.5,   -0.8,   -5.0,   -0.1,   'Demand elasticity to price (restaurant industry)', false),
+  price_gdp_elasticity:_coef(0.5,    0.3,    0.8,    0.0,    2.0,    'How meal price scales with local GDP/cap', false),
+  P_base:             _coef(15,     10,     25,     1,      100,    'Reference meal price $ at GDP_USA_ref', false),
+  GDP_USA_ref:        _coef(70000,  60000,  80000,  1000,   200000, 'USA GDP/cap anchor for price/FC scaling', false),
+
+  // Promotion
+  promo_max_lift:     _coef(0.20,   0.10,   0.35,   0.0,    1.0,    'Max demand lift from saturating promo', false),
+  promo_half_sat:     _coef(250000, 150000, 400000, 10000,  2000000,'Promo $/outlet at half of max lift', false),
+  promo_low:          _coef(100000, 50000,  200000, 0,      2000000,'"Low" promo spend $/outlet/yr', true),
+  promo_med:          _coef(200000, 100000, 400000, 0,      2000000,'"Medium" promo spend $/outlet/yr', true),
+  promo_high:         _coef(400000, 200000, 800000, 0,      2000000,'"High" promo spend $/outlet/yr', true),
+
+  // Cultural fit (base demand multiplier at each distance tier)
+  cultural_fit_medium:_coef(0.90,   0.80,   1.00,   0.5,    1.2,    'Demand multiplier at Medium cultural distance', false),
+  cultural_fit_high:  _coef(0.75,   0.60,   0.90,   0.3,    1.2,    'Demand multiplier at High cultural distance', false),
+
+  // Mode cultural mitigation (fraction of the distance penalty a given mode absorbs)
+  mode_cultural_mitigation: {
+    F:   _coef(0.40, 0.2, 0.6,  0, 1.5, 'Franchise mitigates 60% of cultural penalty', false),
+    JV:  _coef(0.70, 0.5, 0.85, 0, 1.5, 'JV mitigates 30% of cultural penalty', false),
+    WOS: _coef(1.00, 0.9, 1.05, 0, 1.5, 'WOS takes full cultural penalty', false),
+  },
+
+  // Industry rivalry share
+  rivalry_share_medium: _coef(0.85, 0.70, 0.95, 0.3, 1.2, 'Market-share penalty at Medium rivalry', false),
+  rivalry_share_high:   _coef(0.70, 0.55, 0.85, 0.2, 1.2, 'Market-share penalty at High rivalry', false),
+  adaptation_rivalry_defense:_coef(0.10, 0.05, 0.20, 0.0, 0.5, 'Adaptation defense boost to rivalry share', false),
+
+  // Adaptation (menu localization)
+  adaptation_demand_coef:_coef(0.15, 0.08, 0.25, 0.0, 0.5, 'Adaptation demand lift per distance-unit', false),
+  adaptation_cost_uplift:_coef(0.08, 0.03, 0.15, 0.0, 0.5, 'Full-adaptation VC uplift', false),
+
+  // Indulgence (Hofstede category)
+  indulgence: {
+    Low:    _coef(0.85, 0.75, 0.95, 0.5, 1.3, 'Demand multiplier in Low-indulgence countries', false),
+    Medium: _coef(1.00, 0.95, 1.05, 0.5, 1.3, 'Demand multiplier in Medium-indulgence countries', false),
+    High:   _coef(1.15, 1.05, 1.25, 0.5, 1.5, 'Demand multiplier in High-indulgence countries', false),
+  },
+
+  // Mode foreignness (liability of foreignness: flat haircut per mode)
+  mode_foreignness: {
+    F:   _coef(1.00, 0.98, 1.02, 0.5, 1.2, 'Franchise: local face, no foreignness penalty', false),
+    JV:  _coef(0.97, 0.90, 1.00, 0.5, 1.2, 'JV: partial foreignness penalty', false),
+    WOS: _coef(0.93, 0.85, 0.98, 0.5, 1.2, 'WOS: full liability of foreignness', false),
+  },
+
+  // Saturation (outlet cannibalization past country capacity)
+  saturation_exponent:_coef(2, 1, 4, 0.5, 6, 'Steepness of saturation curve', false),
+  population_per_outlet_saturation:_coef(500000, 200000, 2000000, 10000, 50000000, 'Population per outlet at capacity', false),
+
+  // Cost primitives
+  VC_base:            _coef(4.00,   2.50,   6.00,   0.5,    20,     'Baseline variable cost/meal $ at USA input prices', false),
+  input_inflation:    _coef(0.03,   0.00,   0.06,   -0.05,  0.20,   'Annual commodity/input drift', false),
+  low_income_discount:_coef(0.25,   0.15,   0.35,   0.0,    0.60,   'Cost discount for BR/CN/EG/IN/ZA', false),
+
+  FC_base_per_outlet: _coef(200000, 100000, 350000, 10000,  2000000,'Baseline fixed cost/outlet/yr $ at GDP_USA_ref', false),
+  fc_gdp_elasticity:  _coef(0.6,    0.3,    0.9,    0.0,    2.0,    'FC scaling with local GDP/cap', false),
+
+  // Mode FC multiplier (applied as (1 + mult) to per-outlet FC; -1.00 zeroes it out)
+  mode_fc_multiplier: {
+    F:   _coef(-1.00, -1.00, -1.00, -1.0, 0.0, 'Franchisee bears all outlet FC — player pays zero', true),
+    JV:  _coef(-0.50, -0.60, -0.40, -1.0, 0.0, 'JV: player bears 50% of outlet FC', false),
+    WOS: _coef( 0.00, -0.05,  0.05, -0.5, 1.0, 'WOS: player bears 100% of outlet FC', false),
+  },
+
+  // HQ overhead
+  HQ_base_overhead:     _coef(500000, 200000, 1000000, 0, 10000000, 'Annual corporate fixed overhead', false),
+  HQ_per_market_support:_coef(50000,  25000,  100000,  0, 2000000,  'Per WOS/JV market annual overhead', false),
+  HQ_franchise_support: _coef(100000, 50000,  200000,  0, 2000000,  'Per franchise market annual overhead', false),
+
+  // Franchise economics
+  royalty_rate:         _coef(0.06,  0.04,   0.10,    0, 0.50, 'Franchise royalty % of franchisee gross revenue', false),
+  franchise_initial_fee:_coef(20000, 10000,  50000,   0, 200000,'Franchise fee per new outlet (one-time)', false),
+
+  // Sourcing royalty (Y1–Y2 global sourcing; disabled once Trade War fires)
+  sourcing_royalty_rate:_coef(0.02, 0.01, 0.04, 0, 0.20, 'Global sourcing royalty on gross revenue', false),
+
+  // Entry / opening / growth (treated as fixed rules, editable via min=max pinning)
+  entry_fee_per_country:_coef(250000, 250000, 250000, 0, 5000000, 'One-time entry cost per country', true),
+  opening_fee_F:        _coef(500000, 500000, 500000, 0, 5000000, 'Franchise opening/doubling cost', true),
+  opening_fee_JV:       _coef(250000, 250000, 250000, 0, 5000000, 'JV opening/doubling cost', true),
+  opening_fee_WOS:      _coef(500000, 500000, 500000, 0, 5000000, 'WOS opening/doubling cost', true),
+  exit_payout:          _coef(250000, 250000, 250000, 0, 5000000, 'Voluntary exit salvage payout', true),
+
+  // Profit milestones — spec magnitudes ($5M/$10M). Editable.
+  bonus_25M:            _coef(5000000,  0, 20000000, 0, 100000000, 'Bonus awarded when cumulative profit crosses $25M', false),
+  bonus_50M:            _coef(10000000, 0, 40000000, 0, 100000000, 'Bonus awarded when cumulative profit crosses $50M', false),
+
+  // Over-entry penalty
+  entry_penalty_threshold:_coef(3,    2,    5,    1,    12,   'Enter >= this many markets in one year → penalty', false),
+  entry_penalty_rate:     _coef(0.10, 0.05, 0.25, 0.0,  0.8,  'Revenue penalty rate on over-entry new markets', false),
 };
 
 /** @type {SimConfig} */
@@ -639,82 +831,27 @@ const DEFAULT_SIM_CONFIG = {
     WOS: {type:'WOS',         entryFee:250000, openingFee:500000, outlets:5,  royaltyPct:0,    sharePct:0,    ownershipPct:1.00, franchiseFee:0,     supportCostPerOutlet:0,     fixedCostPerOutlet:800000, label:'Wholly Owned'},
   },
   rules: {
+    // Core game-state rules. Every formerly-hardcoded value from the Canonical
+    // Algorithm Spec that is NOT a coefficient (i.e., not calibratable) lives here.
+    // Editable in the Rules tab of the upcoming Settings modal.
     startingCash: 3000000,
     totalYears: 6,
     homeCountry: 'CA',
-    exitPayout: 250000,
-    profitBonusTiers: [
-      { threshold: 25000000, bonus: 250000 },
-      { threshold: 50000000, bonus: 500000 },
-    ],
-    growthCostEqualsOpeningFee: true,
     reEntryAllowed: false,
-    maxEntriesPerYear: null,
-    entryPenaltyThreshold: 3,
-    entryPenaltyPerExtra: 0.10,
-    entryPenaltyFloor: 0.50,
-    firstYearRevenueFactor: 0.5,
-    firstYearFixedFactor: 0.5,
-    wosLiabilityCoef: 0.15,
-    brandAwarenessThreshold: 3,
-    brandAwarenessPerCountryBonus: 0.02,
     lowIncomeCountries: ['BR','CN','EG','IN','ZA'],
-    lowIncomeFixedCostDiscount: 0.25,
     highRiskPoliticalCountries: ['BR','CN','EG','IN','ZA'],
-    franchiseCollectsFeesOnOpening: true,
     categoryThresholds: {
+      // Risk: ≥low→Low, ≥medium<low→Medium, <medium→High
       risk:       { low: 70, medium: 46 },
       tariff:     { medium: 3.5, high: 7.5 },
       rivalry:    { high: 68, medium: 55 },
       cultural:   { low: 100, medium: 200 },
       indulgence: { high: 62, medium: 35 },
     },
-    variableCost: {
-      baseLow: 7.0,
-      baseHighAdd: 5.0,
-      gdpScaleCap: 85000,
-      localizationMult: { low: 1.00, some: 1.08, high: 1.18 },
-      sourcingMult:     { local: 1.04, mix: 0.97, home: 0.90 },
-      tariffExposure:   { local: 0.0,  mix: 0.5,  home: 1.0  },
-    },
-    franchiseeBehavior: {
-      promoPerOutlet: 25000,
-      pricingMatchesCompetitor: true,
-    },
-    sourcingRoyalty: { home: 0.02, mix: 0.01, local: 0 },
+    activeEventPreset: 'spec',   // 'spec' | 'hbr' | 'custom'
   },
-  algorithm: {
-    baseRevenue:             { pinned:false, value:375000,  range:[250000,500000], desc:'Base revenue per outlet before demand factors' },
-    gdpElasticity:           { pinned:false, value:0.25,    range:[0.15,0.35],     desc:'Exponent on (GDP/cap ÷ 30K)' },
-    indulgenceWeight:        { pinned:false, value:0.40,    range:[0.25,0.55],     desc:'Revenue shift from Hofstede Indulgence vs 50' },
-    cultPenalty:             { pinned:false, value:0.475,   range:[0.30,0.65],     desc:'Max revenue drag from cultural distance (saturated at dist=400)' },
-    rivalryPenalty:          { pinned:false, value:0.275,   range:[0.15,0.40],     desc:'Revenue drag per unit industry rivalry score (0–100)' },
-    promoMaxLift:            { pinned:false, value:0.45,    range:[0.30,0.60],     desc:'Max revenue lift at promo saturation' },
-    promoHalfSat:            { pinned:false, value:32500,   range:[20000,45000],   desc:'Promo dollars at which lift is 50% of max' },
-    locLiftAtHighDist:       { pinned:false, value:0.30,    range:[0.20,0.40],     desc:'Bonus for Localized menu at maximal cultural distance' },
-    locPenaltyLowAtHighDist: { pinned:false, value:0.25,    range:[0.15,0.35],     desc:'Penalty for Standardized menu at maximal cultural distance' },
-    baseMargin:              { pinned:false, value:0.625,   range:[0.55,0.70],     desc:'Base gross margin placeholder (legacy)' },
-    tariffHitPerPct:         { pinned:false, value:0.013,   range:[0.008,0.018],   desc:'Margin reduction per tariff % (legacy; primary tariff effect is via VC)' },
-    localizationCogs:        { pinned:false, value:0.035,   range:[0.02,0.05],     desc:'Extra COGS from menu localization (legacy; primary effect is via VC)' },
-    priceOptimumFactor:      { pinned:false, value:1.0,     range:[0.85,1.15],     desc:'Where demand optimum sits vs PPP price' },
-    pricePenalty:            { pinned:false, value:0.425,   range:[0.30,0.55],     desc:'How fast demand falls off from optimal price' },
-    franchiseAiQuality:      { pinned:false, value:0.825,   range:[0.70,0.95],     desc:'Quality of franchisee AI decisions' },
-    yearlyNoise:             { pinned:false, value:0.10,    range:[0.05,0.15],     desc:'Std dev of per-year multiplicative noise' },
-  },
-  events: {
-    y3_financial:    { enabled:true,  label:'Global Financial Crisis (Y3)',    desc:'-20% meals everywhere (-10% in CN/IN)',                               type:'news',   year:3, countries:Object.keys(_BASE_COUNTRIES),
-                       impact:{ kind:'revMult', value:0.80, exceptionCountries:['CN','IN'], exceptionValue:0.90 } },
-    y4_trade_war:    { enabled:true,  label:'Trade War (Y4–Y5)',                desc:'Tariffs up sharply on imports. Ends Y6.',                              type:'news',   year:4, yearEnd:5, countries:Object.keys(_BASE_COUNTRIES),
-                       impact:{ kind:'tradeWar', tariffAmp:2.0, revMult:0.95 } },
-    y5_minimum_wage: { enabled:true,  label:'Minimum Wage hike (Y5)',           desc:'+20% fixed costs for WOS/JV (not franchise).',                        type:'news',   year:5, countries:Object.keys(_BASE_COUNTRIES),
-                       impact:{ kind:'fixedMult', value:1.20, excludeModes:['F'] } },
-    y3_weather:      { enabled:false, label:'Extreme Weather (Y3)',             desc:'-25% sales (outlets closed 1 quarter).',                              type:'crisis', year:3, countries:[],
-                       impact:{ kind:'revMult', value:0.75 } },
-    y4_opportunism:  { enabled:false, label:'Partner Opportunism (Y4–Y5)',      desc:'-25% revenue, JV/Franchise only, lasts 2 years.',                     type:'crisis', year:4, yearEnd:5, countries:[],
-                       impact:{ kind:'revMult', value:0.75, excludeModes:['WOS'] } },
-    y5_political:    { enabled:true,  label:'Political Crisis (Y5)',            desc:'Forces WOS exit from high-risk countries; JV/F survive with -50% rev.', type:'crisis', year:5, countries:['BR','CN','EG','IN','ZA'],
-                       impact:{ kind:'political', forceExitModes:['WOS'], survivorRevMult:0.50 } },
-  },
+  algorithm: _deepClone(_DEFAULT_ALGORITHM),
+  events: _deepClone(_SPEC_DEFAULT_EVENTS),
   news: {
     1: { year:1, headline:'The economy is strong and consumers are optimistic.',
          body:'Growth is steady, consumer confidence is high, and international travel has rebounded. Several analysts are calling this "peak globalization." It looks like a good time to plant flags abroad. Competitors are moving fast — but not yet recklessly.',
@@ -860,14 +997,30 @@ function importConfigJSON(text) {
 (function hydrateConfig() {
   const raw = loadConfig();
   if (raw && !_validateConfig(raw)) {
-    // Further safety: ensure every required sub-field is at least well-shaped.
-    const needed = ['startingCash','totalYears','exitPayout','profitBonusTiers','lowIncomeCountries','highRiskPoliticalCountries','categoryThresholds','variableCost','franchiseeBehavior','sourcingRoyalty'];
+    const needed = ['startingCash','totalYears','lowIncomeCountries','highRiskPoliticalCountries','categoryThresholds'];
     const rulesOk = needed.every(k => raw.rules[k] !== undefined);
     const modesOk = raw.modes && raw.modes.F && raw.modes.JV && raw.modes.WOS;
-    if (rulesOk && modesOk) { configStore.replace(raw); return; }
+    const algoOk = raw.algorithm && raw.algorithm.M_base && raw.algorithm.P_base && raw.algorithm.VC_base;
+    if (rulesOk && modesOk && algoOk) { configStore.replace(raw); return; }
   }
   configStore.replace(_deepClone(DEFAULT_SIM_CONFIG));
 })();
+
+// ---------------------------------------------------------------------------
+// Event preset switching — exposed for the Settings modal's Presets dropdown.
+// ---------------------------------------------------------------------------
+function applyEventPreset(name) {
+  const p = EVENT_PRESETS[name];
+  if (!p) return { ok:false, error:`Unknown preset: ${name}` };
+  // Events need WHOLE-OBJECT replacement (not deep merge) so keys from the other
+  // preset aren't carried over. Build a fresh top-level config.
+  const next = _deepClone(configStore.get());
+  next.events = _deepClone(p);
+  next.rules.activeEventPreset = name;
+  configStore.replace(next);
+  return { ok:true };
+}
+function listEventPresets() { return Object.keys(EVENT_PRESETS); }
 
 // ============================================================================
 // BACK-COMPAT LIVE BINDINGS
@@ -877,7 +1030,7 @@ function importConfigJSON(text) {
 // (and the MC engine) sees edits instantly.
 // ============================================================================
 function _deriveLegacyCountries(cfg) {
-  // Existing code expects fields: {name, gdp, growth, pop, risk, tar, rival, h}
+  // Existing code expects fields: {name, gdp, growth, pop, risk, tar, rival, h, population}
   const out = {};
   for (const code in cfg.countries) {
     const src = cfg.countries[code];
@@ -886,6 +1039,7 @@ function _deriveLegacyCountries(cfg) {
       gdp: src.gdpPerCapita,
       growth: src.gdpGrowth,
       pop: src.populationGrowth,
+      population: src.population ?? 50000000,  // fallback for configs imported without population
       risk: src.countryRiskScore,
       tar: src.tariff,
       rival: src.industryRivalryScore,
@@ -895,17 +1049,26 @@ function _deriveLegacyCountries(cfg) {
   return out;
 }
 function _deriveLegacyModes(cfg) {
-  // Existing code expects fields: {entry, open, outlets, fee, royalty, support, capture, fixed, controlsPrice, label}
+  // entry, open, fee, royalty are now canonical in cfg.algorithm. outlets,
+  // sharePct, ownershipPct, label stay in cfg.modes. Legacy MODE_SPEC bridge.
+  const algo = cfg.algorithm || {};
+  const entry = (algo.entry_fee_per_country && algo.entry_fee_per_country.value) ?? 250000;
+  const openingFee = {
+    F:   (algo.opening_fee_F   && algo.opening_fee_F.value)   ?? 500000,
+    JV:  (algo.opening_fee_JV  && algo.opening_fee_JV.value)  ?? 250000,
+    WOS: (algo.opening_fee_WOS && algo.opening_fee_WOS.value) ?? 500000,
+  };
+  const franchiseFee = (algo.franchise_initial_fee && algo.franchise_initial_fee.value) ?? 20000;
+  const royalty = (algo.royalty_rate && algo.royalty_rate.value) ?? 0.06;
   const out = {};
   for (const k in cfg.modes) {
     const m = cfg.modes[k];
     const capture = m.type === 'WOS' ? 1.0 : m.type === 'JV' ? m.sharePct : null;
     out[k] = {
-      entry: m.entryFee,
-      open: m.openingFee,
+      entry, open: openingFee[k] ?? m.openingFee,
       outlets: m.outlets,
-      fee: m.franchiseFee,
-      royalty: m.royaltyPct,
+      fee: k === 'F' ? franchiseFee : 0,
+      royalty: k === 'F' ? royalty : 0,
       support: m.supportCostPerOutlet,
       capture,
       fixed: m.fixedCostPerOutlet,
@@ -914,6 +1077,26 @@ function _deriveLegacyModes(cfg) {
     };
   }
   return out;
+}
+
+// Denormalized view of all game constants — centralizes algorithm/rules reads
+// for call sites that were formerly inlining magic numbers.
+function getGameConstants() {
+  const algo = configStore.getAlgo();
+  const rules = configStore.getRules();
+  return {
+    startingCash: rules.startingCash,
+    totalYears: rules.totalYears,
+    homeCountry: rules.homeCountry,
+    exitPayout: algo.exit_payout.value,
+    entryFee: algo.entry_fee_per_country.value,
+    openingFee: { F: algo.opening_fee_F.value, JV: algo.opening_fee_JV.value, WOS: algo.opening_fee_WOS.value },
+    bonusTiers: [
+      { threshold: 25_000_000, bonus: algo.bonus_25M.value },
+      { threshold: 50_000_000, bonus: algo.bonus_50M.value },
+    ],
+    entryPenaltyThreshold: algo.entry_penalty_threshold.value,
+  };
 }
 function _deriveLegacyNewsText(cfg) {
   const out = {};
@@ -957,17 +1140,34 @@ function makeRNG(seed) {
   return api;
 }
 
-// Reads AlgorithmCoefficients from configStore. Each coefficient is either
-// pinned (use its value as-is) or drawn from its [lo, hi] uniform range.
-function randomParams(rng) {
-  const algo = configStore.getAlgo();
+// ============================================================================
+// ALGORITHM RESOLUTION — convert the nested Coefficient table in config.algorithm
+// to a flat object of resolved numbers (pinned → value; unpinned → uniform draw
+// over [rngMin, rngMax] using the supplied RNG). Structured coefficients (per-mode,
+// per-category) are flattened to objects of numbers for ergonomic reads in the
+// hot path: e.g., A.mode_cultural_mitigation = {F: 0.4, JV: 0.7, WOS: 1.0}.
+// ============================================================================
+function _resolveCoef(c, rng) {
+  if (!c || typeof c.value === 'undefined') return 0;
+  return c.pinned ? c.value : rng.uniform(c.rngMin, c.rngMax);
+}
+function resolveAlgorithm(algo, rng) {
   const out = {};
   for (const k in algo) {
-    const c = algo[k];
-    out[k] = c.pinned ? c.value : rng.uniform(c.range[0], c.range[1]);
+    const node = algo[k];
+    if (node && typeof node.value !== 'undefined') {
+      out[k] = _resolveCoef(node, rng);
+    } else if (node && typeof node === 'object') {
+      // Structured: object of Coefficients keyed by mode/category
+      const sub = {};
+      for (const kk in node) sub[kk] = _resolveCoef(node[kk], rng);
+      out[k] = sub;
+    }
   }
   return out;
 }
+// Back-compat alias — old call sites used randomParams(rng). Still works.
+function randomParams(rng) { return resolveAlgorithm(configStore.getAlgo(), rng); }
 
 function forioCategories(home, country) {
   const d = COUNTRIES[country];
@@ -999,129 +1199,333 @@ function fmtMoney(n) {
 function fmtPct(n, d = 1) { return (n*100).toFixed(d) + '%'; }
 
 // ============================================================================
-// ENGINE: compute one country's economics for one year
-// Returns full line-item income statement components so we can render the IS table.
+// CANONICAL ALGORITHM — computeMarketPnL + computeYearProfit
+// Pure functions. Deterministic given seed. Every coefficient sourced from
+// the resolved algorithm object (see resolveAlgorithm above); no magic numbers.
+// Replaces the former countryEconomics() / variableCostPerMeal() pair.
 // ============================================================================
-function variableCostPerMeal(country, menuLoc, sourcing, params) {
-  // All coefficients sourced from configStore.getRules().variableCost
-  const c = COUNTRIES[country];
-  const vc = configStore.getRules().variableCost;
-  let baseVC = vc.baseLow + (c.gdp / vc.gdpScaleCap) * vc.baseHighAdd;
-  baseVC *= (vc.localizationMult[menuLoc] ?? 1.0);
-  let out = baseVC * (vc.sourcingMult[sourcing] ?? 1.0);
-  const tariffExp = vc.tariffExposure[sourcing] ?? 0.0;
-  out *= 1 + (c.tar / 100) * tariffExp;
-  return out;
+
+// Normalize a player's decision into the shape computeMarketPnL expects.
+// Accepts both NEW shape (adaptation, priceChoice, promoChoice, sourcing) and
+// LEGACY shape (menuLoc, price, promo, sourcing in {local|mix|home}).
+function normalizeDecision(d, algo) {
+  if (!d) d = {};
+  // Resolve adaptation
+  let adaptation;
+  if (typeof d.adaptation === 'number') adaptation = d.adaptation;
+  else if (d.menuLoc === 'high') adaptation = 1.0;
+  else if (d.menuLoc === 'some') adaptation = 0.5;
+  else if (d.menuLoc === 'low') adaptation = 0.0;
+  else adaptation = 0.5;
+  // Resolve priceMultiplier
+  let priceMultiplier;
+  if (typeof d.priceMultiplier === 'number') priceMultiplier = d.priceMultiplier;
+  else if (d.priceChoice === 'aggressive') priceMultiplier = 0.80;
+  else if (d.priceChoice === 'match') priceMultiplier = 1.00;
+  else if (d.priceChoice === 'premium') priceMultiplier = 1.20;
+  else priceMultiplier = 1.00;
+  // Resolve promoSpend per outlet
+  let promoSpend;
+  if (typeof d.promoSpend === 'number') promoSpend = d.promoSpend;
+  else if (d.promoChoice === 'low')  promoSpend = algo.promo_low;
+  else if (d.promoChoice === 'med')  promoSpend = algo.promo_med;
+  else if (d.promoChoice === 'high') promoSpend = algo.promo_high;
+  else promoSpend = algo.promo_med;
+  // Resolve sourcing ('local' | 'global')
+  let sourcing = d.sourcing;
+  if (sourcing === 'home') sourcing = 'global';
+  if (sourcing === 'mix') sourcing = 'global';    // collapse legacy mix → global
+  if (sourcing !== 'local' && sourcing !== 'global') sourcing = 'global';
+  return { adaptation, priceMultiplier, promoSpend, sourcing,
+    priceChoice: d.priceChoice || (priceMultiplier < 0.9 ? 'aggressive' : priceMultiplier > 1.1 ? 'premium' : 'match'),
+    promoChoice: d.promoChoice || (promoSpend <= algo.promo_low*1.01 ? 'low' : promoSpend <= algo.promo_med*1.01 ? 'med' : 'high'),
+  };
 }
 
-function countryEconomics({ home, country, mode, outlets, decision, year, enteredYear, isNewThisYear, brandCount, entriesThisYear, crisisRevMult, crisisMarginExtra, crisisTariffAmp, fixedCostMult, forceZeroRevenue }, params, rng) {
-  const c = COUNTRIES[country];
-  const spec = MODE_SPEC[mode];
-  const rules = configStore.getRules();
+// Build a per-year events view from an event-config snapshot + the positions map.
+// Returns pure functions the hot path can call.
+function buildEventsView(eventConfig, year, positions) {
+  // Collect per-country modifiers from each enabled, year-active event.
+  const perCountry = {};  // code → { demandMult, costMult, tariffAmp, opportunismMult, forceExitModes:Set, tags:[] }
+  let sourcingRoyaltyActive = false;
+  let tradeWarActiveGlobally = false;
 
-  if (forceZeroRevenue) {
-    // Country exited mid-year via political crisis — still pay exit cost elsewhere
-    return { revenue: 0, variableCost: 0, grossProfit: 0, promotion: 0, fixedCost: 0, operatingProfit: 0, playerProfit: 0, meals: 0, avgPrice: 0, vcPerMeal: 0 };
+  function touch(c) {
+    if (!perCountry[c]) perCountry[c] = { demandMult: 1, costMult: 1, tariffAmp: 1, opportunismMult: 1, forceExitModes: new Set(), tags: [] };
+    return perCountry[c];
+  }
+  for (const key in eventConfig) {
+    const ev = eventConfig[key];
+    if (!ev.enabled) continue;
+    const active = (ev.yearEnd !== undefined) ? (year >= ev.year && year <= ev.yearEnd) : (year === ev.year);
+    if (!active) continue;
+    const imp = ev.impact || {};
+    const countries = (ev.countries && ev.countries.length) ? ev.countries : Object.keys(positions);
+    for (const c of countries) {
+      const pos = positions[c];
+      if (!pos) continue;
+      if (imp.excludeModes && imp.excludeModes.includes(pos.mode)) continue;
+      const row = touch(c);
+      switch (imp.kind) {
+        case 'revMult': {
+          const useExc = imp.exceptionCountries && imp.exceptionCountries.includes(c);
+          const mult = useExc ? imp.exceptionValue : imp.value;
+          row.demandMult *= mult;
+          if (imp.costMult) row.costMult *= imp.costMult;
+          row.tags.push(ev.label);
+          break;
+        }
+        case 'sourcingRoyalty': { sourcingRoyaltyActive = !!imp.active; row.tags.push(ev.label); break; }
+        case 'tradeWar': {
+          tradeWarActiveGlobally = true;
+          row.tariffAmp *= (imp.tariffAmp ?? 1.0);
+          if (imp.revMult !== undefined) row.demandMult *= imp.revMult;
+          row.tags.push(ev.label);
+          break;
+        }
+        case 'fixedMult': { row.costMult *= (imp.value ?? 1.0); row.tags.push(ev.label); break; }
+        case 'opportunism': { row.opportunismMult *= (imp.value ?? 1.0); row.tags.push(ev.label); break; }
+        case 'political': {
+          if (imp.forceExitModes) imp.forceExitModes.forEach(m => row.forceExitModes.add(m));
+          if (imp.forceExitModes && imp.forceExitModes.includes(pos.mode)) {
+            row.tags.push(ev.label + ' (forced exit)');
+          } else {
+            row.demandMult *= (imp.survivorRevMult ?? 1.0);
+            row.tags.push(ev.label);
+          }
+          break;
+        }
+        default: console.warn('[events] unknown impact kind:', imp.kind, ev);
+      }
+    }
   }
 
-  // ---- Revenue (per outlet) ----
-  let revPerOutlet = params.baseRevenue;
-  revPerOutlet *= Math.pow(c.gdp / 30000, params.gdpElasticity);
-  const ivr = c.h[5];
-  revPerOutlet *= 1 + params.indulgenceWeight * ((ivr - 50) / 50);
-  const dist = cultDistance(home, country);
-  revPerOutlet *= 1 - params.cultPenalty * Math.min(1, dist / 400);
-  revPerOutlet *= 1 - params.rivalryPenalty * (c.rival / 100);
-  const distNorm = Math.min(1, dist / 400);
-  const loc = decision.menuLoc;
-  if (loc === 'high') revPerOutlet *= 1 + params.locLiftAtHighDist * distNorm;
-  else if (loc === 'low') revPerOutlet *= 1 - params.locPenaltyLowAtHighDist * distNorm;
-
-  // Promotion
-  let promoPerOutlet;
-  if (mode === 'WOS' || mode === 'JV') promoPerOutlet = decision.promo;
-  else promoPerOutlet = rules.franchiseeBehavior.promoPerOutlet;
-  revPerOutlet *= 1 + params.promoMaxLift * promoPerOutlet / (promoPerOutlet + params.promoHalfSat);
-
-  // Price
-  const optimalPrice = pppPrice(country) * params.priceOptimumFactor;
-  let chosenPrice;
-  if (mode === 'WOS' || mode === 'JV') chosenPrice = decision.price > 0 ? decision.price : optimalPrice;
-  else chosenPrice = pppPrice(country);   // Franchisee sets price = competitor price
-  const deviation = Math.abs(chosenPrice - optimalPrice) / optimalPrice;
-  const priceFactor = Math.max(0.2, 1 - params.pricePenalty * deviation);
-  revPerOutlet *= (chosenPrice / 25.0) * priceFactor;
-
-  // Crisis / news multiplier
-  revPerOutlet *= (crisisRevMult || 1);
-
-  // First-year revenue factor (outlets open mid-year)
-  if (isNewThisYear) revPerOutlet *= rules.firstYearRevenueFactor;
-
-  // Entry/growth penalty threshold
-  if (entriesThisYear >= rules.entryPenaltyThreshold) {
-    revPerOutlet *= Math.max(rules.entryPenaltyFloor, 1 - rules.entryPenaltyPerExtra * (entriesThisYear - (rules.entryPenaltyThreshold - 1)));
-  }
-
-  // WOS liability of foreignness
-  if (mode === 'WOS') revPerOutlet *= 1 - rules.wosLiabilityCoef * Math.min(1, dist / 400);
-
-  // Brand awareness
-  if (brandCount >= rules.brandAwarenessThreshold) {
-    revPerOutlet *= 1 + rules.brandAwarenessPerCountryBonus * (brandCount - (rules.brandAwarenessThreshold - 1));
-  }
-
-  // Noise
-  revPerOutlet *= 1 + rng.gauss(0, params.yearlyNoise);
-  revPerOutlet = Math.max(0, revPerOutlet);
-
-  // ---- Meals (derived from revenue + price) ----
-  const meals = revPerOutlet / chosenPrice;
-  const totalRevenue = revPerOutlet * outlets;
-
-  // ---- Variable cost per meal ----
-  let vcPerMeal = variableCostPerMeal(country, loc, decision.sourcing, params);
-  // Trade war crisis amplifies tariff exposure
-  if (crisisTariffAmp && crisisTariffAmp > 1) {
-    const tariffExp = rules.variableCost.tariffExposure[decision.sourcing] ?? 0.0;
-    vcPerMeal *= 1 + (c.tar / 100) * tariffExp * (crisisTariffAmp - 1);
-  }
-  const totalMeals = meals * outlets;
-  const totalVariableCost = totalMeals * vcPerMeal;
-
-  // ---- Promotion cost ----
-  const promotionTotal = promoPerOutlet * outlets;
-
-  // ---- Fixed cost ----
-  let fixedPerOutlet = spec.fixed;
-  if (LOW_INCOME.includes(country)) fixedPerOutlet *= (1 - rules.lowIncomeFixedCostDiscount);
-  if (isNewThisYear) fixedPerOutlet *= rules.firstYearFixedFactor;
-  if (fixedCostMult && mode !== 'F') fixedPerOutlet *= fixedCostMult;
-  const fixedTotal = fixedPerOutlet * outlets;
-
-  const grossProfit = totalRevenue - totalVariableCost;
-  const operatingProfit = grossProfit - promotionTotal - fixedTotal;
-
-  let playerProfit;
-  let franchiseFee = 0, royalty = 0, sourcingMargin = 0, supportCost = 0;
-  if (mode === 'F') {
-    royalty = totalRevenue * spec.royalty;
-    const sourcingPct = rules.sourcingRoyalty[decision.sourcing] ?? 0;
-    sourcingMargin = totalRevenue * sourcingPct;
-    supportCost = spec.support * outlets;
-    if (crisisMarginExtra) supportCost -= totalRevenue * (crisisMarginExtra);
-    playerProfit = royalty + sourcingMargin - supportCost;
-  } else if (mode === 'JV') {
-    playerProfit = operatingProfit * spec.capture;
-  } else {
-    playerProfit = operatingProfit * spec.capture;
+  // Sourcing royalty: if a Peak-Globalization-style event explicitly marks it
+  // active, honor that. Otherwise default: active Y1-Y2 ONLY and only if no
+  // Trade War is active this year (spec §4.1).
+  if (!sourcingRoyaltyActive) {
+    sourcingRoyaltyActive = (year <= 2) && !tradeWarActiveGlobally;
+  } else if (tradeWarActiveGlobally) {
+    sourcingRoyaltyActive = false;    // trade war overrides Peak Globalization
   }
 
   return {
-    revenue: totalRevenue, variableCost: totalVariableCost, grossProfit,
-    promotion: promotionTotal, fixedCost: fixedTotal, operatingProfit,
-    playerProfit, royalty, franchiseFee, sourcingMargin, supportCost,
-    meals: totalMeals, avgPrice: chosenPrice, vcPerMeal,
+    demandMultiplierFor(code, mode, year) { return perCountry[code] ? perCountry[code].demandMult : 1; },
+    costMultiplierFor(code, year) { return perCountry[code] ? perCountry[code].costMult : 1; },
+    tariffAmpFor(code, year) { return perCountry[code] ? perCountry[code].tariffAmp : 1; },
+    opportunismPenalty(code, mode, year) {
+      // Applied only to JV/F (excludeModes:['WOS'] on the event config already filters)
+      return perCountry[code] ? perCountry[code].opportunismMult : 1;
+    },
+    forcedExits() {
+      const out = [];
+      for (const c in perCountry) {
+        const pos = positions[c];
+        if (!pos) continue;
+        if (perCountry[c].forceExitModes.has(pos.mode)) out.push(c);
+      }
+      return out;
+    },
+    sourcingRoyaltyActive,
+    tagsFor(code) { return perCountry[code] ? perCountry[code].tags : []; },
+    allTags() {
+      const s = new Set();
+      for (const c in perCountry) for (const t of perCountry[c].tags) s.add(t);
+      return [...s];
+    },
+  };
+}
+
+// Pure — no side effects. Computes one market's player-side P&L for one year.
+// ctx = { country, mode, decisions, year, outlets, algo, events, rules, home, isNewThisYear, newOutletsThisYear }
+function computeMarketPnL(ctx) {
+  const { country, mode, decisions, year, outlets, algo, events, rules, home, isNewThisYear, newOutletsThisYear } = ctx;
+  const c = COUNTRIES[country];
+  const cats = forioCategories(home, country);
+  const d = normalizeDecision(decisions, algo);
+
+  // ── 1. Meals per outlet ────────────────────────────────────────
+  const growth = Math.pow(1 + (c.growth/100), year - 1) * Math.pow(1 + (c.pop/100), year - 1);
+
+  const culturalBase =
+    cats.cultDist === 'High'   ? algo.cultural_fit_high :
+    cats.cultDist === 'Medium' ? algo.cultural_fit_medium : 1.0;
+  const modeMit = algo.mode_cultural_mitigation[mode] ?? 1.0;
+  const culturalFit = 1 - (1 - culturalBase) * modeMit;
+
+  const rivalryBase =
+    cats.riv === 'High'   ? algo.rivalry_share_high :
+    cats.riv === 'Medium' ? algo.rivalry_share_medium : 1.0;
+  const rivalryShare = rivalryBase * (1 + algo.adaptation_rivalry_defense * d.adaptation);
+
+  const indulgenceMult = (algo.indulgence && algo.indulgence[cats.ind]) ?? 1.0;
+
+  const priceOpt = algo.P_base * Math.pow(c.gdp / algo.GDP_USA_ref, algo.price_gdp_elasticity);
+  const price = priceOpt * d.priceMultiplier;
+  const priceResponse = Math.max(0.5, Math.min(1.5, Math.pow(priceOpt / Math.max(price, 1e-6), Math.abs(algo.price_elasticity))));
+
+  const promoResponse = 1 + algo.promo_max_lift * (d.promoSpend / (d.promoSpend + algo.promo_half_sat));
+
+  const distNumeric = { Low: 0, Medium: 0.5, High: 1.0, NA: 0 }[cats.cultDist] ?? 0;
+  const adaptationLift = 1 + algo.adaptation_demand_coef * d.adaptation * distNumeric;
+
+  const foreignness = algo.mode_foreignness[mode] ?? 1.0;
+  const eventDemandMult = events.demandMultiplierFor(country, mode, year);
+
+  const capacity = Math.max(1, c.population / algo.population_per_outlet_saturation);
+  const saturation = 1 / (1 + Math.pow(outlets / capacity, algo.saturation_exponent));
+
+  const meals = algo.M_base
+              * growth
+              * culturalFit
+              * rivalryShare
+              * indulgenceMult
+              * priceResponse
+              * promoResponse
+              * adaptationLift
+              * foreignness
+              * eventDemandMult
+              * saturation;
+
+  // ── 2. Unit economics ──────────────────────────────────────────
+  const lowIncomeDisc = LOW_INCOME.includes(country) ? algo.low_income_discount : 0;
+  const inflation = Math.pow(1 + algo.input_inflation, year - 1);
+  const adaptUplift = 1 + algo.adaptation_cost_uplift * d.adaptation;
+  const eventCostMult = events.costMultiplierFor(country, year);
+
+  // Sourcing cost delta: Global source picks up tariff when Trade War is active.
+  // tariffAmpFor() returns >1 only when the Trade War event is active this year
+  // for this country; otherwise 1 → zero tariff pass-through.
+  let sourcingDelta = 0;
+  const tariffAmp = events.tariffAmpFor(country, year);
+  if (d.sourcing === 'global' && tariffAmp > 1) {
+    sourcingDelta = (c.tar / 100);
+  }
+
+  const vcPerMeal = algo.VC_base
+                  * (1 + sourcingDelta)
+                  * inflation
+                  * (1 - lowIncomeDisc)
+                  * adaptUplift
+                  * eventCostMult;
+
+  const fcPerOutlet = algo.FC_base_per_outlet
+                    * Math.pow(c.gdp / algo.GDP_USA_ref, algo.fc_gdp_elasticity)
+                    * (1 - lowIncomeDisc)
+                    * (1 + (algo.mode_fc_multiplier[mode] ?? 0));
+
+  // ── 3. Gross operating ─────────────────────────────────────────
+  const marketRevenue = outlets * meals * price;
+  const marketVC      = outlets * meals * vcPerMeal;
+  const marketFC      = outlets * fcPerOutlet;
+  const marketPromo   = (mode === 'F') ? 0 : outlets * d.promoSpend;   // franchisee self-funds promo
+  const operatingProfit = marketRevenue - marketVC - marketFC - marketPromo;
+
+  // ── 4. Mode-specific player share ──────────────────────────────
+  let playerRevenue = 0, playerCosts = 0, royalty = 0, initialFees = 0;
+  const opportunism = events.opportunismPenalty(country, mode, year);
+  if (mode === 'F') {
+    initialFees = (newOutletsThisYear || 0) * algo.franchise_initial_fee;
+    royalty = algo.royalty_rate * marketRevenue;
+    playerRevenue = (initialFees + royalty) * opportunism;
+    playerCosts = algo.HQ_franchise_support;
+  } else if (mode === 'JV') {
+    playerRevenue = 0.50 * operatingProfit * opportunism;
+    playerCosts = algo.HQ_per_market_support;
+  } else {
+    playerRevenue = operatingProfit;
+    playerCosts = algo.HQ_per_market_support;
+  }
+  const profit = playerRevenue - playerCosts;
+
+  // ── 5. Full trace for the "Why this?" panel ────────────────────
+  return {
+    profit, meals, price, vcPerMeal, fcPerOutlet, outlets,
+    marketRevenue, marketVC, marketFC, marketPromo, operatingProfit,
+    playerRevenue, playerCosts, royalty, initialFees,
+    trace: {
+      factors: { growth, culturalFit, rivalryShare, indulgence: indulgenceMult,
+                 priceResponse, promoResponse, adaptationLift, foreignness,
+                 eventDemandMult, saturation, sourcingDelta, eventCostMult,
+                 tariffAmp, opportunism },
+      decision: d, category: cats,
+    },
+  };
+}
+
+// Build the ctx each market gets for a given year, then aggregate via spec §2.
+// Returns { annual, perMarket:{code:marketPnL}, hqOverhead, entryCostsThisYear,
+//           growthCostsThisYear, sourcingRoyalty, profitBonus, entryPenalty,
+//           forcedExits, activeTags, sourcingRoyaltyActive }
+function computeYearProfit(state, algo, year, eventConfig, meta) {
+  const rules = configStore.getRules();
+  const events = buildEventsView(eventConfig, year, state.positions);
+
+  // Process forced exits BEFORE running economics for this year — an evicted
+  // market contributes nothing this year and carries no write-off salvage.
+  const forcedExits = events.forcedExits();
+  for (const c of forcedExits) {
+    if (!state.positions[c]) continue;
+    delete state.positions[c];
+    if (state.exited) state.exited.add(c);
+  }
+
+  const perMarket = {};
+  let totalPlayer = 0;
+  let sumGrossRevenue = 0;  // used for sourcing-royalty calc
+
+  for (const c in state.positions) {
+    const pos = state.positions[c];
+    const ctx = {
+      country: c, mode: pos.mode, decisions: pos.decision, year, outlets: pos.outlets,
+      algo, events, rules, home: state.home,
+      isNewThisYear: (meta && meta.newThisYear && meta.newThisYear.has(c)),
+      newOutletsThisYear: (meta && meta.newThisYear && meta.newThisYear.has(c)) ? pos.outlets
+                        : (meta && meta.grownThisYear && meta.grownThisYear.has(c)) ? pos.outlets / 2 : 0,
+    };
+    const r = computeMarketPnL(ctx);
+    perMarket[c] = { ...r, mode: pos.mode, outlets: pos.outlets, tags: events.tagsFor(c) };
+    totalPlayer += r.profit;
+    // Sourcing-royalty base: franchisee gross for F, market gross for JV/WOS,
+    // when global sourcing is chosen that year AND the royalty is active.
+    if (events.sourcingRoyaltyActive && pos.decision && (pos.decision.sourcing === 'global' || pos.decision.sourcing === 'home')) {
+      sumGrossRevenue += r.marketRevenue;
+    }
+  }
+
+  const hqOverhead = algo.HQ_base_overhead;
+  const entryCostsThisYear = (meta && meta.entryCostsThisYear) || 0;
+  const growthCostsThisYear = (meta && meta.growthCostsThisYear) || 0;
+  const sourcingRoyalty = events.sourcingRoyaltyActive ? algo.sourcing_royalty_rate * sumGrossRevenue : 0;
+
+  // Over-entry penalty — 10% revenue haircut across new-entered markets that year.
+  let entryPenalty = 0;
+  const newCount = meta && meta.newThisYear ? meta.newThisYear.size : 0;
+  if (newCount >= algo.entry_penalty_threshold) {
+    let newRevenue = 0;
+    for (const c of (meta.newThisYear || [])) if (perMarket[c]) newRevenue += perMarket[c].marketRevenue;
+    entryPenalty = algo.entry_penalty_rate * newRevenue;
+  }
+
+  // Profit bonus — checked against cumProfit crossing thresholds. The caller
+  // knows cumProfit before/after this year, so we just compute what *would*
+  // be awarded as a list; the caller applies.
+  // (Left to caller; see confirmYear / runHeadless.)
+
+  const annualBeforeOneTime = totalPlayer - hqOverhead + sourcingRoyalty - entryPenalty;
+  const annual = annualBeforeOneTime - entryCostsThisYear - growthCostsThisYear;
+
+  return {
+    annual,
+    perMarket,
+    hqOverhead,
+    entryCostsThisYear,
+    growthCostsThisYear,
+    sourcingRoyalty,
+    sourcingRoyaltyActive: events.sourcingRoyaltyActive,
+    entryPenalty,
+    forcedExits,
+    activeTags: events.allTags(),
   };
 }
 
@@ -1210,19 +1614,17 @@ function getYearEventImpacts(eventConfig, year, positions) {
 // ============================================================================
 let game = null;
 function freshGame() {
-  const rules = configStore.getRules();
+  const K = getGameConstants();
   return {
     phase: 'setup',
-    home: rules.homeCountry || 'CA',
+    home: K.homeCountry || 'CA',
     companyName: '',
     year: 1,
-    cash: rules.startingCash,
+    cash: K.startingCash,
     cumProfit: 0,
-    // Bonus flags — kept as bonus25/bonus50 for back-compat with existing sites,
-    // plus a generic array keyed to config.rules.profitBonusTiers for future tiers.
     bonus25: false,
     bonus50: false,
-    bonusesAwarded: new Array(rules.profitBonusTiers.length).fill(false),
+    bonusesAwarded: new Array(K.bonusTiers.length).fill(false),
     positions: {},
     exited: new Set(),
     yearly: [],
@@ -1285,17 +1687,16 @@ function renderEventConfig() {
   newsDiv.innerHTML = '';
   crisDiv.innerHTML = '';
   for (const [key, ev] of Object.entries(game.eventConfig)) {
-    const canEditCountries = !['y3_financial', 'y4_trade_war'].includes(key);
     const row = document.createElement('div');
     row.className = 'event-config-row';
+    const yearLabel = (ev.yearEnd !== undefined) ? `Y${ev.year}–Y${ev.yearEnd}` : `Y${ev.year}`;
     row.innerHTML = `
       <div>
-        <strong>${ev.label}</strong>
+        <strong>${ev.label}</strong> <span class="muted">· ${yearLabel}</span>
         <div class="meta">${ev.desc}</div>
-        ${canEditCountries ? `
-          <div class="chip-row">
-            ${CODES.map(c => `<span class="country-chip ${ev.countries.includes(c)?'selected':''}" data-ev="${key}" data-c="${c}">${COUNTRIES[c].name}</span>`).join('')}
-          </div>` : `<div class="meta"><em>Applies to all countries.</em></div>`}
+        <div class="chip-row">
+          ${CODES.map(c => `<span class="country-chip ${(ev.countries||[]).includes(c)?'selected':''}" data-ev="${key}" data-c="${c}">${COUNTRIES[c].name}</span>`).join('')}
+        </div>
       </div>
       <label class="toggle">
         <input type="checkbox" ${ev.enabled?'checked':''} data-ev-toggle="${key}">
@@ -1313,6 +1714,7 @@ function renderEventConfig() {
   document.querySelectorAll('.country-chip').forEach(el => {
     el.addEventListener('click', () => {
       const key = el.dataset.ev; const c = el.dataset.c;
+      if (!game.eventConfig[key].countries) game.eventConfig[key].countries = [];
       const list = game.eventConfig[key].countries;
       const idx = list.indexOf(c);
       if (idx >= 0) list.splice(idx, 1); else list.push(c);
@@ -1693,25 +2095,33 @@ function openCountryMarketing(c) {
     </tbody>
   `;
 
-  // Load saved decisions or smart defaults
+  // Load saved decisions or smart defaults, map to radio groups
   const saved = game.pending.marketing[c] || smartDefaultDecision(game.home, c, mode);
-  document.getElementById('cm-menu').value = saved.menuLoc;
-  document.getElementById('cm-source').value = saved.sourcing;
-  document.getElementById('cm-price').value = saved.price || pppPrice(c);
-  document.getElementById('cm-promo').value = saved.promo || 25000;
+  function setRadio(name, val) {
+    const v = String(val);
+    document.querySelectorAll(`input[name="${name}"]`).forEach(el => { el.checked = (el.value === v); });
+  }
+  // Adaptation: support both numeric and legacy menuLoc
+  let adaptVal = saved.adaptation;
+  if (typeof adaptVal !== 'number') adaptVal = saved.menuLoc === 'high' ? 1 : saved.menuLoc === 'low' ? 0 : 0.5;
+  setRadio('cm-adaptation', adaptVal);
+  // Sourcing: legacy mix/home both collapse to global
+  let srcVal = saved.sourcing;
+  if (srcVal === 'home' || srcVal === 'mix') srcVal = 'global';
+  setRadio('cm-source', srcVal || 'global');
+  setRadio('cm-price',  saved.priceChoice || 'match');
+  setRadio('cm-promo',  saved.promoChoice || 'med');
 
   // Hide/show WOS/JV fields
   const isFranchise = mode === 'F';
   document.getElementById('cm-wosjv-fields').style.display = isFranchise ? 'none' : 'grid';
   document.getElementById('cm-cost-card').style.display = isFranchise ? 'none' : 'block';
 
-  // Coach
   updateCountryMarketingCoach(c, mode);
 
-  // Listeners for live update
-  ['cm-menu','cm-source','cm-price','cm-promo'].forEach(id => {
-    const el = document.getElementById(id);
-    el.oninput = () => updateCountryMarketingLive(c, mode);
+  // Listeners for live update on radio changes
+  document.querySelectorAll('input[name="cm-adaptation"], input[name="cm-source"], input[name="cm-price"], input[name="cm-promo"]').forEach(el => {
+    el.onchange = () => updateCountryMarketingLive(c, mode);
   });
 
   updateCountryMarketingLive(c, mode);
@@ -1720,27 +2130,52 @@ function openCountryMarketing(c) {
 
 function smartDefaultDecision(home, country, mode) {
   const d = cultDistance(home, country);
-  const loc = d < 100 ? 'low' : d >= 200 ? 'high' : 'some';
+  const adaptation = d >= 200 ? 1.0 : d >= 100 ? 0.5 : 0.0;
+  // Default sourcing heuristic: local if tariff pressure high; global otherwise
   const tar = COUNTRIES[country].tar;
-  const src = tar > 8 ? 'local' : tar < 3.5 ? 'mix' : 'mix';
-  return { menuLoc: loc, sourcing: src, price: pppPrice(country), promo: 25000 };
+  const sourcing = tar >= 10 ? 'local' : 'global';
+  return { adaptation, priceChoice: 'match', promoChoice: 'med', sourcing };
+}
+
+// Reads the four radio groups on the Country Marketing screen and returns
+// a fully-shaped decision object. Also derives legacy aliases.
+function _readCountryMarketingInputs() {
+  function getRadio(name, fallback) {
+    const el = document.querySelector(`input[name="${name}"]:checked`);
+    return el ? el.value : fallback;
+  }
+  const adaptationStr = getRadio('cm-adaptation', '0.5');
+  const priceChoice = getRadio('cm-price', 'match');
+  const promoChoice = getRadio('cm-promo', 'med');
+  const sourcing    = getRadio('cm-source', 'global');
+  return {
+    adaptation: parseFloat(adaptationStr),
+    priceChoice, promoChoice, sourcing,
+  };
 }
 
 function updateCountryMarketingLive(c, mode) {
-  const menu = document.getElementById('cm-menu').value;
-  const src = document.getElementById('cm-source').value;
-  const price = parseFloat(document.getElementById('cm-price').value);
-  const promo = parseFloat(document.getElementById('cm-promo').value);
-  document.getElementById('cm-price-val').textContent = '$' + price.toFixed(1);
-  document.getElementById('cm-promo-val').textContent = '$' + (promo/1000).toFixed(0) + 'K';
-  // Live variable cost (params may be null in setup, use light-weight defaults)
-  const fakeParams = game.params || { };
-  const vc = variableCostPerMeal(c, menu, src, fakeParams);
+  const d = _readCountryMarketingInputs();
+  const algoResolved = game.params || resolveAlgorithm(configStore.getAlgo(), makeRNG(1));
+  const norm = normalizeDecision(d, algoResolved);
+  // Variable cost per meal at current decisions (uses same formula as computeMarketPnL)
+  const cRaw = COUNTRIES[c];
+  const algo = algoResolved;
+  const lowDisc = LOW_INCOME.includes(c) ? algo.low_income_discount : 0;
+  const adaptUplift = 1 + algo.adaptation_cost_uplift * norm.adaptation;
+  // For live display we use year=1 (no inflation, no events)
+  const vc = algo.VC_base * (1 + 0) * 1 * (1 - lowDisc) * adaptUplift;
   document.getElementById('cm-vc').textContent = '$' + vc.toFixed(2);
-  const comp = pppPrice(c);
-  document.getElementById('cm-comp').textContent = '$' + comp.toFixed(2);
-  const gm = (price - vc) / price;
+  const priceOpt = algo.P_base * Math.pow(cRaw.gdp / algo.GDP_USA_ref, algo.price_gdp_elasticity);
+  document.getElementById('cm-comp').textContent = '$' + priceOpt.toFixed(2);
+  const chosenPrice = priceOpt * norm.priceMultiplier;
+  const gm = (chosenPrice - vc) / Math.max(chosenPrice, 1e-6);
   document.getElementById('cm-margin').textContent = (gm*100).toFixed(1) + '%';
+  // Info strip
+  const priceValEl = document.getElementById('cm-price-val');
+  if (priceValEl) priceValEl.textContent = '$' + chosenPrice.toFixed(2) + ` (${norm.priceChoice})`;
+  const promoValEl = document.getElementById('cm-promo-val');
+  if (promoValEl) promoValEl.textContent = '$' + (norm.promoSpend/1000).toFixed(0) + 'K/outlet';
 }
 
 function updateCountryMarketingCoach(c, mode) {
@@ -1750,15 +2185,17 @@ function updateCountryMarketingCoach(c, mode) {
   const list = document.getElementById('cm-coach-list');
   const dist = cultDistance(game.home, c);
   const tips = [];
-  if (dist >= 200) tips.push('High cultural distance — use <strong>Localized</strong> menu.');
-  else if (dist < 100) tips.push('Low cultural distance — <strong>Standardized</strong> menu keeps costs down.');
-  else tips.push('Medium cultural distance — <strong>Some Localization</strong>.');
-  if (game.year === 4 || game.year === 5) tips.push('Trade war active — switch sourcing to <strong>Mostly Local</strong>.');
-  else if (game.year === 6) tips.push('Trade war ended — switch sourcing back to <strong>Mostly Global</strong> (2% margin if franchise).');
-  else tips.push('Low-tariff year — <strong>Mostly Global</strong> sourcing captures economies of scale.');
+  if (dist >= 200) tips.push('High cultural distance — use <strong>Full Local</strong> adaptation.');
+  else if (dist < 100) tips.push('Low cultural distance — <strong>Standardized</strong> keeps VC low.');
+  else tips.push('Medium cultural distance — <strong>Partial</strong> adaptation.');
+  // Sourcing advice based on event context: sourcing royalty active (Y1-2) favors Global.
+  const yearNow = game.year || 1;
+  const events = buildEventsView(game.eventConfig || defaultEventConfig(), yearNow, game.positions || {});
+  if (events.sourcingRoyaltyActive) tips.push('Sourcing royalty is active this year — prefer <strong>Global</strong> (earns 2% on gross).');
+  else tips.push('No sourcing royalty this year — <strong>Local</strong> avoids tariff exposure during Trade War.');
   if (mode !== 'F') {
-    tips.push(`Price near <strong>$${pppPrice(c).toFixed(2)}</strong> (competitor PPP-adjusted).`);
-    tips.push('Promotion ~<strong>$50K/outlet</strong> hits the diminishing-returns kink.');
+    tips.push('Price <strong>Match</strong> (1.0×) for neutral demand; Aggressive boosts volume at a margin hit.');
+    tips.push('Promo <strong>Medium ($200K)</strong> sits near the half-saturation point; High only in heavy-rivalry markets.');
   }
   list.innerHTML = tips.map(t => `<li>${t}</li>`).join('');
 }
@@ -1766,12 +2203,7 @@ function updateCountryMarketingCoach(c, mode) {
 function saveCountryMarketing() {
   const c = currentMarketingCountry;
   const mode = game.positions[c] ? game.positions[c].mode : game.pending.enter[c];
-  game.pending.marketing[c] = {
-    menuLoc: document.getElementById('cm-menu').value,
-    sourcing: document.getElementById('cm-source').value,
-    price: parseFloat(document.getElementById('cm-price').value),
-    promo: parseFloat(document.getElementById('cm-promo').value),
-  };
+  game.pending.marketing[c] = _readCountryMarketingInputs();
   goto('marketing-overview');
 }
 
@@ -1779,17 +2211,21 @@ function saveCountryMarketing() {
 // CONFIRM YEAR → RUN SIMULATION
 // ============================================================================
 function confirmYear() {
-  const rules = configStore.getRules();
-  // Apply pending exits
+  const K = getGameConstants();
+  const algo = game.params || resolveAlgorithm(configStore.getAlgo(), game.rng || makeRNG(game.seed || 1));
+
+  // ── Apply voluntary exits ────────────────────────────────────────
   for (const c in game.pending.exit) {
     if (game.pending.exit[c] && game.positions[c]) {
       delete game.positions[c];
       game.exited.add(c);
-      game.cash += rules.exitPayout;
+      game.cash += K.exitPayout;
     }
   }
-  // Apply pending entries
+
+  // ── Apply pending entries ────────────────────────────────────────
   const newThisYear = new Set();
+  let entryCostsThisYear = 0;
   for (const [c, mode] of Object.entries(game.pending.enter)) {
     if (!mode) continue;
     if (c === game.home || game.positions[c] || game.exited.has(c)) continue;
@@ -1797,122 +2233,113 @@ function confirmYear() {
     const cost = spec.entry + spec.open;
     if (game.cash < cost) continue;
     game.cash -= cost;
+    entryCostsThisYear += cost;
     let outlets = spec.outlets;
-    if (mode === 'F') game.cash += spec.fee * outlets;   // franchise fees collected
+    // Franchise initial fees per outlet collected immediately
+    if (mode === 'F') game.cash += spec.fee * outlets;
     game.positions[c] = {
       country: c, mode, outlets, enteredYear: game.year,
       decision: game.pending.marketing[c] || smartDefaultDecision(game.home, c, mode),
     };
     newThisYear.add(c);
   }
-  // Apply pending growth
+
+  // ── Apply pending growth (doubling outlets) ──────────────────────
   const grownThisYear = new Set();
+  let growthCostsThisYear = 0;
   for (const c in game.pending.grow) {
     if (!game.pending.grow[c]) continue;
     const pos = game.positions[c];
     if (!pos) continue;
-    const perOutlet = MODE_SPEC[pos.mode].open / MODE_SPEC[pos.mode].outlets;
-    const cost = perOutlet * pos.outlets;
+    const perOutletCost = MODE_SPEC[pos.mode].open / MODE_SPEC[pos.mode].outlets;
+    const cost = perOutletCost * pos.outlets;
     if (game.cash < cost) continue;
     game.cash -= cost;
+    growthCostsThisYear += cost;
     if (pos.mode === 'F') game.cash += MODE_SPEC.F.fee * pos.outlets;
     pos.outlets *= 2;
     grownThisYear.add(c);
   }
-  // Apply marketing decisions
+
+  // ── Apply this year's marketing decisions ────────────────────────
   for (const c in game.positions) {
     const saved = game.pending.marketing[c];
     if (saved) game.positions[c].decision = { ...saved };
-    else if (!game.positions[c].decision) game.positions[c].decision = smartDefaultDecision(game.home, c, game.positions[c].mode);
-  }
-
-  // Get event impacts
-  const impacts = getYearEventImpacts(game.eventConfig, game.year, game.positions);
-
-  // Process forced WOS exits from political crisis
-  const forcedExits = [];
-  for (const c in impacts) {
-    if (impacts[c].forceExit && game.positions[c] && game.positions[c].mode === 'WOS') {
-      forcedExits.push(c);
+    else if (!game.positions[c].decision) {
+      game.positions[c].decision = smartDefaultDecision(game.home, c, game.positions[c].mode);
     }
   }
-  for (const c of forcedExits) {
-    delete game.positions[c];
+
+  // ── Delegate to the canonical profit function ────────────────────
+  const meta = { newThisYear, grownThisYear, entryCostsThisYear, growthCostsThisYear };
+  const year = computeYearProfit(game, algo, game.year, game.eventConfig, meta);
+
+  // Forced exits (already applied inside computeYearProfit; collect refund)
+  for (const c of year.forcedExits) {
     game.exited.add(c);
-    game.cash += configStore.getRules().exitPayout;
+    game.cash += K.exitPayout;
   }
 
-  // Compute per-country economics
-  const activeEntriesThisYear = newThisYear.size + grownThisYear.size;
-  const brandCount = Object.keys(game.positions).length;
-  const countryResults = {};
-  let yearProfit = 0;
-  const componentsTotal = { revenue: 0, variableCost: 0, promotion: 0, fixedCost: 0, operatingProfit: 0 };
+  // Apply year financials
+  game.cash += year.annual;
+  game.cumProfit += year.annual;
 
-  for (const c in game.positions) {
-    const pos = game.positions[c];
-    const imp = impacts[c] || { revMult: 1, tariffAmp: 1, fixedMult: 1, marginExtra: 0, tags: [] };
-    const r = countryEconomics({
-      home: game.home, country: c, mode: pos.mode, outlets: pos.outlets, decision: pos.decision,
-      year: game.year, enteredYear: pos.enteredYear, isNewThisYear: newThisYear.has(c),
-      brandCount, entriesThisYear: activeEntriesThisYear,
-      crisisRevMult: imp.revMult, crisisMarginExtra: imp.marginExtra, crisisTariffAmp: imp.tariffAmp,
-      fixedCostMult: imp.fixedMult, forceZeroRevenue: false,
-    }, game.params, game.rng);
-    countryResults[c] = { ...r, mode: pos.mode, outlets: pos.outlets, tags: imp.tags };
-    yearProfit += r.playerProfit;
-    componentsTotal.revenue += r.revenue;
-    componentsTotal.variableCost += r.variableCost;
-    componentsTotal.promotion += r.promotion;
-    componentsTotal.fixedCost += r.fixedCost;
-    componentsTotal.operatingProfit += r.operatingProfit;
-  }
-
-  // Entry/opening/growth cost for income statement
-  let entryOpeningCost = 0;
-  for (const c of newThisYear) {
-    const m = game.positions[c].mode;
-    entryOpeningCost += MODE_SPEC[m].entry + MODE_SPEC[m].open;
-  }
-  let growthCost = 0;
-  for (const c of grownThisYear) {
-    const pos = game.positions[c];
-    // outlets is already doubled, so original = pos.outlets/2
-    const added = pos.outlets / 2;
-    growthCost += (MODE_SPEC[pos.mode].open / MODE_SPEC[pos.mode].outlets) * added;
-  }
-
-  game.cash += yearProfit;
-  game.cumProfit += yearProfit;
-
+  // ── Profit bonus tiers ──────────────────────────────────────────
   const bonusMessages = [];
-  // Generic bonus-tier loop — driven by config.rules.profitBonusTiers.
-  const tiers = configStore.getRules().profitBonusTiers || [];
-  if (!game.bonusesAwarded) game.bonusesAwarded = new Array(tiers.length).fill(false);
-  tiers.forEach((tier, i) => {
+  if (!game.bonusesAwarded) game.bonusesAwarded = new Array(K.bonusTiers.length).fill(false);
+  K.bonusTiers.forEach((tier, i) => {
     if (!game.bonusesAwarded[i] && game.cumProfit >= tier.threshold) {
       game.cash += tier.bonus;
       game.bonusesAwarded[i] = true;
-      bonusMessages.push(`$${(tier.threshold/1e6).toFixed(0)}M bonus (+${fmtMoney(tier.bonus)})`);
+      bonusMessages.push(`$${(tier.threshold/1e6).toFixed(0)}M cumulative milestone (+${fmtMoney(tier.bonus)})`);
     }
   });
-  // Keep legacy bonus25/bonus50 flags in sync for anything still reading them.
-  if (tiers[0] && game.cumProfit >= tiers[0].threshold) game.bonus25 = true;
-  if (tiers[1] && game.cumProfit >= tiers[1].threshold) game.bonus50 = true;
+  if (K.bonusTiers[0] && game.cumProfit >= K.bonusTiers[0].threshold) game.bonus25 = true;
+  if (K.bonusTiers[1] && game.cumProfit >= K.bonusTiers[1].threshold) game.bonus50 = true;
 
-  // Record
+  // ── Aggregate components for the Income Statement ───────────────
+  const componentsTotal = { revenue: 0, variableCost: 0, fixedCost: 0, promotion: 0, operatingProfit: 0, playerRevenue: 0, playerCosts: 0 };
+  for (const c in year.perMarket) {
+    const r = year.perMarket[c];
+    componentsTotal.revenue       += r.marketRevenue;
+    componentsTotal.variableCost  += r.marketVC;
+    componentsTotal.fixedCost     += r.marketFC;
+    componentsTotal.promotion     += r.marketPromo;
+    componentsTotal.operatingProfit += r.operatingProfit;
+    componentsTotal.playerRevenue += r.playerRevenue;
+    componentsTotal.playerCosts   += r.playerCosts;
+  }
+
+  // ── Record year snapshot ────────────────────────────────────────
+  const countryResults = {};
+  for (const c in year.perMarket) {
+    const r = year.perMarket[c];
+    countryResults[c] = {
+      ...r,
+      // Legacy field aliases for any downstream renderer that still reads the old names
+      revenue: r.marketRevenue, variableCost: r.marketVC, fixedCost: r.marketFC,
+      promotion: r.marketPromo, operatingProfit: r.operatingProfit, playerProfit: r.profit,
+    };
+  }
   game.yearly.push({
     year: game.year,
-    yearProfit, cumProfit: game.cumProfit, cash: game.cash,
+    yearProfit: year.annual,
+    cumProfit: game.cumProfit, cash: game.cash,
     countryResults,
     positions: Object.fromEntries(Object.entries(game.positions).map(([k,v]) => [k, { outlets: v.outlets, mode: v.mode }])),
     newThisYear: [...newThisYear], grownThisYear: [...grownThisYear],
-    forcedExits, activeTags: new Set(Object.values(impacts).flatMap(i => i.tags)),
-    entryOpeningCost, growthCost,
+    forcedExits: year.forcedExits,
+    activeTags: new Set(year.activeTags),
+    entryOpeningCost: entryCostsThisYear,
+    growthCost: growthCostsThisYear,
+    hqOverhead: year.hqOverhead,
+    sourcingRoyalty: year.sourcingRoyalty,
+    sourcingRoyaltyActive: year.sourcingRoyaltyActive,
+    entryPenalty: year.entryPenalty,
     componentsTotal, bonusMessages,
   });
 
-  // Reset pending
+  // Reset pending for next year
   game.pending = { enter: {}, grow: {}, exit: {}, marketing: {} };
 
   goto('summary-results');
@@ -2117,17 +2544,17 @@ function renderSingleCountryResult(c) {
 
 function generateCustomerComments(country, dec, mode) {
   const out = [];
-  const loc = dec.menuLoc || 'some';
-  const src = dec.sourcing || 'mix';
+  const algo = game.params || resolveAlgorithm(configStore.getAlgo(), makeRNG(1));
+  const d = normalizeDecision(dec, algo);
   const dist = cultDistance(game.home, country);
-  if (loc === 'low' && dist >= 200) out.push('"The menu feels foreign. They should adapt to our tastes."');
-  if (loc === 'high' && dist < 100) out.push('"It\'s ok but a bit gimmicky — they\'re trying too hard to be local."');
-  if (loc === 'high' && dist >= 200) out.push('"Finally a chain that actually understands what we eat here."');
-  if (src === 'home') out.push('"Ingredients taste a bit imported — consistent but not as fresh."');
-  if (src === 'local') out.push('"Fresh local ingredients — I can taste the difference."');
-  if (dec.price && dec.price > pppPrice(country) * 1.15) out.push('"Pricey for what it is. I\'d eat here less often."');
-  if (dec.price && dec.price < pppPrice(country) * 0.85) out.push('"Great value! Tell a friend."');
-  if (dec.promo && dec.promo >= 50000) out.push('"Saw them everywhere on social media — had to try it."');
+  if (d.adaptation <= 0.25 && dist >= 200) out.push('"The menu feels foreign. They should adapt to our tastes."');
+  if (d.adaptation >= 0.75 && dist < 100)  out.push('"It\'s ok but a bit gimmicky — they\'re trying too hard to be local."');
+  if (d.adaptation >= 0.75 && dist >= 200) out.push('"Finally a chain that actually understands what we eat here."');
+  if (d.sourcing === 'global') out.push('"Ingredients taste a bit imported — consistent but not as fresh."');
+  if (d.sourcing === 'local')  out.push('"Fresh local ingredients — I can taste the difference."');
+  if (d.priceChoice === 'premium') out.push('"Pricey for what it is. I\'d eat here less often."');
+  if (d.priceChoice === 'aggressive') out.push('"Great value! Tell a friend."');
+  if (d.promoChoice === 'high') out.push('"Saw them everywhere on social media — had to try it."');
   if (!out.length) out.push('"Solid experience. I\'d come back."');
   return out.slice(0, 4);
 }
@@ -2275,65 +2702,76 @@ const STRATEGIES = [
 ];
 
 // Headless runSim for Monte Carlo — uses default (on) events
+// Headless sim for Monte Carlo / recommender. Uses computeYearProfit exactly
+// as the player-facing confirmYear does, so MC results track live decisions.
 function runHeadless(strategy, home, params, seed, eventConfig) {
   const rng = makeRNG(seed);
-  const rules = configStore.getRules();
-  const tiers = rules.profitBonusTiers || [];
-  const state = { home, cash: rules.startingCash, cumProfit: 0, bonusesAwarded: new Array(tiers.length).fill(false), positions: {}, exited: new Set() };
-  for (let year = 1; year <= rules.totalYears; year++) {
+  const K = getGameConstants();
+  const algo = params;   // resolved flat algorithm
+  const state = {
+    home, cash: K.startingCash, cumProfit: 0,
+    bonusesAwarded: new Array(K.bonusTiers.length).fill(false),
+    positions: {}, exited: new Set(),
+  };
+
+  for (let year = 1; year <= K.totalYears; year++) {
     const action = strategy(state, year);
+
+    // Voluntary exits
     for (const c of (action.exit || [])) {
-      if (state.positions[c]) { delete state.positions[c]; state.exited.add(c); state.cash += rules.exitPayout; }
+      if (state.positions[c]) { delete state.positions[c]; state.exited.add(c); state.cash += K.exitPayout; }
     }
+
+    // Entries
     const newThisYear = new Set();
+    let entryCostsThisYear = 0;
     for (const [c, mode] of (action.enter || [])) {
       if (c === home || state.positions[c] || state.exited.has(c)) continue;
       const spec = MODE_SPEC[mode]; const cost = spec.entry + spec.open;
       if (state.cash < cost) continue;
-      state.cash -= cost;
+      state.cash -= cost; entryCostsThisYear += cost;
       if (mode === 'F') state.cash += spec.fee * spec.outlets;
-      state.positions[c] = { country: c, mode, outlets: spec.outlets, enteredYear: year, decision: smartDefaultDecision(home, c, mode) };
+      state.positions[c] = {
+        country: c, mode, outlets: spec.outlets, enteredYear: year,
+        decision: smartDefaultDecision(home, c, mode),
+      };
       newThisYear.add(c);
     }
+
+    // Growth
     const grownThisYear = new Set();
+    let growthCostsThisYear = 0;
     for (const c of (action.grow || [])) {
       const pos = state.positions[c]; if (!pos) continue;
       const perOutlet = MODE_SPEC[pos.mode].open / MODE_SPEC[pos.mode].outlets;
       const cost = perOutlet * pos.outlets;
       if (state.cash < cost) continue;
-      state.cash -= cost;
+      state.cash -= cost; growthCostsThisYear += cost;
       if (pos.mode === 'F') state.cash += MODE_SPEC.F.fee * pos.outlets;
       pos.outlets *= 2;
       grownThisYear.add(c);
     }
-    // Adapt sourcing/menu to year context
+
+    // Adapt decisions per year context (heuristic — updated to new decision shape)
     for (const c in state.positions) {
       const pos = state.positions[c];
       const d = cultDistance(home, c);
-      pos.decision.menuLoc = d < 100 ? 'low' : d >= 200 ? 'high' : 'some';
-      pos.decision.sourcing = (year === 4 || year === 5) ? 'local' : (year === 6 ? 'home' : 'home');
-      if (pos.mode !== 'F') { pos.decision.price = pppPrice(c); pos.decision.promo = 50000; }
+      pos.decision.adaptation = d >= 200 ? 1.0 : d >= 100 ? 0.5 : 0.0;
+      // Sourcing heuristic: global until tariff pressure appears (y>=4), local y4-5, global y6+
+      pos.decision.sourcing = (year >= 4 && year <= 5) ? 'local' : 'global';
+      if (pos.mode !== 'F') {
+        pos.decision.priceChoice = 'match';
+        pos.decision.promoChoice = 'med';
+      }
     }
-    const impacts = getYearEventImpacts(eventConfig, year, state.positions);
-    const forced = [];
-    for (const c in impacts) if (impacts[c].forceExit && state.positions[c] && state.positions[c].mode === 'WOS') forced.push(c);
-    for (const c of forced) { delete state.positions[c]; state.exited.add(c); state.cash += rules.exitPayout; }
-    const brandCount = Object.keys(state.positions).length;
-    const activeEntries = newThisYear.size + grownThisYear.size;
-    let yearProfit = 0;
-    for (const c in state.positions) {
-      const pos = state.positions[c];
-      const imp = impacts[c] || { revMult:1, tariffAmp:1, fixedMult:1, marginExtra:0 };
-      const r = countryEconomics({
-        home, country: c, mode: pos.mode, outlets: pos.outlets, decision: pos.decision,
-        year, enteredYear: pos.enteredYear, isNewThisYear: newThisYear.has(c),
-        brandCount, entriesThisYear: activeEntries,
-        crisisRevMult: imp.revMult, crisisMarginExtra: imp.marginExtra, crisisTariffAmp: imp.tariffAmp, fixedCostMult: imp.fixedMult,
-      }, params, rng);
-      yearProfit += r.playerProfit;
-    }
-    state.cash += yearProfit; state.cumProfit += yearProfit;
-    tiers.forEach((tier, i) => {
+
+    const meta = { newThisYear, grownThisYear, entryCostsThisYear, growthCostsThisYear };
+    const year_ = computeYearProfit(state, algo, year, eventConfig, meta);
+
+    for (const c of year_.forcedExits) { state.exited.add(c); state.cash += K.exitPayout; }
+
+    state.cash += year_.annual; state.cumProfit += year_.annual;
+    K.bonusTiers.forEach((tier, i) => {
       if (!state.bonusesAwarded[i] && state.cumProfit >= tier.threshold) {
         state.cash += tier.bonus; state.bonusesAwarded[i] = true;
       }
@@ -2426,8 +2864,303 @@ document.getElementById('mc-run').addEventListener('click', async () => {
 });
 
 // ============================================================================
+// CALIBRATION CHECK — surfaces divergence between model output and observed HBR
+// figures. Scenarios + targets persist in localStorage. Auto-runs (debounced)
+// on any configStore change when 'Auto-run on coefficient change' is on.
+// ============================================================================
+const CAL_STORAGE_KEY = 'hbr-sim-calibration-v1';
+
+// Default 9 scenarios drawn from Canonical Algorithm Spec §9.
+function _defaultCalibrationScenarios() {
+  return [
+    { id:'s1', name:'USA Franchise Y1, 25 outlets, no events',
+      country:'US', mode:'F', year:1, outlets:25,
+      decisions:{ adaptation:0, priceChoice:'match', promoChoice:'med', sourcing:'global' },
+      eventsOverride:'none', metric:'profit', target:500000, tolerancePct:50 },
+    { id:'s2', name:'UK Franchise Y1, 25 outlets, no events',
+      country:'UK', mode:'F', year:1, outlets:25,
+      decisions:{ adaptation:0, priceChoice:'match', promoChoice:'med', sourcing:'global' },
+      eventsOverride:'none', metric:'profit', target:500000, tolerancePct:50 },
+    { id:'s3', name:'India WOS Y1, 5 outlets, standardized',
+      country:'IN', mode:'WOS', year:1, outlets:5,
+      decisions:{ adaptation:0, priceChoice:'match', promoChoice:'med', sourcing:'global' },
+      eventsOverride:'none', metric:'profit', target:0, tolerancePct:200 },
+    { id:'s4', name:'India WOS Y1, 5 outlets, full adaptation',
+      country:'IN', mode:'WOS', year:1, outlets:5,
+      decisions:{ adaptation:1, priceChoice:'match', promoChoice:'med', sourcing:'local' },
+      eventsOverride:'none', metric:'profit', target:500000, tolerancePct:100 },
+    { id:'s5', name:'China WOS Y5 with Political Crisis',
+      country:'CN', mode:'WOS', year:5, outlets:10,
+      decisions:{ adaptation:1, priceChoice:'match', promoChoice:'med', sourcing:'local' },
+      eventsOverride:'political_only', metric:'forcedExit', target:1, tolerancePct:0 },
+    { id:'s6', name:'Global sourcing Y1 w/ Peak Globalization: +2% royalty',
+      country:'US', mode:'F', year:1, outlets:25,
+      decisions:{ adaptation:0, priceChoice:'match', promoChoice:'med', sourcing:'global' },
+      eventsOverride:'peak_globalization_only', metric:'sourcingRoyaltyActive', target:1, tolerancePct:0 },
+    { id:'s7', name:'Global sourcing Y3 during Trade War: royalty gone',
+      country:'US', mode:'F', year:3, outlets:25,
+      decisions:{ adaptation:0, priceChoice:'match', promoChoice:'med', sourcing:'global' },
+      eventsOverride:'trade_war_only', metric:'sourcingRoyaltyActive', target:0, tolerancePct:0 },
+    { id:'s8', name:'Y1 entry into 3 markets → over-entry penalty',
+      country:'US', mode:'F', year:1, outlets:25,
+      decisions:{ adaptation:0, priceChoice:'match', promoChoice:'med', sourcing:'global' },
+      eventsOverride:'none', metric:'entryPenaltyActive', target:1, tolerancePct:0, multiEntry:['US','UK','AU'] },
+    { id:'s9', name:'Cumulative profit crosses $25M → +$5M bonus',
+      metric:'bonus25M', target:5000000, tolerancePct:0 },
+  ];
+}
+
+function _loadCalibration() {
+  try {
+    const raw = localStorage.getItem(CAL_STORAGE_KEY);
+    if (!raw) return _defaultCalibrationScenarios();
+    const parsed = JSON.parse(raw);
+    return Array.isArray(parsed) && parsed.length ? parsed : _defaultCalibrationScenarios();
+  } catch(e) { return _defaultCalibrationScenarios(); }
+}
+function _saveCalibration() {
+  try { localStorage.setItem(CAL_STORAGE_KEY, JSON.stringify(calibrationScenarios)); } catch(e){}
+}
+let calibrationScenarios = _loadCalibration();
+let calibrationLastResults = {};   // id → result
+
+// Build the event-config for a scenario according to its override tag.
+function _eventsForScenario(sc) {
+  const baseCfg = _deepClone(_SPEC_DEFAULT_EVENTS);
+  const disabled = _deepClone(baseCfg);
+  for (const k in disabled) disabled[k].enabled = false;
+  switch (sc.eventsOverride) {
+    case 'none': return disabled;
+    case 'political_only': {
+      const e = _deepClone(disabled);
+      if (e.political_crisis) e.political_crisis.enabled = true;
+      return e;
+    }
+    case 'peak_globalization_only': {
+      const e = _deepClone(disabled);
+      if (e.peak_globalization) e.peak_globalization.enabled = true;
+      return e;
+    }
+    case 'trade_war_only': {
+      const e = _deepClone(disabled);
+      if (e.trade_war) e.trade_war.enabled = true;
+      return e;
+    }
+    default: return _deepClone(configStore.getEvents());
+  }
+}
+
+function _runScenario(sc) {
+  // Configuration-check metrics read the authored .value (not a random draw)
+  if (sc.metric === 'bonus25M') return { actual: configStore.getAlgo().bonus_25M.value };
+  if (sc.metric === 'bonus50M') return { actual: configStore.getAlgo().bonus_50M.value };
+  // For profit/event metrics, pin every coefficient so the calibration run is
+  // deterministic regardless of the RNG seed — otherwise one-time draws drown
+  // out whatever signal the user is trying to calibrate.
+  const algoRaw = configStore.getAlgo();
+  function pinned(node) {
+    if (!node || typeof node !== 'object') return node;
+    if (typeof node.value !== 'undefined') return node.value;
+    const out = {};
+    for (const k in node) out[k] = pinned(node[k]);
+    return out;
+  }
+  const algo = pinned(algoRaw);
+
+  const positions = {};
+  if (sc.multiEntry) {
+    for (const c of sc.multiEntry) positions[c] = { mode: sc.mode, outlets: sc.outlets, country: c, decision: sc.decisions };
+  } else {
+    positions[sc.country] = { mode: sc.mode, outlets: sc.outlets, country: sc.country, decision: sc.decisions };
+  }
+  const events = buildEventsView(_eventsForScenario(sc), sc.year, positions);
+
+  if (sc.metric === 'sourcingRoyaltyActive') return { actual: events.sourcingRoyaltyActive ? 1 : 0 };
+  if (sc.metric === 'forcedExit') {
+    const forced = events.forcedExits();
+    return { actual: forced.includes(sc.country) ? 1 : 0 };
+  }
+
+  const newThisYear = new Set(sc.multiEntry || [sc.country]);
+  const r = computeMarketPnL({
+    country: sc.country, mode: sc.mode, year: sc.year, outlets: sc.outlets,
+    decisions: sc.decisions, algo, events, rules: configStore.getRules(),
+    home: configStore.getRules().homeCountry || 'CA',
+    isNewThisYear: true, newOutletsThisYear: sc.outlets,
+  });
+
+  if (sc.metric === 'entryPenaltyActive') {
+    const count = newThisYear.size;
+    const thresh = algo.entry_penalty_threshold;
+    return { actual: (count >= thresh) ? 1 : 0 };
+  }
+  if (sc.metric === 'profit') return { actual: r.profit, trace: r.trace };
+  return { actual: null };
+}
+
+function _calibrationStatus(sc, actual) {
+  if (sc.tolerancePct === 0) {
+    return actual === sc.target ? 'pass' : 'fail';
+  }
+  const tol = Math.abs(sc.target) * (sc.tolerancePct / 100);
+  const d = Math.abs(actual - sc.target);
+  if (d <= tol) return 'pass';
+  if (d <= 2 * tol) return 'warn';
+  return 'fail';
+}
+
+function calibrationRunAll() {
+  calibrationLastResults = {};
+  for (const sc of calibrationScenarios) {
+    try {
+      const out = _runScenario(sc);
+      const actual = out.actual;
+      const status = (actual === null) ? 'n/a' : _calibrationStatus(sc, actual);
+      calibrationLastResults[sc.id] = { ...out, actual, status };
+    } catch (e) {
+      calibrationLastResults[sc.id] = { actual: null, status: 'err', error: e.message };
+    }
+  }
+  renderCalibration();
+}
+
+function calibrationAdd() {
+  const id = 'custom_' + Date.now();
+  calibrationScenarios.push({
+    id, name: 'Custom scenario (edit fields below)',
+    country: 'US', mode: 'F', year: 1, outlets: 25,
+    decisions: { adaptation: 0, priceChoice: 'match', promoChoice: 'med', sourcing: 'global' },
+    eventsOverride: 'none', metric: 'profit', target: 1000000, tolerancePct: 50,
+  });
+  _saveCalibration();
+  renderCalibration();
+  calibrationRunAll();
+}
+function calibrationDelete(id) {
+  calibrationScenarios = calibrationScenarios.filter(sc => sc.id !== id);
+  delete calibrationLastResults[id];
+  _saveCalibration();
+  renderCalibration();
+}
+function calibrationOpenImport() {
+  document.getElementById('cal-import-panel').classList.remove('hidden');
+}
+function calibrationImportSubmit() {
+  const raw = document.getElementById('cal-import-text').value.trim();
+  let added = 0;
+  for (const line of raw.split(/\n/).map(l => l.trim()).filter(Boolean)) {
+    const parts = line.split(',').map(s => s.trim());
+    if (parts.length < 9) continue;
+    const [country, mode, year, adaptation, priceChoice, promoChoice, sourcing, outlets, target, tol] = parts;
+    calibrationScenarios.push({
+      id: 'imp_' + Date.now() + '_' + added,
+      name: `${country} ${mode} Y${year} · ${sourcing} · ${priceChoice}/${promoChoice}${adaptation!=='0.5'?' · adapt '+adaptation:''}`,
+      country, mode, year: parseInt(year), outlets: parseInt(outlets),
+      decisions: { adaptation: parseFloat(adaptation), priceChoice, promoChoice, sourcing },
+      eventsOverride: 'custom', metric: 'profit',
+      target: parseFloat(target), tolerancePct: tol ? parseFloat(tol) : 25,
+    });
+    added++;
+  }
+  document.getElementById('cal-import-text').value = '';
+  document.getElementById('cal-import-panel').classList.add('hidden');
+  _saveCalibration();
+  calibrationRunAll();
+}
+
+// "Why?" hints — maps metric divergence → candidate coefficients per spec §8.
+function _calibrationWhy(sc, res) {
+  const actual = res.actual;
+  if (sc.metric !== 'profit' || actual === null || !res.trace) return '';
+  const algo = configStore.getAlgo();
+  const lines = [];
+  const ratio = Math.abs(sc.target) > 1 ? actual / sc.target : null;
+  if (ratio !== null && ratio > 1.5) {
+    lines.push(`<strong>Actual ${fmtMoney(actual)} &gt; target ${fmtMoney(sc.target)}.</strong> Top candidates to reduce (spec §8):`);
+    lines.push(`• <code>M_base</code> (now ${algo.M_base.value.toLocaleString()}) — try ${Math.round(algo.M_base.value / (ratio*0.8)).toLocaleString()}.`);
+    if (sc.mode === 'F') lines.push(`• <code>royalty_rate</code> (now ${(algo.royalty_rate.value*100).toFixed(1)}%) — tuning window 4–8%.`);
+    lines.push(`• <code>promo_max_lift</code> (now ${(algo.promo_max_lift.value*100).toFixed(0)}%) — lower to flatten the demand lift.`);
+    lines.push(`• <code>P_base</code> (now $${algo.P_base.value}) — lower if price is out of scale.`);
+  } else if (ratio !== null && ratio < 0.67 && ratio > 0) {
+    lines.push(`<strong>Actual ${fmtMoney(actual)} &lt; target ${fmtMoney(sc.target)}.</strong> Top candidates to increase:`);
+    lines.push(`• <code>M_base</code> — try ${Math.round(algo.M_base.value * (sc.target / Math.max(actual, 1))).toLocaleString()}.`);
+    if (sc.mode !== 'F') lines.push(`• <code>FC_base_per_outlet</code> (now $${algo.FC_base_per_outlet.value.toLocaleString()}) — lower if fixed costs dominate.`);
+    lines.push(`• <code>VC_base</code> (now $${algo.VC_base.value}/meal) — lower if margins are tight.`);
+  } else if (ratio !== null && actual < 0) {
+    lines.push(`<strong>Actual ${fmtMoney(actual)} is negative vs positive target.</strong> Common causes:`);
+    lines.push(`• <code>FC_base_per_outlet</code> too high for this mode`);
+    lines.push(`• <code>mode_fc_multiplier.${sc.mode}</code> too close to 0 (should be negative for F/JV)`);
+    lines.push(`• Adaptation cost uplift multiplied with distance — verify <code>adaptation_cost_uplift</code>`);
+  }
+  return lines.join('<br>');
+}
+
+function renderCalibration() {
+  const tbl = document.getElementById('tbl-calibration');
+  if (!tbl) return;
+  let passCount = 0, total = 0;
+  let html = `<thead><tr><th style="width:30%;">Scenario</th><th>Inputs</th><th>Metric</th><th class="t-num">Target</th><th class="t-num">Actual</th><th>Status</th><th></th></tr></thead><tbody>`;
+  for (const sc of calibrationScenarios) {
+    total++;
+    const res = calibrationLastResults[sc.id] || { actual: null, status: 'n/a' };
+    if (res.status === 'pass') passCount++;
+    const statusTxt = res.status === 'pass' ? '<span class="calibration-status-pass">✓ Pass</span>'
+                    : res.status === 'warn' ? '<span class="calibration-status-warn">⚠ Warn</span>'
+                    : res.status === 'fail' ? '<span class="calibration-status-fail">✗ Fail</span>'
+                    : res.status === 'err'  ? '<span class="calibration-status-fail">err</span>'
+                    : '<span class="muted">—</span>';
+    const inputs = sc.metric === 'bonus25M' ? '—'
+                 : `${sc.country || '—'} ${sc.mode || ''} Y${sc.year || '—'} · ${sc.outlets || ''} outlets${sc.multiEntry ? ' · multi-entry '+sc.multiEntry.join(',') : ''}${sc.eventsOverride && sc.eventsOverride !== 'custom' ? ' · '+sc.eventsOverride : ''}`;
+    const targetFmt = sc.metric === 'profit' ? fmtMoney(sc.target) : (sc.metric === 'bonus25M' ? fmtMoney(sc.target) : String(sc.target));
+    const actualFmt = res.actual === null || res.actual === undefined ? '—'
+                    : sc.metric === 'profit' || sc.metric === 'bonus25M' ? fmtMoney(res.actual)
+                    : String(res.actual);
+    const whyHtml = res.status === 'fail' || res.status === 'warn' ? _calibrationWhy(sc, res) : '';
+    html += `<tr class="calibration-row">
+      <td><strong>${sc.name}</strong><br><span class="muted" style="font-size:12px;">tolerance ±${sc.tolerancePct}%</span></td>
+      <td style="font-size:12px;">${inputs}</td>
+      <td style="font-size:12px;"><code>${sc.metric}</code></td>
+      <td class="t-num">${targetFmt}</td>
+      <td class="t-num">${actualFmt}</td>
+      <td>${statusTxt}${whyHtml ? `<br><span class="calibration-why" onclick="this.nextElementSibling.classList.toggle('hidden')">Why?</span><div class="hidden" style="margin-top:6px;font-size:12px;color:var(--ink-2);">${whyHtml}</div>` : ''}</td>
+      <td><button class="btn btn-sm btn-ghost" onclick="calibrationDelete('${sc.id}')" title="Delete">×</button></td>
+    </tr>`;
+  }
+  html += '</tbody>';
+  tbl.innerHTML = html;
+  const sum = document.getElementById('cal-summary');
+  if (sum) {
+    sum.innerHTML = total === 0 ? 'No scenarios.' : passCount === total ?
+      `<span class="calibration-status-pass">Calibrated ✓ — ${passCount}/${total} scenarios passing</span>`
+      : `Calibration: <strong>${passCount} / ${total}</strong> scenarios passing`;
+  }
+}
+
+// Auto-run on configStore changes, debounced 400ms, when checkbox is on.
+let _calAutoTimer = null;
+configStore.subscribe(() => {
+  const autoEl = document.getElementById('cal-auto');
+  const auto = autoEl ? autoEl.checked : true;
+  if (!auto) return;
+  clearTimeout(_calAutoTimer);
+  _calAutoTimer = setTimeout(() => {
+    if (document.getElementById('screen-summary-results').classList.contains('active')) {
+      calibrationRunAll();
+    }
+  }, 400);
+});
+
+// ============================================================================
 // INIT
 // ============================================================================
+// First render of calibration scenarios happens whenever the summary screen opens.
+(function extendGotoForCalibration() {
+  const orig = goto;
+  goto = function(screen) {
+    orig(screen);
+    if (screen === 'summary-results') { calibrationRunAll(); }
+  };
+})();
 goto('welcome');
 </script>
 </body>
