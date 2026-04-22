@@ -182,9 +182,100 @@ table tr:last-child td { border-bottom: none; }
 .calibration-status-warn { color: var(--amber); font-weight: 600; }
 .calibration-row td { vertical-align: top; }
 .calibration-why { font-size: 12px; color: var(--accent-dark); cursor: pointer; text-decoration: underline dotted; }
+
+/* Settings modal */
+.gear-btn { position: fixed; top: 16px; right: 16px; z-index: 100; width: 40px; height: 40px; border-radius: 50%; background: var(--ink); color: white; border: none; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 18px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); transition: all 0.15s; }
+.gear-btn:hover { background: var(--accent); transform: rotate(30deg); }
+.settings-overlay { position: fixed; inset: 0; background: rgba(20,20,19,0.4); z-index: 150; display: none; }
+.settings-overlay.open { display: flex; align-items: stretch; justify-content: center; padding: 24px; }
+.settings-modal { background: var(--surface); border-radius: var(--radius-lg); width: 100%; max-width: 1100px; max-height: calc(100vh - 48px); display: flex; flex-direction: column; overflow: hidden; box-shadow: 0 20px 60px rgba(0,0,0,0.2); }
+.settings-header { padding: 18px 24px; border-bottom: 1px solid var(--border); display: flex; align-items: center; justify-content: space-between; gap: 16px; }
+.settings-title { font-family: var(--font-serif); font-size: 22px; font-weight: 500; margin: 0; }
+.saved-indicator { font-size: 12px; color: var(--green); opacity: 0; transition: opacity 0.25s; }
+.saved-indicator.show { opacity: 1; }
+.settings-close { background: transparent; border: none; font-size: 22px; cursor: pointer; color: var(--ink-3); width: 32px; height: 32px; border-radius: 6px; }
+.settings-close:hover { background: var(--surface-2); color: var(--ink); }
+.settings-tabs { display: flex; gap: 2px; padding: 0 24px; border-bottom: 1px solid var(--border); overflow-x: auto; }
+.settings-tab { background: none; border: none; padding: 12px 16px; font-family: inherit; font-size: 13px; color: var(--ink-3); cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; font-weight: 500; }
+.settings-tab:hover { color: var(--ink); }
+.settings-tab.active { color: var(--ink); border-bottom-color: var(--accent); }
+.settings-body { flex: 1; overflow-y: auto; padding: 24px; }
+.settings-warning { background: var(--amber-soft); border: 1px solid var(--amber); border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; font-size: 13px; color: var(--ink-2); display: flex; justify-content: space-between; align-items: center; gap: 12px; }
+.settings-warning button { background: var(--amber); border: none; color: white; padding: 4px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; }
+.coef-row { display: grid; grid-template-columns: 2fr auto 1fr 1fr 1fr; gap: 10px; align-items: center; padding: 10px 8px; border-bottom: 1px solid var(--border); font-size: 13px; }
+.coef-row:hover { background: var(--surface-2); }
+.coef-row .name { font-weight: 500; font-family: ui-monospace, Menlo, monospace; font-size: 12px; }
+.coef-row .desc { font-size: 11px; color: var(--ink-3); margin-top: 2px; }
+.coef-row input[type="number"] { padding: 4px 8px; font-size: 12px; font-family: ui-monospace, Menlo, monospace; }
+.coef-row .hint-inline { font-size: 11px; color: var(--ink-4); }
+.coef-section { margin-bottom: 18px; }
+.coef-section h4 { margin: 0 0 8px; font-size: 13px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.05em; }
+.settings-table { width: 100%; border-collapse: collapse; font-size: 12px; }
+.settings-table input { padding: 4px 8px; font-size: 12px; width: 100%; }
+.settings-table th, .settings-table td { padding: 6px 8px; border-bottom: 1px solid var(--border); }
+.settings-table th { background: var(--surface-2); font-size: 11px; text-transform: uppercase; color: var(--ink-3); font-weight: 500; }
+.settings-pair { display: grid; grid-template-columns: 1fr 2fr; gap: 16px; align-items: start; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.settings-pair label { font-size: 13px; color: var(--ink); font-weight: 500; }
+.settings-pair .desc { font-size: 11px; color: var(--ink-3); margin-top: 2px; font-weight: 400; }
+.formula-preview { background: var(--surface-2); border-radius: 8px; padding: 12px 14px; font-family: ui-monospace, Menlo, monospace; font-size: 11px; line-height: 1.55; color: var(--ink-2); white-space: pre-wrap; }
+.competition-banner { background: var(--red); color: white; padding: 10px 20px; text-align: center; font-size: 13px; font-weight: 500; letter-spacing: 0.02em; display: none; position: sticky; top: 0; z-index: 95; }
+.competition-banner.active { display: flex; justify-content: center; align-items: center; gap: 18px; }
+.competition-banner .pulse { width: 8px; height: 8px; border-radius: 50%; background: white; animation: pulse 2s infinite; }
+@keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.3; } }
+.quickedit-float { position: fixed; bottom: 24px; right: 24px; z-index: 100; padding: 12px 18px; background: var(--ink); color: white; border: none; border-radius: 999px; cursor: pointer; font-family: inherit; font-size: 13px; font-weight: 500; box-shadow: 0 4px 12px rgba(0,0,0,0.15); display: none; }
+.quickedit-float.visible { display: inline-flex; align-items: center; gap: 8px; }
+.quickedit-float:hover { background: var(--accent); }
+.coach-rec { background: linear-gradient(180deg, var(--accent-soft) 0%, var(--surface) 100%); border: 1px solid var(--accent); border-left-width: 3px; border-radius: var(--radius); padding: 16px 20px; margin-bottom: 16px; }
+.coach-rec h3 { margin: 0 0 6px; font-family: var(--font-serif); font-size: 17px; font-weight: 500; }
+.coach-rec-row { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; padding: 8px 0; border-top: 1px solid rgba(217,119,87,0.2); font-size: 13px; }
+.coach-rec-row:first-of-type { border-top: none; }
+.coach-rec-rank { font-family: var(--font-serif); font-size: 16px; color: var(--accent-dark); font-weight: 500; min-width: 22px; }
+.coach-rec-why { color: var(--ink-3); font-size: 12px; cursor: pointer; text-decoration: underline dotted; }
+.coach-rec-title { font-weight: 500; }
+.coach-rec-meta { font-size: 12px; color: var(--ink-3); margin-top: 2px; }
+.coach-rec-expected { font-family: var(--font-serif); font-size: 15px; color: var(--ink); font-weight: 500; min-width: 100px; text-align: right; }
+.highlighted-rec { background: #edf7ee !important; border-left: 3px solid var(--green); position: relative; }
+.highlighted-rec::after { content: '✓'; position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: var(--green); font-weight: 700; }
+.rank-badge { display: inline-block; min-width: 20px; height: 20px; padding: 0 6px; border-radius: 10px; background: var(--surface-2); color: var(--ink-3); font-size: 11px; font-weight: 600; line-height: 20px; text-align: center; margin-right: 8px; cursor: help; }
+.rank-badge.rank-1 { background: var(--green); color: white; }
+.rank-badge.rank-2 { background: var(--accent-soft); color: var(--accent-dark); }
+.rank-badge.rank-3 { background: var(--surface-2); color: var(--ink-2); }
+.trace-section { background: var(--surface-2); border-radius: 8px; padding: 12px 16px; font-size: 13px; margin-top: 8px; }
+.trace-line { display: flex; justify-content: space-between; padding: 3px 0; font-family: ui-monospace, Menlo, monospace; font-size: 12px; }
+.trace-link { color: var(--accent-dark); cursor: pointer; text-decoration: underline dotted; }
 </style>
 </head>
 <body>
+
+<div id="competition-banner" class="competition-banner" role="status" aria-live="polite">
+  <span class="pulse"></span>
+  <span>COMPETITION MODE</span>
+  <span id="comp-year">Y—</span>
+  <span>·</span>
+  <span id="comp-cash">Cash —</span>
+  <button class="btn btn-sm" style="background:white;color:var(--red);border:none;" onclick="snapshotGame()">Snapshot (⌘S)</button>
+</div>
+
+<button class="gear-btn" id="gear-btn" title="Sim Config (settings)" onclick="openSettings()">⚙</button>
+<button class="quickedit-float" id="quickedit-btn" title="Quick Edit (⌘E)" onclick="openQuickEdit()">⚡ Quick Edit</button>
+
+<!-- Settings modal (Phase 2) -->
+<div class="settings-overlay" id="settings-overlay" onclick="if(event.target===this)closeSettings()">
+  <div class="settings-modal" role="dialog" aria-labelledby="settings-title">
+    <div class="settings-header">
+      <h2 class="settings-title" id="settings-title">Sim Config</h2>
+      <div style="display:flex;align-items:center;gap:14px;">
+        <label style="font-size:12px;color:var(--ink-3);display:inline-flex;align-items:center;gap:6px;">
+          <input type="checkbox" id="competition-toggle" onchange="toggleCompetitionMode(this.checked)"> Competition mode
+        </label>
+        <span id="saved-indicator" class="saved-indicator">Saved ✓</span>
+        <button class="settings-close" onclick="closeSettings()" aria-label="Close">✕</button>
+      </div>
+    </div>
+    <div class="settings-tabs" id="settings-tabs"></div>
+    <div class="settings-body" id="settings-body"></div>
+  </div>
+</div>
 
 <header class="topbar">
   <div class="container">
@@ -347,6 +438,8 @@ table tr:last-child td { border-bottom: none; }
   <h1>Market Entry decisions</h1>
   <p class="hero-sub">For each country, choose an entry mode — or grow an existing market by doubling its outlets. Growth costs only the outlet-opening fee (no $250K entry).</p>
 
+  <div id="coach-rec-market-entry"></div>
+
   <div class="budget-box">
     <div class="budget-stat"><div class="label">Starting Cash</div><div class="value" id="be-start">—</div></div>
     <div class="budget-stat"><div class="label">This Year's Spend</div><div class="value" id="be-spend">$0</div></div>
@@ -370,6 +463,8 @@ table tr:last-child td { border-bottom: none; }
   <h1>Exit decisions</h1>
   <p class="hero-sub">You can walk away from a market at no financial charge and receive <strong>+$250K</strong>. However, your original investment is written off, and you cannot re-enter that country.</p>
 
+  <div id="coach-rec-exit"></div>
+
   <div class="card">
     <h3 class="card-title">Active markets</h3>
     <div id="exit-rows"></div>
@@ -386,6 +481,8 @@ table tr:last-child td { border-bottom: none; }
   <div class="eyebrow">Screen 7 · Marketing</div>
   <h1>Marketing Decisions</h1>
   <p class="hero-sub">For each active market, you'll set menu localization and sourcing. WOS/JV also set price and promotion. Franchisees handle price and promotion themselves.</p>
+
+  <div id="coach-rec-marketing"></div>
 
   <div class="card">
     <h3 class="card-title">Active markets</h3>
@@ -501,6 +598,7 @@ table tr:last-child td { border-bottom: none; }
   <div class="card">
     <h3 class="card-title">Income Statement</h3>
     <div style="overflow-x:auto;"><table id="tbl-income" class="income-table"></table></div>
+    <div id="formula-trace-container" style="margin-top:12px;"></div>
   </div>
 
   <div class="grid-2">
@@ -3151,14 +3249,794 @@ configStore.subscribe(() => {
 });
 
 // ============================================================================
+// PHASE 2 — SETTINGS MODAL
+// Six tabs driving configStore: Countries, Entry Modes, Game Rules, News Events,
+// Algorithm, Import/Export. Every field writes via configStore.set() which
+// debounces to localStorage and notifies subscribers (so other screens update
+// in real time).
+// ============================================================================
+let activeSettingsTab = 'countries';
+
+function openSettings() { document.getElementById('settings-overlay').classList.add('open'); renderSettings(); }
+function closeSettings() { document.getElementById('settings-overlay').classList.remove('open'); }
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Escape' && document.getElementById('settings-overlay').classList.contains('open')) closeSettings();
+  // Cmd/Ctrl+E → Quick Edit (Phase 4)
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'e') { e.preventDefault(); openQuickEdit(); }
+  // Cmd/Ctrl+S → Snapshot (Phase 4)
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 's') { e.preventDefault(); snapshotGame(); }
+  // Cmd/Ctrl+R → Deep recommend on current decision screen (Phase 5)
+  if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === 'r' && document.body.classList.contains('competition-on')) {
+    e.preventDefault(); recommendCurrentScreen('deep');
+  }
+});
+
+const SETTINGS_TABS = [
+  { id: 'countries',  label: 'Countries' },
+  { id: 'modes',      label: 'Entry Modes' },
+  { id: 'rules',      label: 'Game Rules' },
+  { id: 'news',       label: 'News &amp; Events' },
+  { id: 'algorithm',  label: 'Algorithm' },
+  { id: 'io',         label: 'Import / Export' },
+];
+
+function renderSettings() {
+  const tabs = document.getElementById('settings-tabs');
+  tabs.innerHTML = SETTINGS_TABS.map(t => `<button class="settings-tab ${t.id === activeSettingsTab ? 'active' : ''}" data-tab="${t.id}">${t.label}</button>`).join('');
+  tabs.querySelectorAll('.settings-tab').forEach(b => b.addEventListener('click', () => { activeSettingsTab = b.dataset.tab; renderSettings(); }));
+  // Dirty-vs-default warning banner
+  const cur = JSON.stringify(configStore.get());
+  const def = JSON.stringify(DEFAULT_SIM_CONFIG);
+  const warning = (cur !== def) ? `<div class="settings-warning"><span>Using custom config. Export it or reset to defaults.</span><div style="display:flex;gap:6px;"><button onclick="exportConfigJSON()">Export</button><button onclick="if(confirm('Reset to default config?')){resetConfig();renderSettings();}">Reset</button></div></div>` : '';
+  const body = document.getElementById('settings-body');
+  const renderer = { countries: renderCountriesTab, modes: renderModesTab, rules: renderRulesTab, news: renderNewsTab, algorithm: renderAlgorithmTab, io: renderIOTab }[activeSettingsTab];
+  body.innerHTML = warning + (renderer ? renderer() : '<p>?</p>');
+  if (renderer && renderer.wire) renderer.wire(body);
+  _wireSettingsInputs(body);
+}
+
+// Helper: every input with data-path writes configStore on change.
+function _wireSettingsInputs(root) {
+  root.querySelectorAll('[data-path]').forEach(el => {
+    const path = el.dataset.path;
+    el.addEventListener('input', () => {
+      const raw = el.type === 'checkbox' ? el.checked : el.type === 'number' ? parseFloat(el.value) : el.value;
+      const val = Number.isNaN(raw) ? el.value : raw;
+      const patch = {};
+      const keys = path.split('.');
+      let cur = patch;
+      for (let i = 0; i < keys.length - 1; i++) { cur[keys[i]] = {}; cur = cur[keys[i]]; }
+      cur[keys[keys.length - 1]] = val;
+      configStore.set(patch);
+      _showSaved();
+    });
+  });
+}
+
+let _savedTimer = null;
+function _showSaved() {
+  const el = document.getElementById('saved-indicator');
+  if (!el) return;
+  el.classList.add('show');
+  clearTimeout(_savedTimer);
+  _savedTimer = setTimeout(() => el.classList.remove('show'), 1200);
+}
+
+// ---- Countries tab ----
+function renderCountriesTab() {
+  const cfg = configStore.get();
+  let html = `<div class="coef-section"><h4>Countries</h4>
+    <p class="card-sub" style="margin-top:-4px;">Edit numeric stats inline. "Set home" marks a country as the player's home.</p>
+    <div style="overflow-x:auto;"><table class="settings-table"><thead><tr>
+      <th>Code</th><th>Name</th><th>GDP/cap</th><th>GDP%</th><th>Pop%</th><th>Population</th><th>Tariff%</th><th>Risk</th><th>Rivalry</th><th>Indulgence</th><th>Home</th>
+    </tr></thead><tbody>`;
+  for (const code of Object.keys(cfg.countries)) {
+    const c = cfg.countries[code];
+    const isHome = cfg.rules.homeCountry === code;
+    html += `<tr>
+      <td>${code}</td>
+      <td><input type="text" data-path="countries.${code}.name" value="${c.name}"></td>
+      <td><input type="number" step="1" data-path="countries.${code}.gdpPerCapita" value="${c.gdpPerCapita}"></td>
+      <td><input type="number" step="0.1" data-path="countries.${code}.gdpGrowth" value="${c.gdpGrowth}"></td>
+      <td><input type="number" step="0.01" data-path="countries.${code}.populationGrowth" value="${c.populationGrowth}"></td>
+      <td><input type="number" step="1000000" data-path="countries.${code}.population" value="${c.population}"></td>
+      <td><input type="number" step="0.5" data-path="countries.${code}.tariff" value="${c.tariff}"></td>
+      <td><input type="number" step="1" data-path="countries.${code}.countryRiskScore" value="${c.countryRiskScore}"></td>
+      <td><input type="number" step="1" data-path="countries.${code}.industryRivalryScore" value="${c.industryRivalryScore}"></td>
+      <td><input type="number" step="1" data-path="countries.${code}.hofstede.5" value="${c.hofstede[5]}"></td>
+      <td><button class="btn btn-sm ${isHome?'btn-primary':'btn-ghost'}" onclick="configStore.set({rules:{homeCountry:'${code}'}});renderSettings();">${isHome?'★ home':'Set home'}</button></td>
+    </tr>`;
+  }
+  html += '</tbody></table></div></div>';
+  return html;
+}
+
+// ---- Entry modes tab ----
+function renderModesTab() {
+  const cfg = configStore.get();
+  const algo = cfg.algorithm;
+  let html = '';
+  html += `<div class="coef-section"><h4>Common (algorithm)</h4>`;
+  html += _coefInput('Entry fee per country', 'algorithm.entry_fee_per_country', algo.entry_fee_per_country);
+  for (const k of ['F','JV','WOS']) html += _coefInput(`Opening fee ${k}`, `algorithm.opening_fee_${k}`, algo[`opening_fee_${k}`]);
+  html += _coefInput('Exit payout', 'algorithm.exit_payout', algo.exit_payout);
+  html += '</div>';
+  for (const [k, label] of [['F','Franchising'],['JV','Joint Venture'],['WOS','Wholly Owned']]) {
+    const m = cfg.modes[k];
+    html += `<div class="coef-section"><h4>${label} (${k})</h4>
+      <div class="settings-pair"><label>Outlets <span class="desc">Number of outlets at entry</span></label><input type="number" step="1" data-path="modes.${k}.outlets" value="${m.outlets}"></div>
+      <div class="settings-pair"><label>Share % <span class="desc">Player's share of operating profit (JV typically 0.50, WOS 1.00, F n/a)</span></label><input type="number" step="0.05" data-path="modes.${k}.sharePct" value="${m.sharePct}"></div>
+      ${k === 'F' ? `<div class="settings-pair"><label>Royalty rate <span class="desc">Algorithm coefficient — 6% default</span></label>${_coefInputRaw('algorithm.royalty_rate', algo.royalty_rate)}</div>` : ''}
+      ${k === 'F' ? `<div class="settings-pair"><label>Franchise initial fee per outlet <span class="desc">Algorithm coefficient</span></label>${_coefInputRaw('algorithm.franchise_initial_fee', algo.franchise_initial_fee)}</div>` : ''}
+    </div>`;
+  }
+  return html;
+}
+
+// ---- Game Rules tab ----
+function renderRulesTab() {
+  const r = configStore.getRules();
+  const algo = configStore.getAlgo();
+  const presets = listEventPresets();
+  let html = `<div class="coef-section"><h4>Core</h4>
+    <div class="settings-pair"><label>Starting cash <span class="desc">Player's cash balance at Y1 start</span></label><input type="number" step="100000" data-path="rules.startingCash" value="${r.startingCash}"></div>
+    <div class="settings-pair"><label>Total years <span class="desc">Game length</span></label><input type="number" step="1" data-path="rules.totalYears" value="${r.totalYears}"></div>
+    <div class="settings-pair"><label>Re-entry allowed</label><input type="checkbox" data-path="rules.reEntryAllowed" ${r.reEntryAllowed?'checked':''}></div>
+    <div class="settings-pair"><label>Active event preset <span class="desc">Switch between HBR Teaching Note schedule and Canonical Spec schedule.</span></label>
+      <select onchange="applyEventPreset(this.value);renderSettings();">${presets.map(p => `<option value="${p}" ${p===r.activeEventPreset?'selected':''}>${p === 'spec' ? 'Spec Default (Peak Globalization + Trade War Y2)' : 'HBR Default (Teaching Note Y3/Y4/Y5)'}</option>`).join('')}</select>
+    </div>
+  </div>
+  <div class="coef-section"><h4>Bonus tiers</h4>
+    ${_coefInput('$25M cumulative bonus', 'algorithm.bonus_25M', algo.bonus_25M)}
+    ${_coefInput('$50M cumulative bonus', 'algorithm.bonus_50M', algo.bonus_50M)}
+  </div>
+  <div class="coef-section"><h4>Over-entry penalty</h4>
+    ${_coefInput('Entry penalty threshold (enter ≥ this many in one year)', 'algorithm.entry_penalty_threshold', algo.entry_penalty_threshold)}
+    ${_coefInput('Entry penalty rate', 'algorithm.entry_penalty_rate', algo.entry_penalty_rate)}
+  </div>
+  <div class="coef-section"><h4>Category thresholds</h4>
+    <div class="settings-pair"><label>Risk: Low ≥ <span class="desc">Score above which a country is "Low risk"</span></label><input type="number" step="1" data-path="rules.categoryThresholds.risk.low" value="${r.categoryThresholds.risk.low}"></div>
+    <div class="settings-pair"><label>Risk: Medium ≥</label><input type="number" step="1" data-path="rules.categoryThresholds.risk.medium" value="${r.categoryThresholds.risk.medium}"></div>
+    <div class="settings-pair"><label>Tariff High &gt;</label><input type="number" step="0.5" data-path="rules.categoryThresholds.tariff.high" value="${r.categoryThresholds.tariff.high}"></div>
+    <div class="settings-pair"><label>Tariff Medium &gt;</label><input type="number" step="0.5" data-path="rules.categoryThresholds.tariff.medium" value="${r.categoryThresholds.tariff.medium}"></div>
+    <div class="settings-pair"><label>Rivalry High ≥</label><input type="number" step="1" data-path="rules.categoryThresholds.rivalry.high" value="${r.categoryThresholds.rivalry.high}"></div>
+    <div class="settings-pair"><label>Rivalry Medium ≥</label><input type="number" step="1" data-path="rules.categoryThresholds.rivalry.medium" value="${r.categoryThresholds.rivalry.medium}"></div>
+    <div class="settings-pair"><label>Cultural Low &lt;</label><input type="number" step="10" data-path="rules.categoryThresholds.cultural.low" value="${r.categoryThresholds.cultural.low}"></div>
+    <div class="settings-pair"><label>Cultural Medium &lt;</label><input type="number" step="10" data-path="rules.categoryThresholds.cultural.medium" value="${r.categoryThresholds.cultural.medium}"></div>
+    <div class="settings-pair"><label>Indulgence High ≥</label><input type="number" step="1" data-path="rules.categoryThresholds.indulgence.high" value="${r.categoryThresholds.indulgence.high}"></div>
+    <div class="settings-pair"><label>Indulgence Medium ≥</label><input type="number" step="1" data-path="rules.categoryThresholds.indulgence.medium" value="${r.categoryThresholds.indulgence.medium}"></div>
+  </div>
+  <div class="coef-section"><h4>Seed</h4>
+    <div class="settings-pair"><label>Seed value <span class="desc">Starting seed for randomness</span></label><input type="number" step="1" data-path="seed.value" value="${configStore.getSeed().value}"></div>
+    <div class="settings-pair"><label>Freeze seed <span class="desc">When on, every new game uses the same seed (reproducible)</span></label><input type="checkbox" data-path="seed.frozen" ${configStore.getSeed().frozen?'checked':''}></div>
+  </div>`;
+  return html;
+}
+
+// ---- News &amp; Events tab ----
+function renderNewsTab() {
+  const cfg = configStore.get();
+  let html = `<div class="coef-section"><h4>News narratives &amp; coach playbook (per year)</h4>`;
+  for (const year in cfg.news) {
+    const n = cfg.news[year];
+    html += `<details ${year==='1'?'open':''} style="margin-bottom:8px;padding:10px 14px;border:1px solid var(--border);border-radius:8px;">
+      <summary style="cursor:pointer;font-weight:500;">Year ${year}: ${n.headline}</summary>
+      <div class="settings-pair"><label>Headline</label><input type="text" data-path="news.${year}.headline" value="${_esc(n.headline)}"></div>
+      <div class="settings-pair"><label>Body</label><textarea rows="3" data-path="news.${year}.body" style="width:100%;padding:8px;">${_esc(n.body)}</textarea></div>
+      <div class="settings-pair"><label>Coach playbook (one tip per line)</label><textarea rows="${Math.max(3, n.coachPlaybook.length)}" style="width:100%;padding:8px;font-size:12px;" data-playbook-year="${year}">${n.coachPlaybook.map(t => t).join('\n')}</textarea></div>
+      ${year > 1 ? `<button class="btn btn-sm btn-ghost" onclick="duplicateNewsFromPrev(${year})">Duplicate from Y${year-1}</button>` : ''}
+    </details>`;
+  }
+  html += `</div>
+  <div class="coef-section"><h4>Events</h4>
+    <p class="card-sub" style="margin-top:-4px;">Toggle, retarget, and tune impact magnitudes. Tip: edit in the in-game Events screen to affect only the current game; edit here to change the default for new games.</p>`;
+  for (const key in cfg.events) {
+    const ev = cfg.events[key];
+    const countries = ev.countries || [];
+    html += `<details style="margin-bottom:8px;padding:10px 14px;border:1px solid var(--border);border-radius:8px;">
+      <summary style="cursor:pointer;"><strong>${ev.label}</strong> <span class="muted" style="font-size:12px;">· ${ev.type}</span></summary>
+      <div class="settings-pair"><label>Enabled</label><input type="checkbox" data-path="events.${key}.enabled" ${ev.enabled?'checked':''}></div>
+      <div class="settings-pair"><label>Year</label><input type="number" step="1" data-path="events.${key}.year" value="${ev.year}"></div>
+      ${ev.yearEnd !== undefined ? `<div class="settings-pair"><label>Year end</label><input type="number" step="1" data-path="events.${key}.yearEnd" value="${ev.yearEnd}"></div>` : ''}
+      <div class="settings-pair"><label>Countries affected</label><div class="chip-row" data-event-chips="${key}">
+        ${Object.keys(cfg.countries).map(c => `<span class="country-chip ${countries.includes(c)?'selected':''}" data-c="${c}">${cfg.countries[c].name}</span>`).join('')}
+      </div></div>
+      <div class="settings-pair"><label>Impact JSON</label><textarea rows="2" data-path="events.${key}.impact" style="width:100%;padding:8px;font-family:ui-monospace,Menlo,monospace;font-size:11px;" data-json="true">${_esc(JSON.stringify(ev.impact))}</textarea></div>
+    </details>`;
+  }
+  html += '</div>';
+  // Wire extra handlers after render
+  setTimeout(() => {
+    document.querySelectorAll('[data-playbook-year]').forEach(ta => {
+      ta.addEventListener('input', () => {
+        const y = ta.dataset.playbookYear;
+        const list = ta.value.split(/\n/).map(l => l.trim()).filter(Boolean);
+        configStore.set({ news: { [y]: { coachPlaybook: list } } });
+        _showSaved();
+      });
+    });
+    document.querySelectorAll('[data-json="true"]').forEach(ta => {
+      ta.addEventListener('input', () => {
+        try {
+          const val = JSON.parse(ta.value);
+          const path = ta.dataset.path;
+          const keys = path.split('.');
+          const patch = {}; let cur = patch;
+          for (let i = 0; i < keys.length - 1; i++) { cur[keys[i]] = {}; cur = cur[keys[i]]; }
+          cur[keys[keys.length-1]] = val;
+          configStore.set(patch);
+          _showSaved();
+          ta.style.borderColor = '';
+        } catch (e) { ta.style.borderColor = 'var(--red)'; }
+      });
+    });
+    document.querySelectorAll('[data-event-chips]').forEach(wrap => {
+      const key = wrap.dataset.eventChips;
+      wrap.querySelectorAll('.country-chip').forEach(chip => {
+        chip.addEventListener('click', () => {
+          const c = chip.dataset.c;
+          const ev = configStore.getEvents()[key];
+          const next = ev.countries.slice();
+          const i = next.indexOf(c);
+          if (i >= 0) next.splice(i, 1); else next.push(c);
+          configStore.set({ events: { [key]: { countries: next } } });
+          chip.classList.toggle('selected');
+          _showSaved();
+        });
+      });
+    });
+  }, 10);
+  return html;
+}
+function duplicateNewsFromPrev(year) {
+  const prev = configStore.getNews(year - 1);
+  if (!prev) return;
+  configStore.set({ news: { [year]: { headline: prev.headline, body: prev.body, coachPlaybook: prev.coachPlaybook.slice() } } });
+  renderSettings();
+}
+
+// ---- Algorithm tab ----
+function _coefInputRaw(path, c) {
+  if (!c) return '';
+  return `<div style="display:flex;gap:6px;align-items:center;">
+    <label title="Pin" style="font-size:11px;"><input type="checkbox" data-path="${path}.pinned" ${c.pinned?'checked':''}>pin</label>
+    <input type="number" step="any" data-path="${path}.value" value="${c.value}" style="width:100px;" title="value">
+    <span class="hint-inline">draw:</span>
+    <input type="number" step="any" data-path="${path}.rngMin" value="${c.rngMin}" style="width:80px;" title="rng min">
+    <span class="hint-inline">to</span>
+    <input type="number" step="any" data-path="${path}.rngMax" value="${c.rngMax}" style="width:80px;" title="rng max">
+  </div>`;
+}
+function _coefInput(label, path, c) {
+  if (!c) return '';
+  return `<div class="coef-row" id="coef-${path.replace(/\./g,'-')}">
+    <div><div class="name">${path}</div><div class="desc">${_esc(c.desc || label)}</div></div>
+    <label style="font-size:11px;"><input type="checkbox" data-path="${path}.pinned" ${c.pinned?'checked':''}> pin</label>
+    <input type="number" step="any" data-path="${path}.value" value="${c.value}" title="value">
+    <input type="number" step="any" data-path="${path}.rngMin" value="${c.rngMin}" title="rng min">
+    <input type="number" step="any" data-path="${path}.rngMax" value="${c.rngMax}" title="rng max">
+  </div>`;
+}
+function renderAlgorithmTab() {
+  const algo = configStore.getAlgo();
+  const sections = [
+    ['Demand', ['M_base','P_base','GDP_USA_ref','price_elasticity','price_gdp_elasticity','promo_max_lift','promo_half_sat','promo_low','promo_med','promo_high','cultural_fit_medium','cultural_fit_high','rivalry_share_medium','rivalry_share_high','adaptation_rivalry_defense','adaptation_demand_coef','saturation_exponent','population_per_outlet_saturation']],
+    ['Cost', ['VC_base','input_inflation','low_income_discount','adaptation_cost_uplift','FC_base_per_outlet','fc_gdp_elasticity']],
+    ['HQ / Franchise', ['HQ_base_overhead','HQ_per_market_support','HQ_franchise_support','royalty_rate','franchise_initial_fee','sourcing_royalty_rate']],
+    ['Entry / Growth / Exit', ['entry_fee_per_country','opening_fee_F','opening_fee_JV','opening_fee_WOS','exit_payout','bonus_25M','bonus_50M','entry_penalty_threshold','entry_penalty_rate']],
+  ];
+  let html = '';
+  html += `<div class="coef-section"><h4>Formula preview (current coefficient values)</h4><div class="formula-preview">${_formulaPreview(algo)}</div></div>`;
+  html += `<div class="coef-section"><h4>Header</h4><div class="coef-row" style="background:var(--surface-2);font-weight:500;"><div>Coefficient</div><div>Pin</div><div>Value</div><div>Rng min</div><div>Rng max</div></div></div>`;
+  for (const [sec, keys] of sections) {
+    html += `<div class="coef-section"><h4>${sec}</h4>`;
+    for (const k of keys) html += _coefInput(k, `algorithm.${k}`, algo[k]);
+    html += '</div>';
+  }
+  // Structured coefficients
+  html += `<div class="coef-section"><h4>Per-mode multipliers</h4>`;
+  for (const group of ['mode_cultural_mitigation','mode_foreignness','mode_fc_multiplier']) {
+    for (const m of ['F','JV','WOS']) html += _coefInput(`${group}.${m}`, `algorithm.${group}.${m}`, algo[group][m]);
+  }
+  html += '</div>';
+  html += `<div class="coef-section"><h4>Per-category multipliers</h4>`;
+  for (const m of ['Low','Medium','High']) html += _coefInput(`indulgence.${m}`, `algorithm.indulgence.${m}`, algo.indulgence[m]);
+  html += '</div>';
+  return html;
+}
+function _formulaPreview(algo) {
+  const v = (k) => algo[k] && algo[k].value !== undefined ? algo[k].value : (algo[k] || 0);
+  return `meals/outlet = M_base(${v('M_base')}) × growth × culturalFit × rivalryShare × indulgence × priceResponse × promoResponse × adaptationLift × foreignness × events × saturation
+price/meal = P_base(${v('P_base')}) × (GDP_i / GDP_USA_ref(${v('GDP_USA_ref')}))^${v('price_gdp_elasticity')} × priceMultiplier
+VC/meal = VC_base(${v('VC_base')}) × (1 + sourcingΔ) × (1 + inflation(${v('input_inflation')}))^(y-1) × (1 - lowIncomeDisc(${v('low_income_discount')})) × (1 + adaptUplift(${v('adaptation_cost_uplift')}) × adaptation) × eventCostMult
+FC/outlet = FC_base(${v('FC_base_per_outlet')}) × (GDP_i / GDP_USA_ref)^${v('fc_gdp_elasticity')} × (1 - lowIncomeDisc) × (1 + modeMult)
+
+Franchise player revenue = initialFees(${v('franchise_initial_fee')}/outlet) + royalty(${(v('royalty_rate')*100).toFixed(1)}% × gross) + sourcingRoyalty(${(v('sourcing_royalty_rate')*100).toFixed(1)}% × gross, Y1-2 only)
+JV player revenue = 0.5 × operatingProfit × opportunism
+WOS player revenue = operatingProfit
+
+Total annual = Σ playerProfit - HQ_overhead(${v('HQ_base_overhead')}) - entryCosts - growthCosts + sourcingRoyalty - entryPenalty + bonuses(+${fmtMoney(v('bonus_25M'))} at $25M, +${fmtMoney(v('bonus_50M'))} at $50M)`;
+}
+
+// ---- Import/Export tab ----
+function renderIOTab() {
+  return `<div class="coef-section"><h4>Export</h4>
+    <p class="card-sub" style="margin-top:-4px;">Download the current config as JSON. Use in-place in a text editor, then Import.</p>
+    <button class="btn" onclick="exportConfigJSON()">Download sim-config-YYYY-MM-DD.json</button>
+  </div>
+  <div class="coef-section"><h4>Import</h4>
+    <p class="card-sub" style="margin-top:-4px;">Paste JSON here to replace the current config.</p>
+    <textarea id="import-json" rows="8" style="width:100%;padding:10px;font-family:ui-monospace,Menlo,monospace;font-size:11px;"></textarea>
+    <div style="margin-top:8px;display:flex;gap:8px;">
+      <button class="btn btn-primary" onclick="_importAction()">Apply import</button>
+      <span id="import-status"></span>
+    </div>
+  </div>
+  <div class="coef-section"><h4>Reset</h4>
+    <button class="btn btn-ghost" onclick="if(confirm('Reset config to defaults?')){resetConfig();renderSettings();}">Reset to Spec Default</button>
+  </div>
+  <div class="coef-section"><h4>Event presets</h4>
+    <p class="card-sub" style="margin-top:-4px;">Swap the events block without resetting other config.</p>
+    <button class="btn btn-ghost" onclick="applyEventPreset('spec');renderSettings();">Load Spec Default</button>
+    <button class="btn btn-ghost" onclick="applyEventPreset('hbr');renderSettings();">Load HBR Default</button>
+  </div>`;
+}
+function _importAction() {
+  const txt = document.getElementById('import-json').value;
+  const res = importConfigJSON(txt);
+  const s = document.getElementById('import-status');
+  if (res.ok) { s.innerHTML = '<span style="color:var(--green);">✓ Imported</span>'; renderSettings(); }
+  else        { s.innerHTML = `<span style="color:var(--red);">✗ ${res.error}</span>`; }
+}
+
+function _esc(s) { return String(s == null ? '' : s).replace(/"/g,'&quot;').replace(/</g,'&lt;'); }
+
+// ============================================================================
+// PHASE 3 — AUTO-RECALC ON CONFIG CHANGE + FORMULA TRACE
+// ============================================================================
+// Debounced recompute: when any config changes, re-derive the per-year results
+// using the stored decision snapshots and updated algorithm. Charts + tables
+// in renderSummaryResults will re-render.
+let _recalcTimer = null;
+configStore.subscribe(() => {
+  clearTimeout(_recalcTimer);
+  _recalcTimer = setTimeout(() => {
+    if (!game || !game.yearly || !game.yearly.length) return;
+    // Replay with the new coefficients
+    try { replayAllYears(); if (document.getElementById('screen-summary-results').classList.contains('active')) renderSummaryResults(); } catch (e) { console.warn('recalc failed', e); }
+  }, 300);
+});
+
+function replayAllYears() {
+  // Rebuild from decisionHistory. Since we don't currently store full decision
+  // history, re-derive each year's outputs from the stored state snapshots.
+  if (!game.yearly.length) return;
+  const algoResolved = game.params || resolveAlgorithm(configStore.getAlgo(), makeRNG(game.seed || 42));
+  game.params = algoResolved;
+  // Rebuild each year's componentsTotal + countryResults using the stored
+  // positions snapshot for that year. We can't re-run confirmYear because
+  // we don't have the exact pending state; but we can re-apply computeMarketPnL
+  // per-market for a read-only refresh of the income statement.
+  for (const yr of game.yearly) {
+    const positions = {};
+    for (const c in yr.positions) {
+      // Find the decision that was active that year. Best approximation: the
+      // current position's decision (may have been overwritten by later years).
+      const live = game.positions[c];
+      positions[c] = { mode: yr.positions[c].mode, outlets: yr.positions[c].outlets, decision: (live && live.decision) || smartDefaultDecision(game.home, c, yr.positions[c].mode) };
+    }
+    const events = buildEventsView(game.eventConfig || defaultEventConfig(), yr.year, positions);
+    const newThisYear = new Set(yr.newThisYear || []);
+    const perMarket = {};
+    let sumGross = 0;
+    for (const c in positions) {
+      const pos = positions[c];
+      const r = computeMarketPnL({
+        country: c, mode: pos.mode, decisions: pos.decision, year: yr.year, outlets: pos.outlets,
+        algo: algoResolved, events, rules: configStore.getRules(), home: game.home,
+        isNewThisYear: newThisYear.has(c), newOutletsThisYear: newThisYear.has(c) ? pos.outlets : 0,
+      });
+      perMarket[c] = { ...r, mode: pos.mode, outlets: pos.outlets };
+      if (events.sourcingRoyaltyActive && (pos.decision.sourcing === 'global' || pos.decision.sourcing === 'home')) sumGross += r.marketRevenue;
+    }
+    yr.countryResults = Object.fromEntries(Object.entries(perMarket).map(([k,r]) => [k, { ...r, revenue:r.marketRevenue, variableCost:r.marketVC, fixedCost:r.marketFC, promotion:r.marketPromo, operatingProfit:r.operatingProfit, playerProfit:r.profit }]));
+    const comp = { revenue:0, variableCost:0, fixedCost:0, promotion:0, operatingProfit:0, playerRevenue:0, playerCosts:0 };
+    for (const c in perMarket) { const r = perMarket[c];
+      comp.revenue+=r.marketRevenue; comp.variableCost+=r.marketVC; comp.fixedCost+=r.marketFC; comp.promotion+=r.marketPromo;
+      comp.operatingProfit+=r.operatingProfit; comp.playerRevenue+=r.playerRevenue; comp.playerCosts+=r.playerCosts;
+    }
+    yr.componentsTotal = comp;
+    yr.hqOverhead = algoResolved.HQ_base_overhead;
+    yr.sourcingRoyalty = events.sourcingRoyaltyActive ? algoResolved.sourcing_royalty_rate * sumGross : 0;
+    yr.sourcingRoyaltyActive = events.sourcingRoyaltyActive;
+    const newCount = newThisYear.size;
+    yr.entryPenalty = newCount >= algoResolved.entry_penalty_threshold
+      ? algoResolved.entry_penalty_rate * [...newThisYear].reduce((s,c) => s + (perMarket[c]?.marketRevenue||0), 0) : 0;
+    yr.yearProfit = Object.values(perMarket).reduce((s,r) => s + r.profit, 0) - yr.hqOverhead + yr.sourcingRoyalty - yr.entryPenalty - (yr.entryOpeningCost||0) - (yr.growthCost||0);
+  }
+  // Re-accumulate cumProfit
+  let cum = 0;
+  for (const yr of game.yearly) { cum += yr.yearProfit; yr.cumProfit = cum; }
+}
+
+// Formula trace expandable on Results screen — attaches to Income Statement.
+function renderFormulaTrace() {
+  const container = document.getElementById('formula-trace-container');
+  if (!container || !game.yearly.length) return;
+  const latest = game.yearly[game.yearly.length - 1];
+  const codes = Object.keys(latest.countryResults);
+  if (!codes.length) { container.innerHTML = ''; return; }
+  let html = `<details class="trace-section"><summary style="cursor:pointer;font-weight:500;">Formula trace — inspect one country-year step-by-step</summary>
+    <div style="margin-top:10px;">
+      <label>Country: <select id="trace-country">${codes.map(c => `<option value="${c}">${COUNTRIES[c].name}</option>`).join('')}</select></label>
+      &nbsp;<label>Year: <select id="trace-year">${game.yearly.map(y => `<option value="${y.year}">Y${y.year}</option>`).join('')}</select></label>
+    </div>
+    <div id="trace-body" style="margin-top:10px;"></div>
+  </details>`;
+  container.innerHTML = html;
+  function update() {
+    const c = document.getElementById('trace-country').value;
+    const y = parseInt(document.getElementById('trace-year').value);
+    const yr = game.yearly.find(x => x.year === y);
+    const r = yr && yr.countryResults[c];
+    if (!r) { document.getElementById('trace-body').innerHTML = '<p class="muted">No data.</p>'; return; }
+    const f = r.trace ? r.trace.factors : {};
+    const lines = [
+      ['Meals/outlet', Math.round(r.meals).toLocaleString()],
+      ['  growth', (f.growth||1).toFixed(3)],
+      ['  culturalFit', (f.culturalFit||1).toFixed(3)],
+      ['  rivalryShare', (f.rivalryShare||1).toFixed(3)],
+      ['  indulgence', (f.indulgence||1).toFixed(3)],
+      ['  priceResponse', (f.priceResponse||1).toFixed(3)],
+      ['  promoResponse', (f.promoResponse||1).toFixed(3)],
+      ['  adaptationLift', (f.adaptationLift||1).toFixed(3)],
+      ['  foreignness', (f.foreignness||1).toFixed(3)],
+      ['  eventDemandMult', (f.eventDemandMult||1).toFixed(3)],
+      ['  saturation', (f.saturation||1).toFixed(3)],
+      ['Price/meal', '$' + (r.price||0).toFixed(2)],
+      ['VC/meal', '$' + (r.vcPerMeal||0).toFixed(2)],
+      ['FC/outlet', '$' + Math.round(r.fcPerOutlet||0).toLocaleString()],
+      ['Outlets', r.outlets],
+      ['Market revenue', fmtMoney(r.marketRevenue||0)],
+      ['Market VC', fmtMoney(r.marketVC||0)],
+      ['Market FC', fmtMoney(r.marketFC||0)],
+      ['Market Promo', fmtMoney(r.marketPromo||0)],
+      ['Operating profit', fmtMoney(r.operatingProfit||0)],
+      ['Player revenue', fmtMoney(r.playerRevenue||0)],
+      ['Player costs', fmtMoney(r.playerCosts||0)],
+      ['Player profit', fmtMoney(r.profit||0)],
+    ];
+    document.getElementById('trace-body').innerHTML = `<div class="formula-preview">${lines.map(([k,v]) => `<div class="trace-line"><span>${k}</span><span>${v}</span></div>`).join('')}</div>
+      <p style="font-size:11px;color:var(--ink-3);margin-top:8px;">Every factor sourced from <span class="trace-link" onclick="openSettings();activeSettingsTab='algorithm';renderSettings();">Settings → Algorithm</span>.</p>`;
+  }
+  document.getElementById('trace-country').addEventListener('change', update);
+  document.getElementById('trace-year').addEventListener('change', update);
+  update();
+}
+
+// ============================================================================
+// PHASE 4 — COMPETITION MODE + QUICK EDIT + SNAPSHOT
+// ============================================================================
+let _autosaveTimer = null;
+function toggleCompetitionMode(on) {
+  document.body.classList.toggle('competition-on', on);
+  document.getElementById('competition-banner').classList.toggle('active', on);
+  document.getElementById('quickedit-btn').classList.toggle('visible', on);
+  if (on) {
+    _updateCompetitionBanner();
+    clearInterval(_autosaveTimer);
+    _autosaveTimer = setInterval(() => { saveConfig(); _showSaved(); }, 10000);
+  } else {
+    clearInterval(_autosaveTimer);
+  }
+}
+function _updateCompetitionBanner() {
+  if (!document.getElementById('competition-banner').classList.contains('active')) return;
+  document.getElementById('comp-year').textContent = 'Y' + (game && game.year || '—');
+  document.getElementById('comp-cash').textContent = 'Cash ' + (game ? fmtMoney(game.cash) : '—');
+}
+configStore.subscribe(_updateCompetitionBanner);
+
+function snapshotGame() {
+  const snapshot = {
+    timestamp: new Date().toISOString(),
+    config: configStore.get(),
+    game: game ? {
+      year: game.year, cash: game.cash, cumProfit: game.cumProfit, home: game.home,
+      companyName: game.companyName, positions: game.positions,
+      yearly: (game.yearly || []).map(yr => ({ ...yr, activeTags: yr.activeTags ? [...yr.activeTags] : [] })),
+    } : null,
+    recommendations: _lastRecommendations || null,
+  };
+  const blob = new Blob([JSON.stringify(snapshot, null, 2)], { type: 'application/json' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  const ts = new Date().toISOString().replace(/[:.]/g, '-').slice(0, 19);
+  a.href = url; a.download = `hbr-sim-snapshot-${ts}.json`;
+  document.body.appendChild(a); a.click(); a.remove();
+  setTimeout(() => URL.revokeObjectURL(url), 1000);
+  _showSaved();
+}
+
+function openQuickEdit() {
+  openSettings();
+  activeSettingsTab = 'algorithm';
+  renderSettings();
+}
+
+// ============================================================================
+// PHASE 5 — RECOMMENDER ENGINE
+// ============================================================================
+// recommend(gameState, config, options) → ranked candidate actions.
+// Quick mode: N=30 rollouts, greedy future. Deep mode: N=200, 2-step lookahead.
+const N_QUICK = 30;
+const N_DEEP  = 200;
+let _lastRecommendations = null;
+let _recCache = new Map();   // key=configHash|gameStateHash|screen|mode → result
+
+function _configHash() {
+  const algo = configStore.getAlgo();
+  // Stable JSON of value fields only — avoids hashing Coefficient metadata
+  const vals = {};
+  function walk(node, path) {
+    if (node && typeof node.value !== 'undefined') vals[path] = node.value;
+    else if (node && typeof node === 'object') for (const k in node) walk(node[k], path ? path+'.'+k : k);
+  }
+  walk(algo, 'algorithm');
+  const r = configStore.getRules();
+  const e = configStore.getEvents();
+  return JSON.stringify({ vals, rules: r, events: Object.fromEntries(Object.entries(e).map(([k,v]) => [k, {enabled:v.enabled, year:v.year, yearEnd:v.yearEnd, countries:v.countries, impact:v.impact}])) });
+}
+function _gameStateHash() {
+  if (!game) return '';
+  return JSON.stringify({ home: game.home, year: game.year, cash: game.cash,
+    positions: Object.fromEntries(Object.entries(game.positions).map(([k,v]) => [k, {mode:v.mode, outlets:v.outlets}])),
+    exited: [...(game.exited || [])] });
+}
+
+// Enumerate candidate actions for a given screen.
+function _enumerateCandidates(screen) {
+  if (!game) return [];
+  const out = [];
+  if (screen === 'market-entry') {
+    const available = CODES.filter(c => c !== game.home && !game.exited.has(c) && !game.positions[c]);
+    for (const c of available) for (const mode of ['F','JV','WOS']) out.push({ type:'enter', country:c, mode, label:`Enter ${COUNTRIES[c].name} via ${MODE_SPEC[mode].label}` });
+    for (const c of Object.keys(game.positions)) out.push({ type:'grow', country:c, label:`Grow ${COUNTRIES[c].name} (double outlets)` });
+    out.push({ type:'idle', label:'Idle this year (no entry, no growth)' });
+  } else if (screen === 'exit') {
+    for (const c of Object.keys(game.positions)) out.push({ type:'exit', country:c, label:`Exit ${COUNTRIES[c].name}` });
+    out.push({ type:'hold_all', label:'Hold all active markets' });
+  } else if (screen === 'marketing-overview') {
+    // For each active WOS/JV market, grid-search 12 decision combos
+    const cs = Object.keys(game.positions).filter(c => game.positions[c].mode !== 'F');
+    if (!cs.length) out.push({ type:'idle', label:'No WOS/JV markets to tune.' });
+    else for (const c of cs) {
+      // Limit to 3x3 = 9 per market to keep space bounded, use representative picks
+      for (const src of ['local','global']) for (const price of ['match','premium']) for (const promo of ['low','med','high']) {
+        out.push({ type:'marketing', country:c, decisions: { adaptation: game.positions[c].decision?.adaptation ?? 0.5, priceChoice:price, promoChoice:promo, sourcing:src },
+          label:`${COUNTRIES[c].name}: ${price}/${promo}/${src}` });
+      }
+    }
+  }
+  return out;
+}
+
+// Greedy future policy: for each remaining year, pick the highest-margin
+// entry/growth that fits cash. Simple but effective.
+function _greedyFuture(state, algo, fromYear, eventConfig) {
+  for (let y = fromYear; y <= configStore.getRules().totalYears; y++) {
+    const meta = { newThisYear: new Set(), grownThisYear: new Set(), entryCostsThisYear: 0, growthCostsThisYear: 0 };
+    // Try to grow largest market if affordable
+    const sorted = Object.entries(state.positions).sort((a,b) => b[1].outlets - a[1].outlets);
+    for (const [c, pos] of sorted) {
+      const per = MODE_SPEC[pos.mode].open / MODE_SPEC[pos.mode].outlets;
+      const cost = per * pos.outlets;
+      if (state.cash > cost + 500000) {
+        state.cash -= cost; if (pos.mode === 'F') state.cash += MODE_SPEC.F.fee * pos.outlets;
+        pos.outlets *= 2; meta.grownThisYear.add(c); meta.growthCostsThisYear += cost;
+        break;
+      }
+    }
+    // Update decisions for each market to a simple heuristic
+    for (const c in state.positions) {
+      const pos = state.positions[c];
+      const d = cultDistance(state.home, c);
+      pos.decision = pos.decision || {};
+      pos.decision.adaptation = d >= 200 ? 1.0 : d >= 100 ? 0.5 : 0.0;
+      pos.decision.sourcing = 'global';
+      pos.decision.priceChoice = 'match'; pos.decision.promoChoice = 'med';
+    }
+    const yr = computeYearProfit(state, algo, y, eventConfig, meta);
+    for (const c of yr.forcedExits) state.exited.add(c);
+    state.cash += yr.annual; state.cumProfit += yr.annual;
+    if (state.cumProfit >= 25e6 && !state._b25) { state.cash += algo.bonus_25M; state._b25 = true; }
+    if (state.cumProfit >= 50e6 && !state._b50) { state.cash += algo.bonus_50M; state._b50 = true; }
+  }
+  return state.cumProfit;
+}
+
+function _simulateCandidate(cand, nTrials, cfgHash) {
+  if (!game) return null;
+  const results = [];
+  const eventConfig = game.eventConfig || defaultEventConfig();
+  for (let i = 0; i < nTrials; i++) {
+    const rng = makeRNG(1000 + i);
+    const algo = resolveAlgorithm(configStore.getAlgo(), rng);
+    // Clone game state
+    const state = {
+      home: game.home, cash: game.cash, cumProfit: game.cumProfit,
+      positions: _deepClone(game.positions), exited: new Set(game.exited), _b25: game.bonus25, _b50: game.bonus50,
+    };
+    // Apply candidate action in the current (decision) year
+    const thisYear = game.year || 1;
+    const meta = { newThisYear: new Set(), grownThisYear: new Set(), entryCostsThisYear: 0, growthCostsThisYear: 0 };
+    if (cand.type === 'enter') {
+      const spec = MODE_SPEC[cand.mode];
+      if (state.cash >= spec.entry + spec.open) {
+        state.cash -= spec.entry + spec.open; meta.entryCostsThisYear += spec.entry + spec.open;
+        if (cand.mode === 'F') state.cash += spec.fee * spec.outlets;
+        state.positions[cand.country] = { country: cand.country, mode: cand.mode, outlets: spec.outlets, enteredYear: thisYear, decision: smartDefaultDecision(state.home, cand.country, cand.mode) };
+        meta.newThisYear.add(cand.country);
+      }
+    } else if (cand.type === 'grow') {
+      const pos = state.positions[cand.country]; if (pos) {
+        const per = MODE_SPEC[pos.mode].open / MODE_SPEC[pos.mode].outlets; const cost = per * pos.outlets;
+        if (state.cash >= cost) {
+          state.cash -= cost; meta.growthCostsThisYear += cost;
+          if (pos.mode === 'F') state.cash += MODE_SPEC.F.fee * pos.outlets;
+          pos.outlets *= 2; meta.grownThisYear.add(cand.country);
+        }
+      }
+    } else if (cand.type === 'exit') {
+      if (state.positions[cand.country]) { delete state.positions[cand.country]; state.exited.add(cand.country); state.cash += algo.exit_payout; }
+    } else if (cand.type === 'marketing') {
+      if (state.positions[cand.country]) state.positions[cand.country].decision = cand.decisions;
+    }
+    // Compute this year
+    const yr = computeYearProfit(state, algo, thisYear, eventConfig, meta);
+    for (const c of yr.forcedExits) state.exited.add(c);
+    state.cash += yr.annual; state.cumProfit += yr.annual;
+    // Greedy future
+    _greedyFuture(state, algo, thisYear + 1, eventConfig);
+    results.push(state.cumProfit);
+  }
+  results.sort((a,b) => a-b);
+  const mean = results.reduce((a,b) => a+b, 0) / results.length;
+  const n = results.length;
+  const p10 = results[Math.floor(n*0.1)];
+  const p50 = results[Math.floor(n*0.5)];
+  const p90 = results[Math.floor(n*0.9)];
+  const stdDev = Math.sqrt(results.reduce((s,x) => s + (x-mean)*(x-mean), 0) / n);
+  return { expectedProfitY6: mean, stdDev, p10, p50, p90 };
+}
+
+function _reasoningFor(cand) {
+  if (cand.type === 'idle') return 'Conserve cash. Useful during financial crisis years when demand is depressed.';
+  if (cand.type === 'hold_all') return 'Keep all active markets running.';
+  if (cand.type === 'exit') return `Recovers ${fmtMoney(configStore.getAlgo().exit_payout.value)} and frees HQ focus. Original investment is written off.`;
+  const c = cand.country;
+  if (!c) return '';
+  const cat = forioCategories(game.home, c);
+  const parts = [];
+  if (cand.type === 'enter') {
+    const m = cand.mode;
+    parts.push(`${cat.cultDist} cultural distance`);
+    parts.push(`${cat.ind} indulgence`);
+    parts.push(`${cat.riv} rivalry`);
+    if (m === 'F') parts.push('Franchise: low capital, 25 outlets, fastest scale');
+    if (m === 'JV') parts.push('JV: shared risk, 50% profit share');
+    if (m === 'WOS') parts.push('WOS: full control + profit, liability of foreignness');
+  } else if (cand.type === 'grow') {
+    parts.push(`Growth doubles outlets; costs only the per-outlet opening fee`);
+    parts.push(`${cat.ind} indulgence`);
+  }
+  return parts.join(' · ');
+}
+
+function _warningsFor(cand, cfg) {
+  const out = [];
+  const algo = configStore.getAlgo();
+  if (cand.type === 'enter' && cand.mode === 'WOS' && cfg.rules.highRiskPoliticalCountries.includes(cand.country)) {
+    out.push('⚠ Political Crisis Y5 will force-exit this WOS (investment written off).');
+  }
+  // Trade War costs
+  const tradeWarEvent = Object.values(cfg.events).find(ev => ev.enabled && ev.impact && ev.impact.kind === 'tradeWar');
+  if (cand.type === 'enter' && tradeWarEvent && COUNTRIES[cand.country]?.tar > 10) {
+    out.push('⚠ High tariff country — Trade War will raise VC significantly if sourcing globally.');
+  }
+  return out;
+}
+
+function recommend(screen, options = {}) {
+  const mode = options.mode || 'quick';
+  const key = `${_configHash()}|${_gameStateHash()}|${screen}|${mode}`;
+  if (_recCache.has(key) && !options.force) return _recCache.get(key);
+  const candidates = _enumerateCandidates(screen);
+  const n = mode === 'deep' ? N_DEEP : N_QUICK;
+  const cfg = configStore.get();
+  const results = candidates.map(cand => {
+    const sim = _simulateCandidate(cand, n);
+    return { ...cand, ...sim, reasoning: _reasoningFor(cand), warnings: _warningsFor(cand, cfg) };
+  }).filter(r => r.expectedProfitY6 !== undefined);
+  results.sort((a,b) => b.expectedProfitY6 - a.expectedProfitY6);
+  _recCache.set(key, results);
+  return results;
+}
+
+function renderCoachRec(screen, containerId) {
+  const el = document.getElementById(containerId);
+  if (!el) return;
+  const t0 = performance.now();
+  const recs = recommend(screen);
+  const elapsed = performance.now() - t0;
+  _lastRecommendations = { screen, time: new Date().toISOString(), top: recs.slice(0, 5) };
+  const top3 = recs.slice(0, 3);
+  const slow = elapsed > 200;
+  el.innerHTML = `
+    <div class="coach-rec">
+      <div style="display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;">
+        <div>
+          <span class="coach-label">Coach recommends</span>
+          <h3>Top ${top3.length} actions for this screen</h3>
+        </div>
+        <div style="display:flex;gap:8px;">
+          ${slow ? '<span class="muted" style="font-size:11px;">Recomputing…</span>' : ''}
+          <button class="btn btn-sm btn-ghost" onclick="renderCoachRec('${screen}','${containerId}')">Refresh</button>
+          <button class="btn btn-sm btn-primary" onclick="_runDeepRec('${screen}','${containerId}')">Deep recommend</button>
+        </div>
+      </div>
+      ${top3.map((r, i) => `
+        <div class="coach-rec-row">
+          <span class="coach-rec-rank">#${i+1}</span>
+          <div style="flex:1;">
+            <div class="coach-rec-title">${r.label}</div>
+            <div class="coach-rec-meta">${r.reasoning}${r.warnings.length ? '<br>' + r.warnings.join(' · ') : ''}</div>
+          </div>
+          <div class="coach-rec-expected" title="Expected cumulative profit @ Y6">${fmtMoney(r.expectedProfitY6)}<br><span style="font-size:11px;color:var(--ink-3);">P10 ${fmtMoney(r.p10)} · P90 ${fmtMoney(r.p90)}</span></div>
+        </div>
+      `).join('')}
+      <details style="margin-top:8px;"><summary style="cursor:pointer;font-size:12px;color:var(--ink-3);">Show all ${recs.length} candidates</summary>
+        <div style="margin-top:6px;font-size:12px;">${recs.map((r,i) => `${i+1}. ${r.label} — ${fmtMoney(r.expectedProfitY6)}`).join('<br>')}</div>
+      </details>
+    </div>
+  `;
+}
+async function _runDeepRec(screen, containerId) {
+  const el = document.getElementById(containerId);
+  if (el) el.innerHTML = '<div class="coach-rec"><em>Running deep Monte Carlo (200 rollouts per candidate)…</em></div>';
+  await new Promise(r => setTimeout(r, 16));
+  const recs = recommend(screen, { mode: 'deep', force: true });
+  _lastRecommendations = { screen, mode: 'deep', time: new Date().toISOString(), top: recs.slice(0, 5) };
+  renderCoachRec(screen, containerId);
+}
+function recommendCurrentScreen(mode) {
+  if (document.getElementById('screen-market-entry').classList.contains('active')) _runDeepRec('market-entry','coach-rec-market-entry');
+  else if (document.getElementById('screen-exit').classList.contains('active')) _runDeepRec('exit','coach-rec-exit');
+  else if (document.getElementById('screen-marketing-overview').classList.contains('active')) _runDeepRec('marketing-overview','coach-rec-marketing');
+}
+
+// Auto-refresh recommender when configuration or pending state changes
+configStore.subscribe(() => {
+  _recCache.clear();
+  const screens = [['market-entry','coach-rec-market-entry'], ['exit','coach-rec-exit'], ['marketing-overview','coach-rec-marketing']];
+  for (const [s, id] of screens) {
+    const container = document.getElementById('screen-' + s);
+    if (container && container.classList.contains('active')) renderCoachRec(s, id);
+  }
+});
+
+// ============================================================================
 // INIT
 // ============================================================================
-// First render of calibration scenarios happens whenever the summary screen opens.
-(function extendGotoForCalibration() {
+(function extendGotoForPhase345() {
   const orig = goto;
   goto = function(screen) {
     orig(screen);
-    if (screen === 'summary-results') { calibrationRunAll(); }
+    if (screen === 'summary-results') { calibrationRunAll(); renderFormulaTrace(); }
+    if (screen === 'market-entry') renderCoachRec('market-entry', 'coach-rec-market-entry');
+    if (screen === 'exit') renderCoachRec('exit', 'coach-rec-exit');
+    if (screen === 'marketing-overview') renderCoachRec('marketing-overview', 'coach-rec-marketing');
+    _updateCompetitionBanner();
   };
 })();
 goto('welcome');
