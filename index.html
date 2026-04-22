@@ -202,22 +202,112 @@ table tr:last-child td { border-bottom: none; }
 .settings-body { flex: 1; overflow-y: auto; padding: 24px; }
 .settings-warning { background: var(--amber-soft); border: 1px solid var(--amber); border-radius: 8px; padding: 10px 14px; margin-bottom: 16px; font-size: 13px; color: var(--ink-2); display: flex; justify-content: space-between; align-items: center; gap: 12px; }
 .settings-warning button { background: var(--amber); border: none; color: white; padding: 4px 10px; border-radius: 4px; font-size: 12px; cursor: pointer; }
-.coef-row { display: grid; grid-template-columns: 2fr auto 1fr 1fr 1fr; gap: 10px; align-items: center; padding: 10px 8px; border-bottom: 1px solid var(--border); font-size: 13px; }
-.coef-row:hover { background: var(--surface-2); }
-.coef-row .name { font-weight: 500; font-family: ui-monospace, Menlo, monospace; font-size: 12px; }
-.coef-row .desc { font-size: 11px; color: var(--ink-3); margin-top: 2px; }
-.coef-row input[type="number"] { padding: 4px 8px; font-size: 12px; font-family: ui-monospace, Menlo, monospace; }
-.coef-row .hint-inline { font-size: 11px; color: var(--ink-4); }
-.coef-section { margin-bottom: 18px; }
-.coef-section h4 { margin: 0 0 8px; font-size: 13px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.05em; }
-.settings-table { width: 100%; border-collapse: collapse; font-size: 12px; }
-.settings-table input { padding: 4px 8px; font-size: 12px; width: 100%; }
-.settings-table th, .settings-table td { padding: 6px 8px; border-bottom: 1px solid var(--border); }
-.settings-table th { background: var(--surface-2); font-size: 11px; text-transform: uppercase; color: var(--ink-3); font-weight: 500; }
-.settings-pair { display: grid; grid-template-columns: 1fr 2fr; gap: 16px; align-items: start; padding: 12px 0; border-bottom: 1px solid var(--border); }
+/* Settings — coefficient grid (redesigned) */
+.coef-grid { border: 1px solid var(--border); border-radius: 10px; overflow: hidden; background: var(--surface); }
+.coef-grid-header { display: grid; grid-template-columns: minmax(220px, 2.2fr) 48px 120px 120px 120px 32px; gap: 8px; padding: 8px 12px; background: var(--surface-2); font-size: 10.5px; letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3); font-weight: 500; align-items: center; }
+.coef-grid-header > div:nth-child(3) { text-align: center; }
+.coef-grid-header > div:nth-child(4) { text-align: center; }
+.coef-grid-header > div:nth-child(5) { text-align: center; }
+.coef-row { display: grid; grid-template-columns: minmax(220px, 2.2fr) 48px 120px 120px 120px 32px; gap: 8px; align-items: center; padding: 9px 12px; border-top: 1px solid var(--border); font-size: 13px; transition: background 0.1s; }
+.coef-row:hover { background: #FBFAF7; }
+.coef-row.modified { background: #FFF8F1; }
+.coef-row.modified:hover { background: #FFF3E6; }
+.coef-row .coef-label { display: flex; align-items: baseline; gap: 6px; overflow: hidden; }
+.coef-row .coef-label-text { font-weight: 500; font-size: 13px; color: var(--ink); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.coef-row .coef-path { font-family: ui-monospace, Menlo, monospace; font-size: 10px; color: var(--ink-4); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.coef-row .coef-desc { grid-column: 1 / -1; margin-top: -4px; font-size: 11px; color: var(--ink-3); padding-left: 0; }
+.coef-row input[type="number"], .coef-row input[type="text"] { padding: 6px 10px; font-size: 13px; font-family: ui-monospace, Menlo, monospace; text-align: right; border: 1px solid var(--border-2); border-radius: 6px; width: 100%; background: var(--surface); }
+.coef-row input[type="number"]:focus, .coef-row input[type="text"]:focus { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); outline: none; }
+.coef-row .pin-cell { display: flex; justify-content: center; align-items: center; }
+.coef-row .pin-cell input { width: 16px; height: 16px; cursor: pointer; accent-color: var(--accent); }
+.coef-row .pin-cell.pinned { color: var(--accent); }
+.coef-row .reset-btn { background: transparent; border: none; cursor: pointer; color: var(--ink-4); font-size: 14px; padding: 4px; border-radius: 4px; opacity: 0; transition: opacity 0.15s, background 0.15s; }
+.coef-row.modified .reset-btn { opacity: 1; }
+.coef-row .reset-btn:hover { background: var(--surface-2); color: var(--accent); }
+.coef-row.pinned-disabled input[type="number"].rng-input { opacity: 0.35; pointer-events: none; }
+.coef-section { margin-bottom: 22px; }
+.coef-section h4 { margin: 0 0 10px; font-size: 12px; color: var(--ink-2); text-transform: uppercase; letter-spacing: 0.08em; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+.coef-section h4 .count-badge { font-size: 10px; background: var(--surface-2); color: var(--ink-3); padding: 2px 8px; border-radius: 10px; letter-spacing: 0.02em; }
+.settings-table { width: 100%; border-collapse: collapse; font-size: 13px; background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.settings-table input { padding: 5px 8px; font-size: 13px; width: 100%; border: 1px solid transparent; border-radius: 4px; background: transparent; text-align: right; font-family: ui-monospace, Menlo, monospace; }
+.settings-table input:focus { border-color: var(--accent); background: var(--surface); outline: none; }
+.settings-table input[type="text"] { text-align: left; font-family: inherit; }
+.settings-table th, .settings-table td { padding: 7px 10px; border-bottom: 1px solid var(--border); }
+.settings-table tr:last-child td { border-bottom: none; }
+.settings-table th { background: var(--surface-2); font-size: 10.5px; text-transform: uppercase; color: var(--ink-3); font-weight: 500; letter-spacing: 0.06em; text-align: left; white-space: nowrap; }
+.settings-table tbody tr:hover { background: #FBFAF7; }
+.settings-pair { display: grid; grid-template-columns: minmax(180px, 1fr) minmax(200px, 2fr); gap: 16px; align-items: center; padding: 10px 14px; border-top: 1px solid var(--border); }
+.settings-pair:first-child { border-top: none; }
 .settings-pair label { font-size: 13px; color: var(--ink); font-weight: 500; }
 .settings-pair .desc { font-size: 11px; color: var(--ink-3); margin-top: 2px; font-weight: 400; }
+.settings-pair input, .settings-pair select, .settings-pair textarea { padding: 7px 10px; font-size: 13px; border: 1px solid var(--border-2); border-radius: 6px; background: var(--surface); width: 100%; }
+.settings-pair input:focus, .settings-pair select:focus { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); outline: none; }
+.settings-pair-group { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
 .formula-preview { background: var(--surface-2); border-radius: 8px; padding: 12px 14px; font-family: ui-monospace, Menlo, monospace; font-size: 11px; line-height: 1.55; color: var(--ink-2); white-space: pre-wrap; }
+/* Live scenario check at top of Algorithm tab */
+.live-check { background: linear-gradient(180deg, var(--surface) 0%, var(--surface-2) 100%); border: 1px solid var(--border); border-radius: 10px; padding: 14px 18px; margin-bottom: 18px; }
+.live-check-title { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-3); font-weight: 600; margin-bottom: 6px; }
+.live-check-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+.live-check-cell { padding: 8px 0; }
+.live-check-cell .label { font-size: 11px; color: var(--ink-3); margin-bottom: 2px; }
+.live-check-cell .value { font-family: var(--font-serif); font-size: 18px; font-weight: 500; color: var(--ink); }
+.live-check-cell .delta { font-size: 11px; margin-top: 2px; }
+.live-check-cell .delta.pos { color: var(--green); }
+.live-check-cell .delta.neg { color: var(--red); }
+.live-check-cell.metric-pass .value { color: var(--green); }
+.live-check-cell.metric-fail .value { color: var(--red); }
+/* Search box */
+.settings-search { width: 100%; padding: 8px 14px; font-size: 13px; border: 1px solid var(--border-2); border-radius: 999px; background: var(--surface); margin-bottom: 16px; }
+.settings-search:focus { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); outline: none; }
+/* Settings toolbar (top of modal body) */
+.settings-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+.settings-toolbar .meta { font-size: 12px; color: var(--ink-3); }
+.settings-toolbar .meta strong { color: var(--ink-2); }
+/* Threshold grid (Game Rules tab) */
+.threshold-grid { display: grid; grid-template-columns: minmax(120px, 1.2fr) repeat(3, 1fr); gap: 1px; background: var(--border); border: 1px solid var(--border); border-radius: 10px; overflow: hidden; }
+.threshold-grid > div { background: var(--surface); padding: 10px 12px; font-size: 13px; display: flex; align-items: center; gap: 8px; }
+.threshold-grid > .th-head { background: var(--surface-2); font-size: 10.5px; text-transform: uppercase; letter-spacing: 0.06em; color: var(--ink-3); font-weight: 500; }
+.threshold-grid label { font-weight: 500; font-size: 12px; color: var(--ink); }
+.threshold-grid input { padding: 4px 8px; font-size: 12px; border: 1px solid var(--border-2); border-radius: 5px; width: 70px; text-align: right; font-family: ui-monospace, Menlo, monospace; }
+.threshold-grid input:focus { border-color: var(--accent); outline: none; }
+.threshold-grid .threshold-cell { justify-content: space-between; }
+.threshold-grid .threshold-cell .hint { font-size: 10px; color: var(--ink-4); }
+.threshold-grid .auto-cell { color: var(--ink-4); font-style: italic; font-size: 11px; }
+/* Event cards (News & Events tab) */
+.event-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 8px; overflow: hidden; transition: border-color 0.15s; }
+.event-card.enabled { border-left: 3px solid var(--accent); }
+.event-card.enabled-crisis { border-left: 3px solid var(--red); }
+.event-card-header { display: grid; grid-template-columns: auto 1fr auto auto auto; gap: 12px; align-items: center; padding: 10px 14px; cursor: pointer; user-select: none; }
+.event-card-header:hover { background: #FBFAF7; }
+.event-card-toggle { width: 18px; height: 18px; color: var(--ink-3); transition: transform 0.15s; }
+.event-card.open .event-card-toggle { transform: rotate(90deg); }
+.event-card-title { font-weight: 500; font-size: 14px; }
+.event-card-badges { display: flex; gap: 6px; font-size: 11px; }
+.event-card-badge { padding: 2px 8px; border-radius: 999px; background: var(--surface-2); color: var(--ink-3); }
+.event-card-badge.type-news { background: var(--accent-soft); color: var(--accent-dark); }
+.event-card-badge.type-crisis { background: var(--red-soft); color: var(--red); }
+.event-card-badge.year-badge { background: var(--surface-2); color: var(--ink-2); font-family: ui-monospace, Menlo, monospace; }
+.event-card-enabled { display: flex; align-items: center; }
+.event-card-body { padding: 4px 14px 14px 46px; display: none; border-top: 1px solid var(--border); background: #FDFCF9; }
+.event-card.open .event-card-body { display: block; }
+.event-impact-editor { margin-top: 8px; padding: 10px 12px; background: var(--surface); border: 1px solid var(--border); border-radius: 8px; }
+.event-impact-editor .settings-pair { padding: 6px 0; border-top: 1px solid var(--border); }
+.event-impact-editor .settings-pair:first-child { border-top: none; }
+/* News year cards */
+.news-year-card { background: var(--surface); border: 1px solid var(--border); border-radius: 10px; margin-bottom: 8px; overflow: hidden; }
+.news-year-header { display: grid; grid-template-columns: auto 1fr auto; gap: 10px; align-items: center; padding: 10px 14px; cursor: pointer; user-select: none; }
+.news-year-header:hover { background: #FBFAF7; }
+.news-year-toggle { width: 18px; height: 18px; color: var(--ink-3); transition: transform 0.15s; }
+.news-year-card.open .news-year-toggle { transform: rotate(90deg); }
+.news-year-title { font-weight: 500; font-size: 14px; }
+.news-year-title .year-num { color: var(--accent-dark); font-weight: 600; margin-right: 8px; }
+.news-year-body { display: none; padding: 4px 14px 14px 40px; border-top: 1px solid var(--border); background: #FDFCF9; }
+.news-year-card.open .news-year-body { display: block; }
+.news-year-body textarea { width: 100%; padding: 8px 10px; font-size: 13px; border: 1px solid var(--border-2); border-radius: 6px; font-family: inherit; resize: vertical; }
+.news-year-body textarea:focus { border-color: var(--accent); box-shadow: 0 0 0 2px var(--accent-soft); outline: none; }
+/* Reset-all button inline style */
+.reset-all-btn { font-size: 11px; padding: 4px 10px; background: transparent; border: 1px solid var(--border-2); border-radius: 999px; cursor: pointer; color: var(--ink-2); transition: all 0.15s; }
+.reset-all-btn:hover { background: var(--red-soft); color: var(--red); border-color: var(--red); }
 .competition-banner { background: var(--red); color: white; padding: 10px 20px; text-align: center; font-size: 13px; font-weight: 500; letter-spacing: 0.02em; display: none; position: sticky; top: 0; z-index: 95; }
 .competition-banner.active { display: flex; justify-content: center; align-items: center; gap: 18px; }
 .competition-banner .pulse { width: 8px; height: 8px; border-radius: 50%; background: white; animation: pulse 2s infinite; }
@@ -3284,10 +3374,12 @@ function renderSettings() {
   const tabs = document.getElementById('settings-tabs');
   tabs.innerHTML = SETTINGS_TABS.map(t => `<button class="settings-tab ${t.id === activeSettingsTab ? 'active' : ''}" data-tab="${t.id}">${t.label}</button>`).join('');
   tabs.querySelectorAll('.settings-tab').forEach(b => b.addEventListener('click', () => { activeSettingsTab = b.dataset.tab; renderSettings(); }));
-  // Dirty-vs-default warning banner
-  const cur = JSON.stringify(configStore.get());
-  const def = JSON.stringify(DEFAULT_SIM_CONFIG);
-  const warning = (cur !== def) ? `<div class="settings-warning"><span>Using custom config. Export it or reset to defaults.</span><div style="display:flex;gap:6px;"><button onclick="exportConfigJSON()">Export</button><button onclick="if(confirm('Reset to default config?')){resetConfig();renderSettings();}">Reset</button></div></div>` : '';
+
+  // Count modified fields vs default + optional warning banner
+  const modCount = _countModifiedFields();
+  const warning = modCount > 0
+    ? `<div class="settings-warning"><span><strong>${modCount}</strong> field${modCount===1?'':'s'} differ from Spec Default. Export to preserve, or reset.</span><div style="display:flex;gap:6px;"><button onclick="exportConfigJSON()">Export</button><button onclick="if(confirm('Reset ALL config to Spec Default?')){resetConfig();renderSettings();}">Reset all</button></div></div>`
+    : '';
   const body = document.getElementById('settings-body');
   const renderer = { countries: renderCountriesTab, modes: renderModesTab, rules: renderRulesTab, news: renderNewsTab, algorithm: renderAlgorithmTab, io: renderIOTab }[activeSettingsTab];
   body.innerHTML = warning + (renderer ? renderer() : '<p>?</p>');
@@ -3295,12 +3387,86 @@ function renderSettings() {
   _wireSettingsInputs(body);
 }
 
+// Count coefficients + country/rule/mode fields that differ from DEFAULT_SIM_CONFIG.
+function _countModifiedFields() {
+  const cur = configStore.get();
+  const def = DEFAULT_SIM_CONFIG;
+  let n = 0;
+  function walk(a, b, path) {
+    if (a === null || a === undefined || typeof a !== 'object') {
+      if (a !== b) n++;
+      return;
+    }
+    if (Array.isArray(a)) {
+      if (JSON.stringify(a) !== JSON.stringify(b)) n++;
+      return;
+    }
+    for (const k of new Set([...Object.keys(a), ...Object.keys(b || {})])) {
+      walk(a && a[k], b && b[k], path ? path + '.' + k : k);
+    }
+  }
+  walk(cur.algorithm, def.algorithm, 'algorithm');
+  walk(cur.rules, def.rules, 'rules');
+  walk(cur.modes, def.modes, 'modes');
+  walk(cur.countries, def.countries, 'countries');
+  walk(cur.seed, def.seed, 'seed');
+  walk(cur.events, def.events, 'events');
+  walk(cur.news, def.news, 'news');
+  return n;
+}
+
+function _getAtPath(obj, path) {
+  if (!path) return obj;
+  const keys = path.split('.');
+  let cur = obj;
+  for (const k of keys) { if (cur == null) return undefined; cur = cur[k]; }
+  return cur;
+}
+function _coefIsModified(path) {
+  const cur = _getAtPath(configStore.get(), path);
+  const def = _getAtPath(DEFAULT_SIM_CONFIG, path);
+  return JSON.stringify(cur) !== JSON.stringify(def);
+}
+function _resetCoefToDefault(path) {
+  const def = _getAtPath(DEFAULT_SIM_CONFIG, path);
+  if (def === undefined) return;
+  const patch = {};
+  const keys = path.split('.');
+  let cur = patch;
+  for (let i = 0; i < keys.length - 1; i++) { cur[keys[i]] = {}; cur = cur[keys[i]]; }
+  cur[keys[keys.length-1]] = JSON.parse(JSON.stringify(def));
+  configStore.set(patch);
+  renderSettings();
+}
+window._resetCoefToDefault = (p) => _resetCoefToDefault(p);
+
+// Parse shorthand money strings: "3m" → 3000000, "250k" → 250000, "1.5M" → 1500000
+function _parseMoneyShorthand(s) {
+  if (typeof s !== 'string') return parseFloat(s);
+  const t = s.trim().replace(/[,\s$]/g, '');
+  const m = t.match(/^(-?\d*\.?\d+)([kKmMbB]?)$/);
+  if (!m) return parseFloat(t);
+  const n = parseFloat(m[1]); const suf = m[2].toLowerCase();
+  if (suf === 'k') return n * 1000;
+  if (suf === 'm') return n * 1e6;
+  if (suf === 'b') return n * 1e9;
+  return n;
+}
+
 // Helper: every input with data-path writes configStore on change.
 function _wireSettingsInputs(root) {
   root.querySelectorAll('[data-path]').forEach(el => {
     const path = el.dataset.path;
-    el.addEventListener('input', () => {
-      const raw = el.type === 'checkbox' ? el.checked : el.type === 'number' ? parseFloat(el.value) : el.value;
+    const handler = () => {
+      let raw;
+      if (el.type === 'checkbox') raw = el.checked;
+      else if (el.type === 'number') {
+        // Accept shorthand like "3m" in number inputs by letting blur parse it
+        raw = el.value === '' ? 0 : parseFloat(el.value);
+      } else if (el.dataset.money === '1') {
+        raw = _parseMoneyShorthand(el.value);
+        el.value = Number.isFinite(raw) ? raw : el.value;
+      } else raw = el.value;
       const val = Number.isNaN(raw) ? el.value : raw;
       const patch = {};
       const keys = path.split('.');
@@ -3309,8 +3475,22 @@ function _wireSettingsInputs(root) {
       cur[keys[keys.length - 1]] = val;
       configStore.set(patch);
       _showSaved();
-    });
+      _updateModifiedState(el);
+      // Keep live-check fresh if on Algorithm tab
+      if (activeSettingsTab === 'algorithm') _updateLiveCheck();
+    };
+    el.addEventListener('input', handler);
+    el.addEventListener('change', handler);
+    // Select-all on focus for number inputs — faster edit
+    if (el.type === 'number' || el.dataset.money === '1') el.addEventListener('focus', () => el.select());
   });
+}
+function _updateModifiedState(el) {
+  const row = el.closest('.coef-row');
+  if (!row) return;
+  const path = row.dataset.coefPath;
+  if (!path) return;
+  row.classList.toggle('modified', _coefIsModified(path));
 }
 
 let _savedTimer = null;
@@ -3325,29 +3505,46 @@ function _showSaved() {
 // ---- Countries tab ----
 function renderCountriesTab() {
   const cfg = configStore.get();
-  let html = `<div class="coef-section"><h4>Countries</h4>
-    <p class="card-sub" style="margin-top:-4px;">Edit numeric stats inline. "Set home" marks a country as the player's home.</p>
+  const q = (document.getElementById('settings-search')?.value || '').toLowerCase();
+  let html = `<div class="coef-section"><h4>Countries <span class="count-badge">${Object.keys(cfg.countries).length} rows</span></h4>
+    <input type="text" class="settings-search" id="settings-search" placeholder="Filter countries (e.g. UK, China, tariff)…" value="${_esc(q)}" oninput="renderSettings()">
     <div style="overflow-x:auto;"><table class="settings-table"><thead><tr>
-      <th>Code</th><th>Name</th><th>GDP/cap</th><th>GDP%</th><th>Pop%</th><th>Population</th><th>Tariff%</th><th>Risk</th><th>Rivalry</th><th>Indulgence</th><th>Home</th>
+      <th style="width:42px;">Code</th>
+      <th>Name</th>
+      <th style="text-align:right;">GDP/cap</th>
+      <th style="text-align:right;">GDP %</th>
+      <th style="text-align:right;">Pop %</th>
+      <th style="text-align:right;">Population</th>
+      <th style="text-align:right;">Tariff %</th>
+      <th style="text-align:right;">Risk</th>
+      <th style="text-align:right;">Rivalry</th>
+      <th style="text-align:right;">Indulg.</th>
+      <th style="width:90px;text-align:center;">Home</th>
     </tr></thead><tbody>`;
   for (const code of Object.keys(cfg.countries)) {
     const c = cfg.countries[code];
+    if (q && !(`${code} ${c.name}`.toLowerCase().includes(q))) continue;
     const isHome = cfg.rules.homeCountry === code;
-    html += `<tr>
-      <td>${code}</td>
-      <td><input type="text" data-path="countries.${code}.name" value="${c.name}"></td>
+    const trCls = isHome ? 'style="background:var(--accent-soft);"' : '';
+    html += `<tr ${trCls}>
+      <td style="font-family:ui-monospace,Menlo,monospace;font-weight:500;">${code}</td>
+      <td><input type="text" data-path="countries.${code}.name" value="${_esc(c.name)}"></td>
       <td><input type="number" step="1" data-path="countries.${code}.gdpPerCapita" value="${c.gdpPerCapita}"></td>
       <td><input type="number" step="0.1" data-path="countries.${code}.gdpGrowth" value="${c.gdpGrowth}"></td>
       <td><input type="number" step="0.01" data-path="countries.${code}.populationGrowth" value="${c.populationGrowth}"></td>
-      <td><input type="number" step="1000000" data-path="countries.${code}.population" value="${c.population}"></td>
+      <td><input type="text" data-path="countries.${code}.population" data-money="1" value="${c.population}" title="Accepts 330m / 1.4b shorthand"></td>
       <td><input type="number" step="0.5" data-path="countries.${code}.tariff" value="${c.tariff}"></td>
       <td><input type="number" step="1" data-path="countries.${code}.countryRiskScore" value="${c.countryRiskScore}"></td>
       <td><input type="number" step="1" data-path="countries.${code}.industryRivalryScore" value="${c.industryRivalryScore}"></td>
       <td><input type="number" step="1" data-path="countries.${code}.hofstede.5" value="${c.hofstede[5]}"></td>
-      <td><button class="btn btn-sm ${isHome?'btn-primary':'btn-ghost'}" onclick="configStore.set({rules:{homeCountry:'${code}'}});renderSettings();">${isHome?'★ home':'Set home'}</button></td>
+      <td style="text-align:center;"><button class="btn btn-sm ${isHome?'btn-primary':'btn-ghost'}" style="font-size:11px;padding:4px 10px;" onclick="configStore.set({rules:{homeCountry:'${code}'}});renderSettings();">${isHome?'★ home':'Set'}</button></td>
     </tr>`;
   }
   html += '</tbody></table></div></div>';
+  html += `<div style="margin-top:12px;font-size:12px;color:var(--ink-3);">
+    <strong>Shorthand:</strong> population accepts <code>330m</code>, <code>1.4b</code>, <code>68,000,000</code>.
+    GDP/cap, GDP growth %, population growth %, tariff %, country risk score (0–100), industry rivalry score (0–100), Hofstede indulgence (0–100).
+  </div>`;
   return html;
 }
 
@@ -3356,20 +3553,43 @@ function renderModesTab() {
   const cfg = configStore.get();
   const algo = cfg.algorithm;
   let html = '';
-  html += `<div class="coef-section"><h4>Common (algorithm)</h4>`;
-  html += _coefInput('Entry fee per country', 'algorithm.entry_fee_per_country', algo.entry_fee_per_country);
-  for (const k of ['F','JV','WOS']) html += _coefInput(`Opening fee ${k}`, `algorithm.opening_fee_${k}`, algo[`opening_fee_${k}`]);
-  html += _coefInput('Exit payout', 'algorithm.exit_payout', algo.exit_payout);
-  html += '</div>';
+  html += _coefSection('Costs (shared across modes)', [
+    ['algorithm.entry_fee_per_country', 'Entry fee (per country)'],
+    ['algorithm.opening_fee_F',         'Opening fee — F'],
+    ['algorithm.opening_fee_JV',        'Opening fee — JV'],
+    ['algorithm.opening_fee_WOS',       'Opening fee — WOS'],
+    ['algorithm.exit_payout',           'Exit payout'],
+  ]);
   for (const [k, label] of [['F','Franchising'],['JV','Joint Venture'],['WOS','Wholly Owned']]) {
     const m = cfg.modes[k];
-    html += `<div class="coef-section"><h4>${label} (${k})</h4>
-      <div class="settings-pair"><label>Outlets <span class="desc">Number of outlets at entry</span></label><input type="number" step="1" data-path="modes.${k}.outlets" value="${m.outlets}"></div>
-      <div class="settings-pair"><label>Share % <span class="desc">Player's share of operating profit (JV typically 0.50, WOS 1.00, F n/a)</span></label><input type="number" step="0.05" data-path="modes.${k}.sharePct" value="${m.sharePct}"></div>
-      ${k === 'F' ? `<div class="settings-pair"><label>Royalty rate <span class="desc">Algorithm coefficient — 6% default</span></label>${_coefInputRaw('algorithm.royalty_rate', algo.royalty_rate)}</div>` : ''}
-      ${k === 'F' ? `<div class="settings-pair"><label>Franchise initial fee per outlet <span class="desc">Algorithm coefficient</span></label>${_coefInputRaw('algorithm.franchise_initial_fee', algo.franchise_initial_fee)}</div>` : ''}
+    html += `<div class="coef-section">
+      <h4>${label} <span style="font-family:ui-monospace,Menlo,monospace;font-size:10px;color:var(--ink-4);">(${k})</span></h4>
+      <div class="settings-pair-group">
+        <div class="settings-pair"><label>Outlets <div class="desc">Number of outlets at entry</div></label><input type="number" step="1" data-path="modes.${k}.outlets" value="${m.outlets}"></div>
+        ${k !== 'F' ? `<div class="settings-pair"><label>Share % <div class="desc">Player's profit share (JV ~0.50, WOS 1.00)</div></label><input type="number" step="0.05" data-path="modes.${k}.sharePct" value="${m.sharePct}"></div>` : ''}
+      </div>
     </div>`;
   }
+  // Franchise-specific coefficients — in the same coef-grid pattern
+  html += _coefSection('Franchise economics', [
+    ['algorithm.royalty_rate',           'Royalty rate'],
+    ['algorithm.franchise_initial_fee',  'Initial fee per new outlet'],
+    ['algorithm.HQ_franchise_support',   'HQ franchise support per year'],
+  ]);
+  // Mode FC multiplier
+  html += _coefSection('Mode fixed-cost multiplier', [
+    ['algorithm.mode_fc_multiplier.F',   'F (–1 = franchisee bears all)'],
+    ['algorithm.mode_fc_multiplier.JV',  'JV (typically –0.5)'],
+    ['algorithm.mode_fc_multiplier.WOS', 'WOS (typically 0)'],
+  ]);
+  html += _coefSection('Mode foreignness / cultural mitigation', [
+    ['algorithm.mode_foreignness.F',   'Foreignness — F'],
+    ['algorithm.mode_foreignness.JV',  'Foreignness — JV'],
+    ['algorithm.mode_foreignness.WOS', 'Foreignness — WOS'],
+    ['algorithm.mode_cultural_mitigation.F',   'Cultural mitigation — F'],
+    ['algorithm.mode_cultural_mitigation.JV',  'Cultural mitigation — JV'],
+    ['algorithm.mode_cultural_mitigation.WOS', 'Cultural mitigation — WOS'],
+  ]);
   return html;
 }
 
@@ -3378,74 +3598,160 @@ function renderRulesTab() {
   const r = configStore.getRules();
   const algo = configStore.getAlgo();
   const presets = listEventPresets();
-  let html = `<div class="coef-section"><h4>Core</h4>
-    <div class="settings-pair"><label>Starting cash <span class="desc">Player's cash balance at Y1 start</span></label><input type="number" step="100000" data-path="rules.startingCash" value="${r.startingCash}"></div>
-    <div class="settings-pair"><label>Total years <span class="desc">Game length</span></label><input type="number" step="1" data-path="rules.totalYears" value="${r.totalYears}"></div>
-    <div class="settings-pair"><label>Re-entry allowed</label><input type="checkbox" data-path="rules.reEntryAllowed" ${r.reEntryAllowed?'checked':''}></div>
-    <div class="settings-pair"><label>Active event preset <span class="desc">Switch between HBR Teaching Note schedule and Canonical Spec schedule.</span></label>
-      <select onchange="applyEventPreset(this.value);renderSettings();">${presets.map(p => `<option value="${p}" ${p===r.activeEventPreset?'selected':''}>${p === 'spec' ? 'Spec Default (Peak Globalization + Trade War Y2)' : 'HBR Default (Teaching Note Y3/Y4/Y5)'}</option>`).join('')}</select>
+  let html = `<div class="coef-section"><h4>Core <span class="count-badge">game state</span></h4>
+    <div class="settings-pair-group">
+      <div class="settings-pair"><label>Starting cash <div class="desc">Player cash at Y1 start (accepts 3m, 3000000)</div></label>
+        <input type="text" data-path="rules.startingCash" data-money="1" value="${r.startingCash}"></div>
+      <div class="settings-pair"><label>Total years <div class="desc">Game length</div></label>
+        <input type="number" step="1" min="1" max="12" data-path="rules.totalYears" value="${r.totalYears}"></div>
+      <div class="settings-pair"><label>Home country <div class="desc">Player's home country code</div></label>
+        <select data-path="rules.homeCountry">${Object.keys(configStore.get().countries).map(c => `<option value="${c}" ${c===r.homeCountry?'selected':''}>${configStore.getCountry(c).name} (${c})</option>`).join('')}</select></div>
+      <div class="settings-pair"><label>Active event preset <div class="desc">Swap the events block with one click</div></label>
+        <select onchange="applyEventPreset(this.value);renderSettings();">${presets.map(p => `<option value="${p}" ${p===r.activeEventPreset?'selected':''}>${p === 'spec' ? 'Spec Default (Peak Globalization + Trade War Y2)' : 'HBR Default (Teaching Note Y3/Y4/Y5)'}</option>`).join('')}</select></div>
+      <div class="settings-pair"><label>Re-entry allowed <div class="desc">Can the player re-enter a market after exit?</div></label><input type="checkbox" data-path="rules.reEntryAllowed" ${r.reEntryAllowed?'checked':''}></div>
     </div>
-  </div>
-  <div class="coef-section"><h4>Bonus tiers</h4>
-    ${_coefInput('$25M cumulative bonus', 'algorithm.bonus_25M', algo.bonus_25M)}
-    ${_coefInput('$50M cumulative bonus', 'algorithm.bonus_50M', algo.bonus_50M)}
-  </div>
-  <div class="coef-section"><h4>Over-entry penalty</h4>
-    ${_coefInput('Entry penalty threshold (enter ≥ this many in one year)', 'algorithm.entry_penalty_threshold', algo.entry_penalty_threshold)}
-    ${_coefInput('Entry penalty rate', 'algorithm.entry_penalty_rate', algo.entry_penalty_rate)}
-  </div>
-  <div class="coef-section"><h4>Category thresholds</h4>
-    <div class="settings-pair"><label>Risk: Low ≥ <span class="desc">Score above which a country is "Low risk"</span></label><input type="number" step="1" data-path="rules.categoryThresholds.risk.low" value="${r.categoryThresholds.risk.low}"></div>
-    <div class="settings-pair"><label>Risk: Medium ≥</label><input type="number" step="1" data-path="rules.categoryThresholds.risk.medium" value="${r.categoryThresholds.risk.medium}"></div>
-    <div class="settings-pair"><label>Tariff High &gt;</label><input type="number" step="0.5" data-path="rules.categoryThresholds.tariff.high" value="${r.categoryThresholds.tariff.high}"></div>
-    <div class="settings-pair"><label>Tariff Medium &gt;</label><input type="number" step="0.5" data-path="rules.categoryThresholds.tariff.medium" value="${r.categoryThresholds.tariff.medium}"></div>
-    <div class="settings-pair"><label>Rivalry High ≥</label><input type="number" step="1" data-path="rules.categoryThresholds.rivalry.high" value="${r.categoryThresholds.rivalry.high}"></div>
-    <div class="settings-pair"><label>Rivalry Medium ≥</label><input type="number" step="1" data-path="rules.categoryThresholds.rivalry.medium" value="${r.categoryThresholds.rivalry.medium}"></div>
-    <div class="settings-pair"><label>Cultural Low &lt;</label><input type="number" step="10" data-path="rules.categoryThresholds.cultural.low" value="${r.categoryThresholds.cultural.low}"></div>
-    <div class="settings-pair"><label>Cultural Medium &lt;</label><input type="number" step="10" data-path="rules.categoryThresholds.cultural.medium" value="${r.categoryThresholds.cultural.medium}"></div>
-    <div class="settings-pair"><label>Indulgence High ≥</label><input type="number" step="1" data-path="rules.categoryThresholds.indulgence.high" value="${r.categoryThresholds.indulgence.high}"></div>
-    <div class="settings-pair"><label>Indulgence Medium ≥</label><input type="number" step="1" data-path="rules.categoryThresholds.indulgence.medium" value="${r.categoryThresholds.indulgence.medium}"></div>
-  </div>
-  <div class="coef-section"><h4>Seed</h4>
-    <div class="settings-pair"><label>Seed value <span class="desc">Starting seed for randomness</span></label><input type="number" step="1" data-path="seed.value" value="${configStore.getSeed().value}"></div>
-    <div class="settings-pair"><label>Freeze seed <span class="desc">When on, every new game uses the same seed (reproducible)</span></label><input type="checkbox" data-path="seed.frozen" ${configStore.getSeed().frozen?'checked':''}></div>
+  </div>`;
+
+  html += _coefSection('Bonus tiers', [
+    ['algorithm.bonus_25M', '$25M milestone bonus'],
+    ['algorithm.bonus_50M', '$50M milestone bonus'],
+  ]);
+  html += _coefSection('Over-entry penalty', [
+    ['algorithm.entry_penalty_threshold', 'Threshold (markets/year)'],
+    ['algorithm.entry_penalty_rate',      'Revenue penalty rate'],
+  ]);
+
+  // Category thresholds in a compact grid — 5 rows × 3 values
+  html += `<div class="coef-section"><h4>Category thresholds <span class="count-badge">Low / Medium / High boundaries</span></h4>
+    <div class="threshold-grid">
+      <div class="th-head">Category</div>
+      <div class="th-head" style="text-align:center;">Low</div>
+      <div class="th-head" style="text-align:center;">Medium</div>
+      <div class="th-head" style="text-align:center;">High</div>
+
+      <div><label>Country Risk</label></div>
+      <div class="threshold-cell"><span class="hint">≥</span><input type="number" step="1" data-path="rules.categoryThresholds.risk.low" value="${r.categoryThresholds.risk.low}"></div>
+      <div class="threshold-cell"><span class="hint">≥</span><input type="number" step="1" data-path="rules.categoryThresholds.risk.medium" value="${r.categoryThresholds.risk.medium}"></div>
+      <div class="auto-cell">below Medium</div>
+
+      <div><label>Tariff</label></div>
+      <div class="auto-cell">below Medium</div>
+      <div class="threshold-cell"><span class="hint">&gt;</span><input type="number" step="0.5" data-path="rules.categoryThresholds.tariff.medium" value="${r.categoryThresholds.tariff.medium}"></div>
+      <div class="threshold-cell"><span class="hint">&gt;</span><input type="number" step="0.5" data-path="rules.categoryThresholds.tariff.high" value="${r.categoryThresholds.tariff.high}"></div>
+
+      <div><label>Industry Rivalry</label></div>
+      <div class="auto-cell">below Medium</div>
+      <div class="threshold-cell"><span class="hint">≥</span><input type="number" step="1" data-path="rules.categoryThresholds.rivalry.medium" value="${r.categoryThresholds.rivalry.medium}"></div>
+      <div class="threshold-cell"><span class="hint">≥</span><input type="number" step="1" data-path="rules.categoryThresholds.rivalry.high" value="${r.categoryThresholds.rivalry.high}"></div>
+
+      <div><label>Cultural Distance</label></div>
+      <div class="threshold-cell"><span class="hint">&lt;</span><input type="number" step="10" data-path="rules.categoryThresholds.cultural.low" value="${r.categoryThresholds.cultural.low}"></div>
+      <div class="threshold-cell"><span class="hint">&lt;</span><input type="number" step="10" data-path="rules.categoryThresholds.cultural.medium" value="${r.categoryThresholds.cultural.medium}"></div>
+      <div class="auto-cell">above Medium</div>
+
+      <div><label>Indulgence</label></div>
+      <div class="auto-cell">below Medium</div>
+      <div class="threshold-cell"><span class="hint">≥</span><input type="number" step="1" data-path="rules.categoryThresholds.indulgence.medium" value="${r.categoryThresholds.indulgence.medium}"></div>
+      <div class="threshold-cell"><span class="hint">≥</span><input type="number" step="1" data-path="rules.categoryThresholds.indulgence.high" value="${r.categoryThresholds.indulgence.high}"></div>
+    </div>
+  </div>`;
+
+  html += `<div class="coef-section"><h4>Seed</h4>
+    <div class="settings-pair-group">
+      <div class="settings-pair"><label>Seed value <div class="desc">Starting seed for RNG</div></label><input type="number" step="1" data-path="seed.value" value="${configStore.getSeed().value}"></div>
+      <div class="settings-pair"><label>Freeze seed <div class="desc">Every new game uses the same seed (deterministic runs)</div></label><input type="checkbox" data-path="seed.frozen" ${configStore.getSeed().frozen?'checked':''}></div>
+    </div>
   </div>`;
   return html;
 }
 
-// ---- News &amp; Events tab ----
+// ---- News &amp; Events tab (redesigned) ----
+// Impact kinds: each has specific fields the user should tune, not raw JSON.
+const IMPACT_KINDS = {
+  revMult:          { label: 'Revenue multiplier',       fields: ['value','exceptionCountries','exceptionValue','costMult'] },
+  tradeWar:         { label: 'Trade war (tariff amp)',   fields: ['tariffAmp','revMult'] },
+  fixedMult:        { label: 'Fixed cost multiplier',    fields: ['value','excludeModes'] },
+  opportunism:      { label: 'Partner opportunism',      fields: ['value','excludeModes'] },
+  political:        { label: 'Political (forced exit)',  fields: ['forceExitModes','survivorRevMult'] },
+  sourcingRoyalty:  { label: 'Sourcing royalty toggle',  fields: ['active'] },
+};
+
 function renderNewsTab() {
   const cfg = configStore.get();
-  let html = `<div class="coef-section"><h4>News narratives &amp; coach playbook (per year)</h4>`;
+  const openYear = window._openNewsYear || 1;
+  let html = `<div class="coef-section"><h4>News &amp; coach playbook (per year)</h4>`;
   for (const year in cfg.news) {
     const n = cfg.news[year];
-    html += `<details ${year==='1'?'open':''} style="margin-bottom:8px;padding:10px 14px;border:1px solid var(--border);border-radius:8px;">
-      <summary style="cursor:pointer;font-weight:500;">Year ${year}: ${n.headline}</summary>
-      <div class="settings-pair"><label>Headline</label><input type="text" data-path="news.${year}.headline" value="${_esc(n.headline)}"></div>
-      <div class="settings-pair"><label>Body</label><textarea rows="3" data-path="news.${year}.body" style="width:100%;padding:8px;">${_esc(n.body)}</textarea></div>
-      <div class="settings-pair"><label>Coach playbook (one tip per line)</label><textarea rows="${Math.max(3, n.coachPlaybook.length)}" style="width:100%;padding:8px;font-size:12px;" data-playbook-year="${year}">${n.coachPlaybook.map(t => t).join('\n')}</textarea></div>
-      ${year > 1 ? `<button class="btn btn-sm btn-ghost" onclick="duplicateNewsFromPrev(${year})">Duplicate from Y${year-1}</button>` : ''}
-    </details>`;
+    const isOpen = String(openYear) === String(year);
+    html += `<div class="news-year-card ${isOpen ? 'open' : ''}" data-year="${year}">
+      <div class="news-year-header" onclick="_toggleNewsYear(${year})">
+        <div class="news-year-toggle">▶</div>
+        <div class="news-year-title"><span class="year-num">Y${year}</span>${_esc(n.headline)}</div>
+        ${year > 1 ? `<button class="btn btn-sm btn-ghost" onclick="event.stopPropagation();duplicateNewsFromPrev(${year})">Duplicate from Y${year-1}</button>` : '<span></span>'}
+      </div>
+      <div class="news-year-body">
+        <div class="settings-pair"><label>Headline</label><input type="text" data-path="news.${year}.headline" value="${_esc(n.headline)}"></div>
+        <div class="settings-pair"><label>Body <div class="desc">Shown on News screen</div></label><textarea rows="3" data-path="news.${year}.body">${_esc(n.body)}</textarea></div>
+        <div class="settings-pair"><label>Coach playbook <div class="desc">One tip per line (HTML allowed)</div></label><textarea rows="${Math.max(3, n.coachPlaybook.length)}" data-playbook-year="${year}">${n.coachPlaybook.map(t => t).join('\n')}</textarea></div>
+      </div>
+    </div>`;
   }
-  html += `</div>
-  <div class="coef-section"><h4>Events</h4>
-    <p class="card-sub" style="margin-top:-4px;">Toggle, retarget, and tune impact magnitudes. Tip: edit in the in-game Events screen to affect only the current game; edit here to change the default for new games.</p>`;
+  html += `</div>`;
+
+  html += `<div class="coef-section"><h4>Events <span class="count-badge">toggle + retarget + tune impact</span></h4>
+    <p class="card-sub" style="margin-top:-8px;margin-bottom:10px;">Click a card to expand. Edits affect new games — the in-game Events screen affects only the current run.</p>`;
+  const openEvent = window._openEvent || null;
   for (const key in cfg.events) {
     const ev = cfg.events[key];
     const countries = ev.countries || [];
-    html += `<details style="margin-bottom:8px;padding:10px 14px;border:1px solid var(--border);border-radius:8px;">
-      <summary style="cursor:pointer;"><strong>${ev.label}</strong> <span class="muted" style="font-size:12px;">· ${ev.type}</span></summary>
-      <div class="settings-pair"><label>Enabled</label><input type="checkbox" data-path="events.${key}.enabled" ${ev.enabled?'checked':''}></div>
-      <div class="settings-pair"><label>Year</label><input type="number" step="1" data-path="events.${key}.year" value="${ev.year}"></div>
-      ${ev.yearEnd !== undefined ? `<div class="settings-pair"><label>Year end</label><input type="number" step="1" data-path="events.${key}.yearEnd" value="${ev.yearEnd}"></div>` : ''}
-      <div class="settings-pair"><label>Countries affected</label><div class="chip-row" data-event-chips="${key}">
-        ${Object.keys(cfg.countries).map(c => `<span class="country-chip ${countries.includes(c)?'selected':''}" data-c="${c}">${cfg.countries[c].name}</span>`).join('')}
-      </div></div>
-      <div class="settings-pair"><label>Impact JSON</label><textarea rows="2" data-path="events.${key}.impact" style="width:100%;padding:8px;font-family:ui-monospace,Menlo,monospace;font-size:11px;" data-json="true">${_esc(JSON.stringify(ev.impact))}</textarea></div>
-    </details>`;
+    const isOpen = openEvent === key;
+    const yearBadge = ev.yearEnd !== undefined ? `Y${ev.year}–Y${ev.yearEnd}` : `Y${ev.year}`;
+    const enabledClass = ev.enabled ? (ev.type === 'crisis' ? 'enabled-crisis' : 'enabled') : '';
+    html += `<div class="event-card ${enabledClass} ${isOpen ? 'open' : ''}" data-event="${key}">
+      <div class="event-card-header" onclick="_toggleEvent('${key}', event)">
+        <div class="event-card-toggle">▶</div>
+        <div>
+          <div class="event-card-title">${_esc(ev.label)}</div>
+          <div class="card-sub" style="font-size:11px;margin-top:2px;">${_esc(ev.desc || '')}</div>
+        </div>
+        <div class="event-card-badges">
+          <span class="event-card-badge type-${ev.type}">${ev.type}</span>
+          <span class="event-card-badge year-badge">${yearBadge}</span>
+          <span class="event-card-badge">${countries.length}/${Object.keys(cfg.countries).length} countries</span>
+        </div>
+        <div class="event-card-enabled" onclick="event.stopPropagation();">
+          <label class="toggle"><input type="checkbox" data-path="events.${key}.enabled" ${ev.enabled?'checked':''}><span class="slider"></span></label>
+        </div>
+      </div>
+      <div class="event-card-body">
+        <div class="settings-pair-group">
+          <div class="settings-pair"><label>Year <div class="desc">Event fires in this year</div></label><input type="number" step="1" min="1" max="12" data-path="events.${key}.year" value="${ev.year}"></div>
+          <div class="settings-pair"><label>Year end <div class="desc">Last year this event is active (blank = single year)</div></label><input type="number" step="1" min="1" max="12" data-path="events.${key}.yearEnd" value="${ev.yearEnd ?? ''}" placeholder="single year"></div>
+          <div class="settings-pair"><label>Affected countries <div class="desc">Click chips to toggle</div></label>
+            <div class="chip-row" data-event-chips="${key}">
+              <button class="btn btn-sm btn-ghost" style="font-size:11px;padding:3px 8px;margin-bottom:4px;" onclick="_setAllCountries('${key}', true)">All</button>
+              <button class="btn btn-sm btn-ghost" style="font-size:11px;padding:3px 8px;margin-bottom:4px;margin-left:4px;" onclick="_setAllCountries('${key}', false)">None</button>
+              <div style="margin-top:6px;">
+                ${Object.keys(cfg.countries).map(c => `<span class="country-chip ${countries.includes(c)?'selected':''}" data-c="${c}">${cfg.countries[c].name}</span>`).join('')}
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="event-impact-editor">
+          <div style="font-size:11px;text-transform:uppercase;letter-spacing:0.06em;color:var(--ink-3);font-weight:600;margin-bottom:6px;">Impact</div>
+          <div class="settings-pair"><label>Kind <div class="desc">What the event does mechanically</div></label>
+            <select data-impact-kind="${key}">
+              ${Object.entries(IMPACT_KINDS).map(([k,v]) => `<option value="${k}" ${ev.impact?.kind === k ? 'selected' : ''}>${v.label}</option>`).join('')}
+            </select>
+          </div>
+          ${_impactFieldsHTML(key, ev)}
+        </div>
+      </div>
+    </div>`;
   }
   html += '</div>';
-  // Wire extra handlers after render
+
+  // Wire handlers after render
   setTimeout(() => {
     document.querySelectorAll('[data-playbook-year]').forEach(ta => {
       ta.addEventListener('input', () => {
@@ -3455,20 +3761,34 @@ function renderNewsTab() {
         _showSaved();
       });
     });
-    document.querySelectorAll('[data-json="true"]').forEach(ta => {
-      ta.addEventListener('input', () => {
-        try {
-          const val = JSON.parse(ta.value);
-          const path = ta.dataset.path;
-          const keys = path.split('.');
-          const patch = {}; let cur = patch;
-          for (let i = 0; i < keys.length - 1; i++) { cur[keys[i]] = {}; cur = cur[keys[i]]; }
-          cur[keys[keys.length-1]] = val;
-          configStore.set(patch);
-          _showSaved();
-          ta.style.borderColor = '';
-        } catch (e) { ta.style.borderColor = 'var(--red)'; }
+    document.querySelectorAll('[data-impact-kind]').forEach(sel => {
+      sel.addEventListener('change', () => {
+        const key = sel.dataset.impactKind;
+        const ev = configStore.getEvents()[key];
+        const newKind = sel.value;
+        // Preserve fields that overlap between kinds
+        const newImpact = { kind: newKind };
+        configStore.set({ events: { [key]: { impact: newImpact } } });
+        _showSaved();
+        renderSettings();
       });
+    });
+    document.querySelectorAll('[data-impact-path]').forEach(inp => {
+      const handler = () => {
+        const [key, field] = inp.dataset.impactPath.split('|');
+        const ev = configStore.getEvents()[key];
+        const impact = { ...(ev.impact || {}) };
+        let val;
+        if (inp.type === 'checkbox') val = inp.checked;
+        else if (inp.dataset.list === '1') val = inp.value.split(',').map(s => s.trim()).filter(Boolean);
+        else if (inp.dataset.num === '1') val = parseFloat(inp.value);
+        else val = inp.value;
+        impact[field] = val;
+        configStore.set({ events: { [key]: { impact } } });
+        _showSaved();
+      };
+      inp.addEventListener('input', handler);
+      inp.addEventListener('change', handler);
     });
     document.querySelectorAll('[data-event-chips]').forEach(wrap => {
       const key = wrap.dataset.eventChips;
@@ -3476,16 +3796,51 @@ function renderNewsTab() {
         chip.addEventListener('click', () => {
           const c = chip.dataset.c;
           const ev = configStore.getEvents()[key];
-          const next = ev.countries.slice();
+          const next = (ev.countries || []).slice();
           const i = next.indexOf(c);
           if (i >= 0) next.splice(i, 1); else next.push(c);
           configStore.set({ events: { [key]: { countries: next } } });
           chip.classList.toggle('selected');
           _showSaved();
+          // Update the "N/12" badge
+          const badge = chip.closest('.event-card').querySelector('.event-card-badge:nth-child(3)');
+          if (badge) badge.textContent = `${next.length}/${Object.keys(configStore.get().countries).length} countries`;
         });
       });
     });
   }, 10);
+  return html;
+}
+function _toggleNewsYear(y) { window._openNewsYear = window._openNewsYear === y ? null : y; renderSettings(); }
+function _toggleEvent(key, ev) {
+  if (ev && ev.target && ev.target.closest && (ev.target.closest('.event-card-enabled') || ev.target.closest('button'))) return;
+  window._openEvent = window._openEvent === key ? null : key;
+  renderSettings();
+}
+function _setAllCountries(key, all) {
+  const allCodes = Object.keys(configStore.get().countries);
+  configStore.set({ events: { [key]: { countries: all ? allCodes.slice() : [] } } });
+  renderSettings();
+}
+function _impactFieldsHTML(key, ev) {
+  const imp = ev.impact || {};
+  const kind = imp.kind || 'revMult';
+  const fields = IMPACT_KINDS[kind]?.fields || [];
+  let html = '';
+  for (const f of fields) {
+    const val = imp[f];
+    const pair = (label, desc, input) => `<div class="settings-pair"><label>${label}<div class="desc">${desc}</div></label>${input}</div>`;
+    if (f === 'value') html += pair('Multiplier value', 'e.g., 0.80 for -20%', `<input type="number" step="0.05" data-num="1" data-impact-path="${key}|value" value="${val ?? ''}" placeholder="1.0">`);
+    else if (f === 'tariffAmp') html += pair('Tariff amplification', 'Multiplier on country tariff exposure', `<input type="number" step="0.1" data-num="1" data-impact-path="${key}|tariffAmp" value="${val ?? ''}" placeholder="2.0">`);
+    else if (f === 'revMult') html += pair('Revenue multiplier', 'Also applied to demand this year', `<input type="number" step="0.05" data-num="1" data-impact-path="${key}|revMult" value="${val ?? ''}" placeholder="1.0">`);
+    else if (f === 'costMult') html += pair('Cost multiplier', 'Also applied to VC this year', `<input type="number" step="0.05" data-num="1" data-impact-path="${key}|costMult" value="${val ?? ''}" placeholder="1.0">`);
+    else if (f === 'exceptionCountries') html += pair('Exception countries', 'These countries use the exception multiplier instead of the main one. Comma-separated codes.', `<input type="text" data-list="1" data-impact-path="${key}|exceptionCountries" value="${(val||[]).join(',')}" placeholder="CN,IN">`);
+    else if (f === 'exceptionValue') html += pair('Exception multiplier', 'Applied to exception countries', `<input type="number" step="0.05" data-num="1" data-impact-path="${key}|exceptionValue" value="${val ?? ''}" placeholder="0.90">`);
+    else if (f === 'excludeModes') html += pair('Exclude modes', 'Modes that ignore this event. Comma-separated (F, JV, WOS).', `<input type="text" data-list="1" data-impact-path="${key}|excludeModes" value="${(val||[]).join(',')}" placeholder="F">`);
+    else if (f === 'forceExitModes') html += pair('Force exit modes', 'Modes that get force-exited when the event fires', `<input type="text" data-list="1" data-impact-path="${key}|forceExitModes" value="${(val||[]).join(',')}" placeholder="WOS">`);
+    else if (f === 'survivorRevMult') html += pair('Survivor revenue multiplier', 'Applied to JV/F in affected countries (they survive but take a hit)', `<input type="number" step="0.05" data-num="1" data-impact-path="${key}|survivorRevMult" value="${val ?? ''}" placeholder="0.70">`);
+    else if (f === 'active') html += pair('Royalty active', 'When on, global-sourcing markets earn sourcing_royalty_rate', `<input type="checkbox" data-impact-path="${key}|active" ${val?'checked':''}>`);
+  }
   return html;
 }
 function duplicateNewsFromPrev(year) {
@@ -3495,55 +3850,200 @@ function duplicateNewsFromPrev(year) {
   renderSettings();
 }
 
-// ---- Algorithm tab ----
-function _coefInputRaw(path, c) {
-  if (!c) return '';
-  return `<div style="display:flex;gap:6px;align-items:center;">
-    <label title="Pin" style="font-size:11px;"><input type="checkbox" data-path="${path}.pinned" ${c.pinned?'checked':''}>pin</label>
-    <input type="number" step="any" data-path="${path}.value" value="${c.value}" style="width:100px;" title="value">
-    <span class="hint-inline">draw:</span>
-    <input type="number" step="any" data-path="${path}.rngMin" value="${c.rngMin}" style="width:80px;" title="rng min">
-    <span class="hint-inline">to</span>
-    <input type="number" step="any" data-path="${path}.rngMax" value="${c.rngMax}" style="width:80px;" title="rng max">
-  </div>`;
-}
-function _coefInput(label, path, c) {
-  if (!c) return '';
-  return `<div class="coef-row" id="coef-${path.replace(/\./g,'-')}">
-    <div><div class="name">${path}</div><div class="desc">${_esc(c.desc || label)}</div></div>
-    <label style="font-size:11px;"><input type="checkbox" data-path="${path}.pinned" ${c.pinned?'checked':''}> pin</label>
+// ---- Algorithm tab (redesigned) ----
+// Unified coefficient row: [label / path / desc] [pin] [value] [rng min] [rng max] [reset]
+function _coefRow(path, label) {
+  const c = _getAtPath(configStore.get(), path);
+  if (!c || typeof c.value === 'undefined') return '';
+  const modified = _coefIsModified(path);
+  const pinned = !!c.pinned;
+  const humanLabel = label || path.split('.').pop();
+  const desc = c.desc ? `<div class="coef-desc">${_esc(c.desc)}</div>` : '';
+  // Render the rngMin/rngMax inputs with .rng-input class so we can dim them when pinned
+  return `<div class="coef-row ${modified ? 'modified' : ''} ${pinned ? 'pinned-disabled' : ''}" data-coef-path="${path}">
+    <div class="coef-label">
+      <div>
+        <div class="coef-label-text">${_esc(humanLabel)}</div>
+        <div class="coef-path">${path}</div>
+      </div>
+    </div>
+    <div class="pin-cell ${pinned ? 'pinned' : ''}"><input type="checkbox" data-path="${path}.pinned" ${pinned ? 'checked' : ''} title="Pin (use value, skip random draw)"></div>
     <input type="number" step="any" data-path="${path}.value" value="${c.value}" title="value">
-    <input type="number" step="any" data-path="${path}.rngMin" value="${c.rngMin}" title="rng min">
-    <input type="number" step="any" data-path="${path}.rngMax" value="${c.rngMax}" title="rng max">
+    <input class="rng-input" type="number" step="any" data-path="${path}.rngMin" value="${c.rngMin}" title="draw min">
+    <input class="rng-input" type="number" step="any" data-path="${path}.rngMax" value="${c.rngMax}" title="draw max">
+    <button class="reset-btn" onclick="_resetCoefToDefault('${path}')" title="Reset to default">↺</button>
+    ${desc}
   </div>`;
 }
+
+function _coefGridHeader() {
+  return `<div class="coef-grid-header">
+    <div>Coefficient</div>
+    <div style="text-align:center;">Pin</div>
+    <div>Value</div>
+    <div>Draw min</div>
+    <div>Draw max</div>
+    <div></div>
+  </div>`;
+}
+
+function _coefSection(title, rows) {
+  // rows = [[path, humanLabel?], ...]
+  const matched = _filterCoefRows(rows);
+  if (!matched.length) return '';
+  let body = _coefGridHeader();
+  for (const [path, label] of matched) body += _coefRow(path, label);
+  return `<div class="coef-section">
+    <h4>${title} <span class="count-badge">${matched.length}</span></h4>
+    <div class="coef-grid">${body}</div>
+  </div>`;
+}
+
+function _filterCoefRows(rows) {
+  const q = (document.getElementById('settings-search')?.value || '').toLowerCase().trim();
+  if (!q) return rows;
+  return rows.filter(([path, label]) => {
+    const c = _getAtPath(configStore.get(), path) || {};
+    const hay = (path + ' ' + (label || '') + ' ' + (c.desc || '')).toLowerCase();
+    return hay.includes(q);
+  });
+}
+
 function renderAlgorithmTab() {
   const algo = configStore.getAlgo();
-  const sections = [
-    ['Demand', ['M_base','P_base','GDP_USA_ref','price_elasticity','price_gdp_elasticity','promo_max_lift','promo_half_sat','promo_low','promo_med','promo_high','cultural_fit_medium','cultural_fit_high','rivalry_share_medium','rivalry_share_high','adaptation_rivalry_defense','adaptation_demand_coef','saturation_exponent','population_per_outlet_saturation']],
-    ['Cost', ['VC_base','input_inflation','low_income_discount','adaptation_cost_uplift','FC_base_per_outlet','fc_gdp_elasticity']],
-    ['HQ / Franchise', ['HQ_base_overhead','HQ_per_market_support','HQ_franchise_support','royalty_rate','franchise_initial_fee','sourcing_royalty_rate']],
-    ['Entry / Growth / Exit', ['entry_fee_per_country','opening_fee_F','opening_fee_JV','opening_fee_WOS','exit_payout','bonus_25M','bonus_50M','entry_penalty_threshold','entry_penalty_rate']],
+  const q = (document.getElementById('settings-search')?.value || '');
+  let html = `<div class="live-check" id="live-check">${_liveCheckHTML()}</div>
+    <input type="text" class="settings-search" id="settings-search" placeholder="Search coefficients (e.g. M_base, royalty, cultural, promo)…" value="${_esc(q)}" oninput="renderAlgorithmTab_live()">`;
+
+  const groups = [
+    ['Demand — revenue drivers', [
+      ['algorithm.M_base',                          'Baseline meals / outlet / yr'],
+      ['algorithm.P_base',                          'Reference meal price'],
+      ['algorithm.GDP_USA_ref',                     'USA GDP anchor (for scaling)'],
+      ['algorithm.price_elasticity',                'Price elasticity of demand'],
+      ['algorithm.price_gdp_elasticity',            'Price ↔ local GDP scaling'],
+      ['algorithm.cultural_fit_medium',             'Cultural fit at Medium distance'],
+      ['algorithm.cultural_fit_high',               'Cultural fit at High distance'],
+      ['algorithm.rivalry_share_medium',            'Market share at Medium rivalry'],
+      ['algorithm.rivalry_share_high',              'Market share at High rivalry'],
+      ['algorithm.adaptation_demand_coef',          'Adaptation demand lift (per distance unit)'],
+      ['algorithm.adaptation_rivalry_defense',      'Adaptation defense vs rivalry'],
+      ['algorithm.saturation_exponent',             'Outlet saturation curve steepness'],
+      ['algorithm.population_per_outlet_saturation','Population per outlet at saturation'],
+    ]],
+    ['Demand — promotion', [
+      ['algorithm.promo_max_lift',  'Max demand lift at saturation'],
+      ['algorithm.promo_half_sat',  'Promo $ at half-saturation'],
+      ['algorithm.promo_low',       'Promo — Low choice ($/outlet/yr)'],
+      ['algorithm.promo_med',       'Promo — Medium choice'],
+      ['algorithm.promo_high',      'Promo — High choice'],
+    ]],
+    ['Per-mode multipliers', [
+      ['algorithm.mode_cultural_mitigation.F',   'Cultural mitigation — F'],
+      ['algorithm.mode_cultural_mitigation.JV',  'Cultural mitigation — JV'],
+      ['algorithm.mode_cultural_mitigation.WOS', 'Cultural mitigation — WOS'],
+      ['algorithm.mode_foreignness.F',           'Liability of foreignness — F'],
+      ['algorithm.mode_foreignness.JV',          'Liability of foreignness — JV'],
+      ['algorithm.mode_foreignness.WOS',         'Liability of foreignness — WOS'],
+      ['algorithm.mode_fc_multiplier.F',         'Fixed-cost multiplier — F'],
+      ['algorithm.mode_fc_multiplier.JV',        'Fixed-cost multiplier — JV'],
+      ['algorithm.mode_fc_multiplier.WOS',       'Fixed-cost multiplier — WOS'],
+    ]],
+    ['Indulgence (Hofstede)', [
+      ['algorithm.indulgence.Low',    'Demand × Low indulgence'],
+      ['algorithm.indulgence.Medium', 'Demand × Medium indulgence'],
+      ['algorithm.indulgence.High',   'Demand × High indulgence'],
+    ]],
+    ['Costs', [
+      ['algorithm.VC_base',              'Base variable cost / meal'],
+      ['algorithm.input_inflation',      'Annual commodity inflation'],
+      ['algorithm.low_income_discount',  'Low-income cost discount'],
+      ['algorithm.adaptation_cost_uplift','Adaptation VC uplift'],
+      ['algorithm.FC_base_per_outlet',   'Base fixed cost / outlet / yr'],
+      ['algorithm.fc_gdp_elasticity',    'FC × local GDP scaling'],
+    ]],
+    ['HQ / Franchise economics', [
+      ['algorithm.HQ_base_overhead',      'Annual HQ fixed overhead'],
+      ['algorithm.HQ_per_market_support', 'Per WOS/JV market overhead'],
+      ['algorithm.HQ_franchise_support',  'Per franchise market overhead'],
+      ['algorithm.royalty_rate',          'Franchise royalty rate'],
+      ['algorithm.franchise_initial_fee', 'Franchise initial fee / outlet'],
+      ['algorithm.sourcing_royalty_rate', 'Global sourcing royalty rate'],
+    ]],
+    ['Entry / Growth / Exit (pinned by default)', [
+      ['algorithm.entry_fee_per_country', 'Entry fee per country'],
+      ['algorithm.opening_fee_F',         'Opening fee — F'],
+      ['algorithm.opening_fee_JV',        'Opening fee — JV'],
+      ['algorithm.opening_fee_WOS',       'Opening fee — WOS'],
+      ['algorithm.exit_payout',           'Exit payout'],
+      ['algorithm.bonus_25M',             '$25M milestone bonus'],
+      ['algorithm.bonus_50M',             '$50M milestone bonus'],
+      ['algorithm.entry_penalty_threshold','Over-entry threshold'],
+      ['algorithm.entry_penalty_rate',    'Over-entry penalty rate'],
+    ]],
   ];
-  let html = '';
-  html += `<div class="coef-section"><h4>Formula preview (current coefficient values)</h4><div class="formula-preview">${_formulaPreview(algo)}</div></div>`;
-  html += `<div class="coef-section"><h4>Header</h4><div class="coef-row" style="background:var(--surface-2);font-weight:500;"><div>Coefficient</div><div>Pin</div><div>Value</div><div>Rng min</div><div>Rng max</div></div></div>`;
-  for (const [sec, keys] of sections) {
-    html += `<div class="coef-section"><h4>${sec}</h4>`;
-    for (const k of keys) html += _coefInput(k, `algorithm.${k}`, algo[k]);
-    html += '</div>';
-  }
-  // Structured coefficients
-  html += `<div class="coef-section"><h4>Per-mode multipliers</h4>`;
-  for (const group of ['mode_cultural_mitigation','mode_foreignness','mode_fc_multiplier']) {
-    for (const m of ['F','JV','WOS']) html += _coefInput(`${group}.${m}`, `algorithm.${group}.${m}`, algo[group][m]);
-  }
-  html += '</div>';
-  html += `<div class="coef-section"><h4>Per-category multipliers</h4>`;
-  for (const m of ['Low','Medium','High']) html += _coefInput(`indulgence.${m}`, `algorithm.indulgence.${m}`, algo.indulgence[m]);
-  html += '</div>';
+  for (const [title, rows] of groups) html += _coefSection(title, rows);
+
+  // Formula preview below
+  html += `<div class="coef-section"><h4>Formula preview (current values substituted)</h4><div class="formula-preview">${_formulaPreview(algo)}</div></div>`;
   return html;
 }
+
+// Search-triggered re-render of just the Algorithm tab without losing focus.
+function renderAlgorithmTab_live() {
+  const body = document.getElementById('settings-body');
+  // Preserve search input focus + value
+  const q = document.getElementById('settings-search')?.value || '';
+  const carat = document.getElementById('settings-search')?.selectionStart || 0;
+  body.innerHTML = _countModifiedFields() > 0
+    ? `<div class="settings-warning"><span><strong>${_countModifiedFields()}</strong> field${_countModifiedFields()===1?'':'s'} differ from Spec Default.</span><div style="display:flex;gap:6px;"><button onclick="exportConfigJSON()">Export</button><button onclick="if(confirm('Reset ALL config?')){resetConfig();renderSettings();}">Reset all</button></div></div>` + renderAlgorithmTab()
+    : renderAlgorithmTab();
+  _wireSettingsInputs(body);
+  const search = document.getElementById('settings-search');
+  if (search) { search.value = q; search.focus(); try { search.setSelectionRange(carat, carat); } catch (e) {} }
+}
+
+// Live-check card — USA Franchise Y1 scenario using currently-pinned/resolved coefficients.
+function _liveCheckHTML() {
+  try {
+    const algoRaw = configStore.getAlgo();
+    function pinned(node) {
+      if (!node || typeof node !== 'object') return node;
+      if (typeof node.value !== 'undefined') return node.value;
+      const out = {}; for (const k in node) out[k] = pinned(node[k]); return out;
+    }
+    const algo = pinned(algoRaw);
+    const home = configStore.getRules().homeCountry || 'CA';
+    const positions = { US: { mode:'F', outlets:25, country:'US' } };
+    const events = buildEventsView(_deepClone(configStore.getEvents()), 1, positions);
+    const r = computeMarketPnL({
+      country:'US', mode:'F', year:1, outlets:25,
+      decisions: { adaptation:0, priceChoice:'match', promoChoice:'med', sourcing:'global' },
+      algo, events, rules: configStore.getRules(), home,
+      isNewThisYear:true, newOutletsThisYear:25,
+    });
+    const target = 500000;
+    const ratio = r.profit / target;
+    const status = Math.abs(r.profit - target) < target * 0.5 ? 'pass' : 'fail';
+    return `
+      <div class="live-check-title">Live check — USA Franchise Y1 · 25 outlets · no events · (tune until green)</div>
+      <div class="live-check-grid">
+        <div class="live-check-cell metric-${status}"><div class="label">Player profit</div><div class="value">${fmtMoney(r.profit)}</div><div class="delta">${ratio >= 1 ? 'pos' : 'neg'}: ${(ratio).toFixed(2)}× of target $0.5M</div></div>
+        <div class="live-check-cell"><div class="label">Market revenue</div><div class="value">${fmtMoney(r.marketRevenue)}</div></div>
+        <div class="live-check-cell"><div class="label">Meals / outlet</div><div class="value">${Math.round(r.meals).toLocaleString()}</div></div>
+        <div class="live-check-cell"><div class="label">Price / meal</div><div class="value">$${r.price.toFixed(2)}</div></div>
+        <div class="live-check-cell"><div class="label">VC / meal</div><div class="value">$${r.vcPerMeal.toFixed(2)}</div></div>
+        <div class="live-check-cell"><div class="label">Royalty</div><div class="value">${fmtMoney(r.royalty)}</div></div>
+      </div>`;
+  } catch (e) {
+    return `<div class="muted">Live check unavailable: ${e.message}</div>`;
+  }
+}
+function _updateLiveCheck() {
+  const el = document.getElementById('live-check');
+  if (el) el.innerHTML = _liveCheckHTML();
+}
+configStore.subscribe(() => { if (document.getElementById('settings-overlay').classList.contains('open') && activeSettingsTab === 'algorithm') _updateLiveCheck(); });
 function _formulaPreview(algo) {
   const v = (k) => algo[k] && algo[k].value !== undefined ? algo[k].value : (algo[k] || 0);
   return `meals/outlet = M_base(${v('M_base')}) × growth × culturalFit × rivalryShare × indulgence × priceResponse × promoResponse × adaptationLift × foreignness × events × saturation
