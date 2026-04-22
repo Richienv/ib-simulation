@@ -1,0 +1,2097 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>International Business Simulation · Market Entry</title>
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<style>
+:root {
+  --bg: #FAF9F5;
+  --surface: #FFFFFF;
+  --surface-2: #F4F1EA;
+  --ink: #141413;
+  --ink-2: #3D3D3A;
+  --ink-3: #6B6B66;
+  --ink-4: #9A968C;
+  --accent: #D97757;
+  --accent-soft: #F4D7C7;
+  --accent-dark: #B85A3D;
+  --border: rgba(20,20,19,0.08);
+  --border-2: rgba(20,20,19,0.14);
+  --green: #2B7A5C;
+  --green-soft: #E4F1EB;
+  --red: #B3433B;
+  --red-soft: #F6DEDC;
+  --amber: #B07D29;
+  --amber-soft: #F6EBD4;
+  --radius: 10px;
+  --radius-lg: 16px;
+  --shadow-sm: 0 1px 2px rgba(20,20,19,0.04);
+  --font-sans: ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-serif: ui-serif, "Iowan Old Style", Georgia, Cambria, "Times New Roman", serif;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--ink); font-family: var(--font-sans); font-size: 15px; line-height: 1.6; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; }
+.container { max-width: 1180px; margin: 0 auto; padding: 0 32px; }
+header.topbar { padding: 24px 0; border-bottom: 1px solid var(--border); background: var(--bg); position: sticky; top: 0; z-index: 20; }
+.topbar .container { display: flex; justify-content: space-between; align-items: center; gap: 24px; flex-wrap: wrap; }
+.brand { font-family: var(--font-serif); font-size: 20px; font-weight: 500; letter-spacing: -0.01em; }
+.brand small { color: var(--ink-3); font-family: var(--font-sans); font-size: 12px; letter-spacing: 0.08em; text-transform: uppercase; margin-left: 12px; }
+.topbar nav { display: flex; gap: 8px; align-items: center; }
+.topbar nav button { background: transparent; border: none; padding: 8px 14px; font-family: inherit; font-size: 13px; color: var(--ink-3); cursor: pointer; border-radius: 8px; transition: all 0.15s; }
+.topbar nav button:hover { color: var(--ink); background: var(--surface-2); }
+.topbar nav button.active { color: var(--ink); background: var(--surface-2); }
+h1 { font-family: var(--font-serif); font-weight: 500; font-size: 44px; line-height: 1.1; letter-spacing: -0.02em; margin: 0 0 20px; color: var(--ink); }
+h2 { font-family: var(--font-serif); font-weight: 500; font-size: 30px; line-height: 1.2; letter-spacing: -0.015em; margin: 0 0 14px; }
+h3 { font-weight: 500; font-size: 16px; margin: 0 0 12px; color: var(--ink); }
+.eyebrow { font-size: 12px; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent); font-weight: 500; margin-bottom: 12px; }
+.hero-sub { font-size: 17px; color: var(--ink-2); max-width: 720px; line-height: 1.55; margin: 0 0 24px; }
+.screen { display: none; padding: 40px 0 96px; animation: fadeIn 0.25s ease; }
+.screen.active { display: block; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+.card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 28px; margin-bottom: 20px; }
+.card-title { font-weight: 500; font-size: 17px; margin: 0 0 14px; }
+.card-sub { font-size: 13px; color: var(--ink-3); margin: -8px 0 16px; }
+.grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+.grid-3 { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+@media (max-width: 760px) { .grid-2, .grid-3 { grid-template-columns: 1fr; } }
+.field { margin-bottom: 16px; }
+.field label { display: block; font-size: 12px; color: var(--ink-3); margin-bottom: 6px; font-weight: 500; letter-spacing: 0.02em; }
+.field .hint { font-size: 12px; color: var(--ink-4); margin-top: 4px; }
+select, input[type="number"], input[type="text"], input[type="range"] {
+  width: 100%; padding: 10px 12px; font-family: inherit; font-size: 14px; color: var(--ink); background: var(--surface);
+  border: 1px solid var(--border-2); border-radius: var(--radius); outline: none; transition: border-color 0.15s, box-shadow 0.15s;
+}
+input[type="range"] { padding: 0; height: 6px; background: var(--border); border: none; -webkit-appearance: none; appearance: none; }
+input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 18px; height: 18px; border-radius: 50%; background: var(--accent); cursor: pointer; border: 2px solid white; box-shadow: 0 1px 3px rgba(0,0,0,0.2); }
+input[type="range"]::-moz-range-thumb { width: 18px; height: 18px; border-radius: 50%; background: var(--accent); cursor: pointer; border: 2px solid white; }
+select:focus, input:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+.btn {
+  display: inline-flex; align-items: center; gap: 8px; padding: 12px 22px; border-radius: var(--radius); border: 1px solid var(--ink);
+  background: var(--ink); color: white; font-family: inherit; font-size: 14px; font-weight: 500; cursor: pointer; transition: all 0.15s;
+}
+.btn:hover { background: var(--ink-2); border-color: var(--ink-2); }
+.btn-primary { background: var(--accent); border-color: var(--accent); }
+.btn-primary:hover { background: var(--accent-dark); border-color: var(--accent-dark); }
+.btn-ghost { background: transparent; color: var(--ink); border-color: var(--border-2); }
+.btn-ghost:hover { background: var(--surface-2); }
+.btn-sm { padding: 8px 14px; font-size: 13px; }
+.btn:disabled { opacity: 0.4; cursor: not-allowed; }
+.btn-row { display: flex; gap: 10px; flex-wrap: wrap; justify-content: space-between; margin-top: 24px; }
+table { width: 100%; border-collapse: collapse; font-size: 14px; }
+table th, table td { text-align: left; padding: 10px 12px; border-bottom: 1px solid var(--border); }
+table th { font-weight: 500; font-size: 12px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.04em; background: var(--surface-2); }
+table tr:last-child td { border-bottom: none; }
+.t-num { text-align: right; font-variant-numeric: tabular-nums; }
+.pill { display: inline-block; padding: 3px 10px; border-radius: 999px; font-size: 12px; font-weight: 500; background: var(--surface-2); color: var(--ink-2); }
+.pill-green { background: var(--green-soft); color: var(--green); }
+.pill-red { background: var(--red-soft); color: var(--red); }
+.pill-amber { background: var(--amber-soft); color: var(--amber); }
+.pill-accent { background: var(--accent-soft); color: var(--accent-dark); }
+.budget-box { background: var(--surface-2); border: 1px solid var(--border); border-radius: var(--radius); padding: 20px; display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; }
+.budget-stat .label { font-size: 12px; color: var(--ink-3); text-transform: uppercase; letter-spacing: 0.04em; margin-bottom: 4px; }
+.budget-stat .value { font-family: var(--font-serif); font-size: 24px; font-weight: 500; }
+.budget-stat .value.negative { color: var(--red); }
+.budget-stat .value.positive { color: var(--green); }
+.coach { background: linear-gradient(180deg, var(--accent-soft) 0%, var(--bg) 100%); border: 1px solid var(--accent-soft); border-radius: var(--radius-lg); padding: 24px; margin-bottom: 20px; }
+.coach-label { display: inline-block; font-size: 11px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--accent-dark); margin-bottom: 8px; }
+.coach h3 { margin-top: 0; font-family: var(--font-serif); font-size: 20px; font-weight: 500; }
+.coach ul { margin: 10px 0 0 20px; padding: 0; color: var(--ink-2); }
+.coach li { margin-bottom: 4px; }
+.step-dots { display: flex; gap: 6px; margin-bottom: 24px; }
+.step-dot { flex: 1; height: 3px; background: var(--border); border-radius: 2px; }
+.step-dot.done { background: var(--ink-3); }
+.step-dot.active { background: var(--accent); }
+.news-tabs { display: flex; gap: 6px; border-bottom: 1px solid var(--border); margin-bottom: 20px; overflow-x: auto; }
+.news-tab { background: none; border: none; padding: 10px 14px; font-family: inherit; font-size: 13px; font-weight: 500; color: var(--ink-3); cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; }
+.news-tab:hover { color: var(--ink); }
+.news-tab.active { color: var(--ink); border-bottom-color: var(--accent); }
+.news-tab:disabled { opacity: 0.35; cursor: not-allowed; }
+.news-body h3 { font-family: var(--font-serif); font-size: 22px; font-weight: 500; margin-bottom: 10px; }
+.news-body p { color: var(--ink-2); line-height: 1.65; }
+.event-alert { background: var(--amber-soft); border: 1px solid var(--amber); border-left: 4px solid var(--amber); border-radius: var(--radius); padding: 14px 18px; margin: 16px 0; color: var(--ink); }
+.event-alert strong { color: var(--amber); }
+.event-alert.crisis { background: var(--red-soft); border-color: var(--red); border-left-color: var(--red); }
+.event-alert.crisis strong { color: var(--red); }
+.event-alert.positive { background: var(--green-soft); border-color: var(--green); border-left-color: var(--green); }
+.event-alert.positive strong { color: var(--green); }
+.country-entry-row { display: grid; grid-template-columns: 2fr 2fr 1fr; gap: 12px; padding: 14px 0; border-bottom: 1px solid var(--border); align-items: center; }
+.country-entry-row:last-child { border-bottom: none; }
+.country-entry-row .name { font-weight: 500; }
+.country-entry-row .hint { font-size: 12px; color: var(--ink-3); }
+.toggle { position: relative; display: inline-block; width: 42px; height: 24px; }
+.toggle input { opacity: 0; width: 0; height: 0; }
+.toggle .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0; background: var(--border-2); border-radius: 24px; transition: 0.2s; }
+.toggle .slider:before { position: absolute; content: ""; height: 18px; width: 18px; left: 3px; bottom: 3px; background: white; border-radius: 50%; transition: 0.2s; }
+.toggle input:checked + .slider { background: var(--accent); }
+.toggle input:checked + .slider:before { transform: translateX(18px); }
+.chart-box { position: relative; height: 320px; margin: 16px 0; }
+.chart-box.small { height: 240px; }
+.chart-box.tall { height: 380px; }
+.country-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius); padding: 16px; cursor: pointer; transition: all 0.15s; display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; }
+.country-card:hover { border-color: var(--accent); }
+.country-card.done { border-color: var(--green); background: var(--green-soft); }
+.country-card .name { font-weight: 500; }
+.country-card .mode-tag { padding: 2px 8px; border-radius: 4px; font-size: 12px; font-weight: 500; background: var(--surface-2); }
+.mode-F { color: var(--accent-dark); background: var(--accent-soft); }
+.mode-JV { color: var(--amber); background: var(--amber-soft); }
+.mode-WOS { color: var(--green); background: var(--green-soft); }
+.feedback-box { border-radius: var(--radius-lg); padding: 24px; margin-bottom: 20px; border: 1px solid var(--border); }
+.feedback-excellent { background: var(--green-soft); border-color: var(--green); }
+.feedback-good { background: var(--accent-soft); border-color: var(--accent); }
+.feedback-poor { background: var(--red-soft); border-color: var(--red); }
+.stat-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 14px; margin-bottom: 20px; }
+.stat-card { background: var(--surface-2); border-radius: var(--radius); padding: 14px 16px; }
+.stat-card .label { font-size: 11px; text-transform: uppercase; letter-spacing: 0.08em; color: var(--ink-3); margin-bottom: 6px; }
+.stat-card .value { font-family: var(--font-serif); font-size: 22px; font-weight: 500; }
+.mini-row { display: flex; justify-content: space-between; padding: 6px 0; font-size: 13px; }
+.mini-row + .mini-row { border-top: 1px solid var(--border); }
+.muted { color: var(--ink-3); }
+.hidden { display: none !important; }
+.event-config-row { display: grid; grid-template-columns: 1fr auto; gap: 16px; align-items: start; padding: 14px 0; border-bottom: 1px solid var(--border); }
+.event-config-row:last-child { border-bottom: none; }
+.event-config-row .meta { color: var(--ink-3); font-size: 13px; margin-top: 4px; }
+.country-chip { display: inline-block; padding: 4px 10px; border-radius: 999px; font-size: 12px; background: var(--surface-2); color: var(--ink); margin: 2px; cursor: pointer; user-select: none; border: 1px solid var(--border); }
+.country-chip.selected { background: var(--accent); color: white; border-color: var(--accent); }
+.chip-row { margin-top: 8px; }
+.progress { height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; margin: 8px 0; }
+.progress-bar { height: 100%; background: var(--accent); transition: width 0.2s; }
+.spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: white; border-radius: 50%; animation: spin 0.7s linear infinite; }
+@keyframes spin { to { transform: rotate(360deg); } }
+.glossary dt { font-weight: 500; margin-top: 14px; color: var(--ink); }
+.glossary dd { margin: 4px 0 0; color: var(--ink-2); }
+.customer-comment { font-style: italic; color: var(--ink-2); background: var(--surface-2); border-left: 3px solid var(--accent); padding: 12px 16px; margin: 8px 0; border-radius: 4px; }
+.income-table td { font-variant-numeric: tabular-nums; }
+.income-table tr.total td { font-weight: 600; border-top: 2px solid var(--ink-3); }
+.income-table tr.subtotal td { font-weight: 500; color: var(--ink-2); }
+.tab-row { display: flex; gap: 2px; border-bottom: 1px solid var(--border); margin-bottom: 16px; overflow-x: auto; }
+.tab-row button { background: none; border: none; padding: 10px 14px; font-size: 13px; color: var(--ink-3); font-family: inherit; cursor: pointer; border-bottom: 2px solid transparent; white-space: nowrap; }
+.tab-row button.active { color: var(--ink); border-bottom-color: var(--accent); }
+.results-footer { display: flex; justify-content: space-between; margin-top: 28px; gap: 12px; flex-wrap: wrap; }
+</style>
+</head>
+<body>
+
+<header class="topbar">
+  <div class="container">
+    <div class="brand">International Business Simulation <small>Market Entry · v2</small></div>
+    <nav id="top-nav">
+      <button data-goto="welcome">Home</button>
+      <button data-goto="strategy-lab">Strategy Lab</button>
+      <button data-goto="glossary">Glossary</button>
+    </nav>
+  </div>
+</header>
+
+<main class="container">
+
+<!-- SCREEN 1: WELCOME -->
+<section class="screen active" id="screen-welcome">
+  <div class="eyebrow">Screen 1 · Welcome</div>
+  <h1>Take a Casual Dining chain global.</h1>
+  <p class="hero-sub">You manage a US-style casual dining chain. Over the next six years you will enter new countries via <strong>Franchising</strong>, <strong>Joint Venture</strong>, or <strong>Wholly Owned Subsidiary</strong>. Build cumulative profit. Target: <strong>$100M</strong>.</p>
+
+  <div class="card">
+    <h3 class="card-title">Set up your game</h3>
+    <div class="grid-2">
+      <div class="field">
+        <label>Company name (optional)</label>
+        <input type="text" id="f-company" placeholder="e.g. Caravela Kitchens">
+      </div>
+      <div class="field">
+        <label>Home country</label>
+        <select id="f-home"></select>
+        <div class="hint">This is where your brand originated. It shapes cultural distance to every other market.</div>
+      </div>
+    </div>
+  </div>
+
+  <div class="coach">
+    <span class="coach-label">Coach</span>
+    <h3>Recommended start</h3>
+    <p>Pick a home country with a large home base (<strong>USA</strong>, <strong>UK</strong>, or <strong>Canada</strong> give you the best Anglo-adjacent pool). A franchise-heavy opening into 2–3 low-distance markets maximises scale with low risk. Save at least $1.5M for Year 2 growth.</p>
+    <ul>
+      <li>Enter 2 franchise markets in Year 1 (never 3+ — there is an entry penalty).</li>
+      <li>Source globally in Year 1 (2% margin), switch to local when the Trade War hits.</li>
+      <li>Avoid WOS in BR/CN/EG/IN/ZA — Political Crisis in Year 5 forces those out.</li>
+    </ul>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-ghost" onclick="goto('event-config')">Edit Event Settings</button>
+    <button class="btn btn-primary" onclick="commitWelcome()">Country Info →</button>
+  </div>
+</section>
+
+<!-- EVENT CONFIG (facilitator settings) -->
+<section class="screen" id="screen-event-config">
+  <div class="eyebrow">Class Settings · Facilitator</div>
+  <h1>Event schedule</h1>
+  <p class="hero-sub">Toggle news events and crises, and pick which countries they hit. Defaults match the Teaching Note's confirmed schedule.</p>
+
+  <div class="card">
+    <h3 class="card-title">Major News (shown BEFORE decisions — you can react)</h3>
+    <div id="event-news-list"></div>
+  </div>
+  <div class="card">
+    <h3 class="card-title">Crises (shown AFTER decisions — no time to react that year)</h3>
+    <div id="event-crisis-list"></div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-ghost" onclick="goto('welcome')">← Back</button>
+    <button class="btn btn-primary" onclick="goto('welcome')">Save &amp; Return</button>
+  </div>
+</section>
+
+<!-- SCREEN 2: COUNTRY INFO -->
+<section class="screen" id="screen-country-info">
+  <div class="eyebrow">Screen 2 · Country Info</div>
+  <h1>Know the map.</h1>
+  <p class="hero-sub">GDP per capita and population growth tell you where demand is. Country Risk, Trade Barriers, Cultural Distance, Industry Rivalry and Indulgence tell you where the frictions are.</p>
+
+  <div class="card">
+    <h3 class="card-title">GDP per Capita (USD)</h3>
+    <div class="chart-box tall"><canvas id="chart-gdp"></canvas></div>
+  </div>
+
+  <div class="card">
+    <h3 class="card-title">Forecast: GDP &amp; Population Growth</h3>
+    <div class="chart-box tall"><canvas id="chart-growth"></canvas></div>
+  </div>
+
+  <div class="card">
+    <h3 class="card-title">Country profile</h3>
+    <p class="card-sub">Ratings relative to your home country. <span style="color:var(--red);font-weight:500;">Red</span> = headwind. <span style="color:var(--green);font-weight:500;">Green</span> = tailwind.</p>
+    <div style="overflow-x:auto;">
+      <table id="tbl-country-info"></table>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 class="card-title">GDP &amp; Population Growth (detail)</h3>
+    <div style="overflow-x:auto;">
+      <table id="tbl-gdp-detail"></table>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-ghost" onclick="goto('welcome')">← Back</button>
+    <button class="btn btn-primary" onclick="startGame()">Start →</button>
+  </div>
+</section>
+
+<!-- SCREEN 3: NEWS -->
+<section class="screen" id="screen-news">
+  <div class="eyebrow">Screen 3 · News</div>
+  <h1 id="news-title">News, Year 1</h1>
+
+  <div class="news-tabs" id="news-tabs"></div>
+
+  <div class="card">
+    <div id="news-body" class="news-body"></div>
+    <div id="news-events"></div>
+  </div>
+
+  <div id="news-coach"></div>
+
+  <div class="btn-row">
+    <button class="btn btn-ghost" onclick="goto('welcome')">Home</button>
+    <button class="btn btn-primary" onclick="goto('entry-overview')">Entry &amp; Growth, Exit →</button>
+  </div>
+</section>
+
+<!-- SCREEN 4: ENTRY & GROWTH, EXIT OVERVIEW -->
+<section class="screen" id="screen-entry-overview">
+  <div class="eyebrow">Screen 4 · Decisions overview</div>
+  <h1>Entry, Growth &amp; Exit</h1>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3 class="card-title">Your setup</h3>
+      <div class="mini-row"><span>Company</span><strong id="ov-company">—</strong></div>
+      <div class="mini-row"><span>Home country</span><strong id="ov-home">—</strong></div>
+      <div class="mini-row"><span>Year</span><strong id="ov-year">1</strong></div>
+      <div class="mini-row"><span>Cash on hand</span><strong id="ov-cash">—</strong></div>
+      <div class="mini-row"><span>Cumulative profit</span><strong id="ov-cumprofit">—</strong></div>
+    </div>
+    <div class="card">
+      <h3 class="card-title">Entry mode reference</h3>
+      <div class="mini-row"><span><strong>Franchising (F)</strong> — 25 outlets</span><strong>$750K total</strong></div>
+      <div class="mini-row"><span>&nbsp;&nbsp;Local partner pays most costs; you earn fees + 6% royalty</span><span class="muted">$250K entry + $500K opening</span></div>
+      <div class="mini-row"><span><strong>Joint Venture (JV)</strong> — 5 outlets, 50% share</span><strong>$500K total</strong></div>
+      <div class="mini-row"><span>&nbsp;&nbsp;Shared control; partner exposure</span><span class="muted">$250K entry + $250K opening</span></div>
+      <div class="mini-row"><span><strong>Wholly Owned (WOS)</strong> — 5 outlets, 100% control</span><strong>$750K total</strong></div>
+      <div class="mini-row"><span>&nbsp;&nbsp;Full profit, full risk; "liability of foreignness"</span><span class="muted">$250K entry + $500K opening</span></div>
+    </div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-ghost" onclick="goto('news')">← News</button>
+    <button class="btn btn-primary" onclick="goto('market-entry')">Market Entry →</button>
+  </div>
+</section>
+
+<!-- SCREEN 5: MARKET ENTRY -->
+<section class="screen" id="screen-market-entry">
+  <div class="eyebrow">Screen 5 · Market Entry &amp; Growth</div>
+  <h1>Market Entry decisions</h1>
+  <p class="hero-sub">For each country, choose an entry mode — or grow an existing market by doubling its outlets. Growth costs only the outlet-opening fee (no $250K entry).</p>
+
+  <div class="budget-box">
+    <div class="budget-stat"><div class="label">Starting Cash</div><div class="value" id="be-start">—</div></div>
+    <div class="budget-stat"><div class="label">This Year's Spend</div><div class="value" id="be-spend">$0</div></div>
+    <div class="budget-stat"><div class="label">Cash Remaining</div><div class="value" id="be-remain">—</div></div>
+  </div>
+
+  <div class="card" style="margin-top:20px;">
+    <h3 class="card-title">Countries</h3>
+    <div id="entry-rows"></div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-ghost" onclick="goto('entry-overview')">← Back</button>
+    <button class="btn btn-primary" onclick="goto('exit')">Exit decisions →</button>
+  </div>
+</section>
+
+<!-- SCREEN 6: EXIT -->
+<section class="screen" id="screen-exit">
+  <div class="eyebrow">Screen 6 · Exit</div>
+  <h1>Exit decisions</h1>
+  <p class="hero-sub">You can walk away from a market at no financial charge and receive <strong>+$250K</strong>. However, your original investment is written off, and you cannot re-enter that country.</p>
+
+  <div class="card">
+    <h3 class="card-title">Active markets</h3>
+    <div id="exit-rows"></div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-ghost" onclick="goto('market-entry')">← Back</button>
+    <button class="btn btn-primary" onclick="goto('marketing-overview')">Marketing Decisions →</button>
+  </div>
+</section>
+
+<!-- SCREEN 7: MARKETING OVERVIEW -->
+<section class="screen" id="screen-marketing-overview">
+  <div class="eyebrow">Screen 7 · Marketing</div>
+  <h1>Marketing Decisions</h1>
+  <p class="hero-sub">For each active market, you'll set menu localization and sourcing. WOS/JV also set price and promotion. Franchisees handle price and promotion themselves.</p>
+
+  <div class="card">
+    <h3 class="card-title">Active markets</h3>
+    <div id="marketing-list"></div>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-ghost" onclick="goto('exit')">← Back</button>
+    <button class="btn btn-primary" id="btn-confirm-decisions" onclick="confirmYear()">Confirm Decisions →</button>
+  </div>
+</section>
+
+<!-- SCREEN 8/9: COUNTRY MARKETING -->
+<section class="screen" id="screen-country-marketing">
+  <div class="eyebrow" id="cm-eyebrow">Marketing · Country</div>
+  <h1 id="cm-title">—</h1>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3 class="card-title">Country Info</h3>
+      <table id="cm-country-table"></table>
+    </div>
+    <div class="card" id="cm-cost-card">
+      <h3 class="card-title">Cost &amp; Market Data</h3>
+      <div class="mini-row"><span>Variable Cost per Meal</span><strong id="cm-vc">—</strong></div>
+      <div class="mini-row"><span>Average Competitor Price per Meal</span><strong id="cm-comp">—</strong></div>
+      <div class="mini-row"><span>Estimated Gross Margin / Meal</span><strong id="cm-margin">—</strong></div>
+      <p class="card-sub" style="margin-top:12px;">Variable cost updates live as you change menu localization and sourcing.</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 class="card-title">Decisions for this market</h3>
+    <div class="grid-2">
+      <div class="field">
+        <label>Menu Localization</label>
+        <select id="cm-menu">
+          <option value="low">Standardized</option>
+          <option value="some" selected>Some Localization</option>
+          <option value="high">Localized</option>
+        </select>
+        <div class="hint">Localize more when cultural distance is high.</div>
+      </div>
+      <div class="field">
+        <label>Sourcing</label>
+        <select id="cm-source">
+          <option value="local">Mostly Local</option>
+          <option value="mix" selected>Mix Local &amp; International</option>
+          <option value="home">Mostly Global</option>
+        </select>
+        <div class="hint">Global = economies of scale BUT tariffs &amp; logistics. Local = safe in trade wars.</div>
+      </div>
+    </div>
+    <div id="cm-wosjv-fields" class="grid-2">
+      <div class="field">
+        <label>Average Price per Meal: <strong id="cm-price-val">$25</strong></label>
+        <input type="range" id="cm-price" min="10" max="50" step="0.5" value="25">
+        <div class="hint">Reference: competitor price is shown above.</div>
+      </div>
+      <div class="field">
+        <label>Promotion per Outlet: <strong id="cm-promo-val">$25K</strong></label>
+        <input type="range" id="cm-promo" min="0" max="100000" step="2500" value="25000">
+        <div class="hint">Diminishing returns past ~$50K; more impact when rivalry is high.</div>
+      </div>
+    </div>
+  </div>
+
+  <div id="cm-coach" class="coach hidden">
+    <span class="coach-label">Coach</span>
+    <h3 id="cm-coach-title">Recommended settings</h3>
+    <ul id="cm-coach-list"></ul>
+  </div>
+
+  <div class="btn-row">
+    <button class="btn btn-ghost" onclick="goto('marketing-overview')">← Back</button>
+    <button class="btn btn-primary" onclick="saveCountryMarketing()">Save &amp; Continue →</button>
+  </div>
+</section>
+
+<!-- SCREEN 10: SUMMARY RESULTS -->
+<section class="screen" id="screen-summary-results">
+  <div class="eyebrow" id="sr-eyebrow">Screen 10 · Summary Results</div>
+  <h1 id="sr-title">Results — Year 1</h1>
+
+  <div id="sr-feedback"></div>
+
+  <div class="stat-grid">
+    <div class="stat-card"><div class="label">Year Profit</div><div class="value" id="sr-year-profit">—</div></div>
+    <div class="stat-card"><div class="label">Cumulative Profit</div><div class="value" id="sr-cum-profit">—</div></div>
+    <div class="stat-card"><div class="label">Cash</div><div class="value" id="sr-cash">—</div></div>
+    <div class="stat-card"><div class="label">Outlets</div><div class="value" id="sr-outlets">—</div></div>
+    <div class="stat-card"><div class="label">Countries Active</div><div class="value" id="sr-countries">—</div></div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3 class="card-title">Annual Profit</h3>
+      <div class="chart-box"><canvas id="chart-annual-profit"></canvas></div>
+    </div>
+    <div class="card">
+      <h3 class="card-title">Cumulative Profit</h3>
+      <div class="chart-box"><canvas id="chart-cum-profit"></canvas></div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h3 class="card-title">Income Statement</h3>
+    <div style="overflow-x:auto;"><table id="tbl-income" class="income-table"></table></div>
+  </div>
+
+  <div class="grid-2">
+    <div class="card">
+      <h3 class="card-title">Profit by Country</h3>
+      <div style="overflow-x:auto;"><table id="tbl-profit-country"></table></div>
+    </div>
+    <div class="card">
+      <h3 class="card-title">Profit by Ownership</h3>
+      <div style="overflow-x:auto;"><table id="tbl-profit-ownership"></table></div>
+    </div>
+  </div>
+
+  <div class="results-footer">
+    <button class="btn btn-ghost" onclick="goToCountryResults()">Per-country results →</button>
+    <div style="display:flex;gap:10px;">
+      <button class="btn btn-ghost" onclick="replayGame()">Replay with different events</button>
+      <button class="btn btn-primary" id="btn-next-year" onclick="nextYear()">News for next year →</button>
+    </div>
+  </div>
+</section>
+
+<!-- SCREEN 11: COUNTRY RESULTS -->
+<section class="screen" id="screen-country-results">
+  <div class="eyebrow">Screen 11 · Country Results</div>
+  <h1>Per-country performance</h1>
+
+  <div class="tab-row" id="cr-tabs"></div>
+
+  <div id="cr-body"></div>
+
+  <div class="btn-row">
+    <button class="btn btn-ghost" onclick="goto('summary-results')">← Summary Results</button>
+  </div>
+</section>
+
+<!-- SCREEN 12: GLOSSARY -->
+<section class="screen" id="screen-glossary">
+  <div class="eyebrow">Reference</div>
+  <h1>Glossary</h1>
+  <div class="card">
+    <dl class="glossary" id="glossary-body"></dl>
+  </div>
+</section>
+
+<!-- STRATEGY LAB (Monte Carlo) -->
+<section class="screen" id="screen-strategy-lab">
+  <div class="eyebrow">Strategy Lab</div>
+  <h1>Monte Carlo: which strategy wins?</h1>
+  <p class="hero-sub">Each trial draws one random economy and runs all 8 strategies head-to-head. Win rate = share of trials where a strategy delivered the highest cumulative profit.</p>
+
+  <div class="card">
+    <div class="grid-3">
+      <div class="field">
+        <label>Home country</label>
+        <select id="mc-home"></select>
+      </div>
+      <div class="field">
+        <label>Trials</label>
+        <input type="number" id="mc-trials" value="400" min="50" max="5000" step="50">
+      </div>
+      <div class="field">
+        <label>Seed</label>
+        <input type="number" id="mc-seed" value="42">
+      </div>
+    </div>
+    <div class="btn-row" style="justify-content:flex-start;">
+      <button class="btn btn-primary" id="mc-run">Run simulation</button>
+    </div>
+    <div id="mc-progress" class="hidden" style="margin-top:12px;">
+      <div class="progress"><div class="progress-bar" id="mc-progress-bar" style="width:0%"></div></div>
+      <div id="mc-status" class="muted"></div>
+    </div>
+  </div>
+
+  <div id="mc-results" class="hidden">
+    <div class="grid-2">
+      <div class="card">
+        <h3 class="card-title">Win Rate</h3>
+        <div class="chart-box tall"><canvas id="mc-chart-win"></canvas></div>
+      </div>
+      <div class="card">
+        <h3 class="card-title">Mean &amp; P10 / P90 (USD M)</h3>
+        <div class="chart-box tall"><canvas id="mc-chart-dist"></canvas></div>
+      </div>
+    </div>
+    <div class="card">
+      <h3 class="card-title">Strategy ranking</h3>
+      <div style="overflow-x:auto;"><table id="mc-table"></table></div>
+    </div>
+  </div>
+</section>
+
+</main>
+
+<script>
+// ============================================================================
+// COUNTRY DATA
+// ============================================================================
+const COUNTRIES = {
+  US: {name:'USA',       gdp:70249, growth:1.6, pop:0.5, risk:85, tar:3.0,  rival:80, h:[40,91,62,46,26,68]},
+  UK: {name:'UK',        gdp:46510, growth:1.4, pop:0.3, risk:85, tar:5.0,  rival:80, h:[35,89,66,35,51,69]},
+  DE: {name:'Germany',   gdp:51204, growth:1.3, pop:-0.09,risk:85, tar:5.0, rival:60, h:[35,67,66,65,83,40]},
+  FR: {name:'France',    gdp:43659, growth:1.5, pop:0.17,risk:85, tar:5.0,  rival:60, h:[68,71,43,86,63,48]},
+  JP: {name:'Japan',     gdp:39313, growth:1.0, pop:-0.57,risk:85, tar:5.0, rival:60, h:[54,46,95,92,88,42]},
+  CN: {name:'China',     gdp:12556, growth:5.0, pop:-0.1,risk:55, tar:14.0, rival:60, h:[80,20,66,30,87,24]},
+  IN: {name:'India',     gdp:2257,  growth:6.2, pop:0.84,risk:55, tar:14.0, rival:40, h:[77,48,56,40,51,26]},
+  BR: {name:'Brazil',    gdp:7507,  growth:1.8, pop:0.49,risk:55, tar:14.0, rival:40, h:[69,38,49,76,44,59]},
+  AU: {name:'Australia', gdp:60443, growth:2.1, pop:0.92,risk:85, tar:3.0,  rival:80, h:[38,90,61,51,21,71]},
+  CA: {name:'Canada',    gdp:51988, growth:1.9, pop:0.8, risk:85, tar:3.0,  rival:80, h:[39,80,52,48,36,68]},
+  EG: {name:'Egypt',     gdp:3699,  growth:6.0, pop:1.41,risk:30, tar:14.0, rival:40, h:[70,25,45,80,7, 4]},
+  ZA: {name:'S Africa',  gdp:7055,  growth:1.3, pop:0.96,risk:30, tar:14.0, rival:40, h:[49,65,63,49,34,63]},
+};
+const CODES = Object.keys(COUNTRIES);
+const LOW_INCOME = ['BR','CN','EG','IN','ZA'];   // 25% lower fixed costs per Teaching Note
+const HIGH_RISK_POLITICAL = ['BR','CN','EG','IN','ZA'];  // Political Crisis targets
+
+const MODE_SPEC = {
+  F:   {entry:250000, open:500000, outlets:25, fee:20000, royalty:0.06, support:12500, capture:null, fixed:350000,  controlsPrice:false, label:'Franchising'},
+  JV:  {entry:250000, open:250000, outlets:5,  fee:0,     royalty:0,    support:0,     capture:0.50, fixed:600000,  controlsPrice:true,  label:'Joint Venture'},
+  WOS: {entry:250000, open:500000, outlets:5,  fee:0,     royalty:0,    support:0,     capture:1.00, fixed:800000,  controlsPrice:true,  label:'Wholly Owned'},
+};
+
+// ============================================================================
+// UTILS
+// ============================================================================
+function cultDistance(a, b) { let s = 0; for (let i = 0; i < 6; i++) s += Math.abs(COUNTRIES[a].h[i] - COUNTRIES[b].h[i]); return s; }
+function pppPrice(c) { const g = COUNTRIES[c].gdp; return Math.max(12, Math.min(42, 12 + (g - 2700) / (85000 - 2700) * 30)); }
+
+function makeRNG(seed) {
+  let s = seed | 0;
+  const api = {
+    random() { s = (s + 0x6D2B79F5) | 0; let t = s; t = Math.imul(t ^ (t >>> 15), t | 1); t ^= t + Math.imul(t ^ (t >>> 7), t | 61); return ((t ^ (t >>> 14)) >>> 0) / 4294967296; },
+    uniform(lo, hi) { return lo + api.random() * (hi - lo); },
+    gauss(mu, sigma) { const u1 = Math.max(1e-10, api.random()); const u2 = api.random(); return mu + sigma * Math.sqrt(-2 * Math.log(u1)) * Math.cos(2 * Math.PI * u2); },
+    choice(arr) { return arr[Math.floor(api.random() * arr.length)]; },
+    randint(lo, hi) { return lo + Math.floor(api.random() * (hi - lo + 1)); },
+    shuffle(arr) { for (let i = arr.length - 1; i > 0; i--) { const j = Math.floor(api.random() * (i + 1)); [arr[i], arr[j]] = [arr[j], arr[i]]; } return arr; },
+    choices(arr, w) { const tot = w.reduce((a,b) => a+b, 0); let r = api.random()*tot; for (let i=0;i<arr.length;i++) { r -= w[i]; if (r<=0) return arr[i]; } return arr[arr.length-1]; }
+  };
+  return api;
+}
+
+function randomParams(rng) {
+  return {
+    baseRevenue: rng.uniform(250000, 500000), gdpElasticity: rng.uniform(0.15, 0.35),
+    indulgenceWeight: rng.uniform(0.25, 0.55), cultPenalty: rng.uniform(0.30, 0.65),
+    rivalryPenalty: rng.uniform(0.15, 0.40), promoMaxLift: rng.uniform(0.30, 0.60),
+    promoHalfSat: rng.uniform(20000, 45000), locLiftAtHighDist: rng.uniform(0.20, 0.40),
+    locPenaltyLowAtHighDist: rng.uniform(0.15, 0.35), baseMargin: rng.uniform(0.55, 0.70),
+    tariffHitPerPct: rng.uniform(0.008, 0.018), localizationCogs: rng.uniform(0.02, 0.05),
+    priceOptimumFactor: rng.uniform(0.85, 1.15), pricePenalty: rng.uniform(0.30, 0.55),
+    franchiseAiQuality: rng.uniform(0.70, 0.95), yearlyNoise: rng.uniform(0.05, 0.15),
+  };
+}
+
+function forioCategories(home, country) {
+  const d = COUNTRIES[country];
+  const isHome = home === country;
+  const risk = d.risk >= 70 ? 'Low' : d.risk >= 46 ? 'Medium' : 'High';
+  const bar = isHome ? 'NA' : d.tar > 7.5 ? 'High' : d.tar > 3.5 ? 'Medium' : 'Low';
+  const riv = d.rival >= 68 ? 'High' : d.rival >= 55 ? 'Medium' : 'Low';
+  const dist = isHome ? 0 : cultDistance(home, country);
+  const cultDist = isHome ? 'NA' : dist < 100 ? 'Low' : dist < 200 ? 'Medium' : 'High';
+  const ind = d.h[5] >= 62 ? 'High' : d.h[5] >= 35 ? 'Medium' : 'Low';
+  return { risk, bar, riv, cultDist, ind, distRaw: dist };
+}
+
+function catColor(val, highIsGood) {
+  if (val === 'NA') return 'color:var(--ink-3);';
+  if (val === 'High') return highIsGood ? 'color:var(--green);font-weight:600;' : 'color:var(--red);font-weight:600;';
+  if (val === 'Low') return highIsGood ? 'color:var(--red);font-weight:600;' : '';
+  return '';
+}
+
+function fmtMoney(n) {
+  if (n === null || n === undefined || isNaN(n)) return '—';
+  const a = Math.abs(n); const sign = n < 0 ? '-' : '';
+  if (a >= 1e6) return `${sign}$${(a/1e6).toFixed(2)}M`;
+  if (a >= 1e3) return `${sign}$${Math.round(a/1e3)}K`;
+  return `${sign}$${Math.round(a)}`;
+}
+function fmtPct(n, d = 1) { return (n*100).toFixed(d) + '%'; }
+
+// ============================================================================
+// ENGINE: compute one country's economics for one year
+// Returns full line-item income statement components so we can render the IS table.
+// ============================================================================
+function variableCostPerMeal(country, menuLoc, sourcing, params) {
+  // Base VC from country income level: lower in emerging markets (cheaper labor/ingredients)
+  const c = COUNTRIES[country];
+  let baseVC = 7.0 + (c.gdp / 85000) * 5.0;   // $7 emerging → $12 developed
+  // Menu localization: "low" (standardized) cheapest, "high" (localized) priciest
+  const locMult = menuLoc === 'low' ? 1.0 : menuLoc === 'some' ? 1.08 : 1.18;
+  baseVC *= locMult;
+  // Sourcing: global = economies of scale (-10%) but tariffs add back; local = stable; mix = in between
+  const srcMult = sourcing === 'home' ? 0.90 : sourcing === 'mix' ? 0.97 : 1.04;
+  let vc = baseVC * srcMult;
+  // Tariff adjustment applied to imported share
+  const tariffExp = sourcing === 'home' ? 1.0 : sourcing === 'mix' ? 0.5 : 0.0;
+  vc *= 1 + (c.tar / 100) * tariffExp;
+  return vc;
+}
+
+function countryEconomics({ home, country, mode, outlets, decision, year, enteredYear, isNewThisYear, brandCount, entriesThisYear, crisisRevMult, crisisMarginExtra, crisisTariffAmp, fixedCostMult, forceZeroRevenue }, params, rng) {
+  const c = COUNTRIES[country];
+  const spec = MODE_SPEC[mode];
+
+  if (forceZeroRevenue) {
+    // Country exited mid-year via political crisis — still pay exit cost elsewhere
+    return { revenue: 0, variableCost: 0, grossProfit: 0, promotion: 0, fixedCost: 0, operatingProfit: 0, playerProfit: 0, meals: 0, avgPrice: 0, vcPerMeal: 0 };
+  }
+
+  // ---- Revenue (per outlet) ----
+  let revPerOutlet = params.baseRevenue;
+  revPerOutlet *= Math.pow(c.gdp / 30000, params.gdpElasticity);
+  const ivr = c.h[5];
+  revPerOutlet *= 1 + params.indulgenceWeight * ((ivr - 50) / 50);
+  const dist = cultDistance(home, country);
+  revPerOutlet *= 1 - params.cultPenalty * Math.min(1, dist / 400);
+  revPerOutlet *= 1 - params.rivalryPenalty * (c.rival / 100);
+  const distNorm = Math.min(1, dist / 400);
+  const loc = decision.menuLoc;
+  if (loc === 'high') revPerOutlet *= 1 + params.locLiftAtHighDist * distNorm;
+  else if (loc === 'low') revPerOutlet *= 1 - params.locPenaltyLowAtHighDist * distNorm;
+
+  // Promotion
+  let promoPerOutlet;
+  if (mode === 'WOS' || mode === 'JV') promoPerOutlet = decision.promo;
+  else promoPerOutlet = 25000;  // Franchisee sets promo = $25K per Teaching Note
+  revPerOutlet *= 1 + params.promoMaxLift * promoPerOutlet / (promoPerOutlet + params.promoHalfSat);
+
+  // Price
+  const optimalPrice = pppPrice(country) * params.priceOptimumFactor;
+  let chosenPrice;
+  if (mode === 'WOS' || mode === 'JV') chosenPrice = decision.price > 0 ? decision.price : optimalPrice;
+  else chosenPrice = pppPrice(country);   // Franchisee sets price = competitor price
+  const deviation = Math.abs(chosenPrice - optimalPrice) / optimalPrice;
+  const priceFactor = Math.max(0.2, 1 - params.pricePenalty * deviation);
+  revPerOutlet *= (chosenPrice / 25.0) * priceFactor;
+
+  // Crisis / news multiplier
+  revPerOutlet *= (crisisRevMult || 1);
+
+  // First-year 50% revenue (outlets open mid-year)
+  if (isNewThisYear) revPerOutlet *= 0.5;
+
+  // 3+ entry/growth penalty this year
+  if (entriesThisYear >= 3) revPerOutlet *= Math.max(0.5, 1 - 0.1 * (entriesThisYear - 2));
+
+  // WOS liability of foreignness
+  if (mode === 'WOS') revPerOutlet *= 1 - 0.15 * Math.min(1, dist / 400);
+
+  // Brand awareness
+  if (brandCount >= 3) revPerOutlet *= 1 + 0.02 * (brandCount - 2);
+
+  // Noise
+  revPerOutlet *= 1 + rng.gauss(0, params.yearlyNoise);
+  revPerOutlet = Math.max(0, revPerOutlet);
+
+  // ---- Meals (derived from revenue + price) ----
+  const meals = revPerOutlet / chosenPrice;
+  const totalRevenue = revPerOutlet * outlets;
+
+  // ---- Variable cost per meal ----
+  let vcPerMeal = variableCostPerMeal(country, loc, decision.sourcing, params);
+  // Trade war crisis amplifies tariff exposure
+  if (crisisTariffAmp && crisisTariffAmp > 1) {
+    const tariffExp = decision.sourcing === 'home' ? 1.0 : decision.sourcing === 'mix' ? 0.5 : 0.0;
+    vcPerMeal *= 1 + (c.tar / 100) * tariffExp * (crisisTariffAmp - 1);
+  }
+  const totalMeals = meals * outlets;
+  const totalVariableCost = totalMeals * vcPerMeal;
+
+  // ---- Promotion cost ----
+  const promotionTotal = promoPerOutlet * outlets;
+
+  // ---- Fixed cost ----
+  // Low-income countries: 25% less
+  let fixedPerOutlet = spec.fixed;
+  if (LOW_INCOME.includes(country)) fixedPerOutlet *= 0.75;
+  // First year: 50%
+  if (isNewThisYear) fixedPerOutlet *= 0.5;
+  // Minimum wage crisis: +20% for WOS/JV (not franchise)
+  if (fixedCostMult && mode !== 'F') fixedPerOutlet *= fixedCostMult;
+  const fixedTotal = fixedPerOutlet * outlets;
+
+  const grossProfit = totalRevenue - totalVariableCost;
+  const operatingProfit = grossProfit - promotionTotal - fixedTotal;
+
+  let playerProfit;
+  let franchiseFee = 0, royalty = 0, sourcingMargin = 0, supportCost = 0;
+  if (mode === 'F') {
+    // Franchise revenue: fee + royalty + sourcing margin - support cost
+    // Note: fee is one-off at opening (handled in cash flow), but for year-1 show it here
+    royalty = totalRevenue * spec.royalty;
+    const sourcingPct = decision.sourcing === 'home' ? 0.02 : decision.sourcing === 'mix' ? 0.01 : 0;
+    sourcingMargin = totalRevenue * sourcingPct;
+    supportCost = spec.support * outlets;
+    if (crisisMarginExtra) supportCost -= totalRevenue * (crisisMarginExtra); // unusual but keeps formulas consistent
+    playerProfit = royalty + sourcingMargin - supportCost;
+  } else if (mode === 'JV') {
+    playerProfit = operatingProfit * spec.capture;
+  } else {
+    playerProfit = operatingProfit * spec.capture;
+  }
+
+  return {
+    revenue: totalRevenue, variableCost: totalVariableCost, grossProfit,
+    promotion: promotionTotal, fixedCost: fixedTotal, operatingProfit,
+    playerProfit, royalty, franchiseFee, sourcingMargin, supportCost,
+    meals: totalMeals, avgPrice: chosenPrice, vcPerMeal,
+  };
+}
+
+// ============================================================================
+// EVENTS (default Teaching Note schedule)
+// ============================================================================
+function defaultEventConfig() {
+  return {
+    y3_financial: { enabled: true, label: 'Global Financial Crisis (Y3)', desc: '-20% meals everywhere (-10% in CN/IN)', type: 'news', year: 3, countries: [...CODES] },
+    y4_trade_war: { enabled: true, label: 'Trade War (Y4–Y5)', desc: 'Tariffs up sharply on all imports. Ends Y6.', type: 'news', year: 4, countries: [...CODES] },
+    y5_minimum_wage: { enabled: true, label: 'Minimum Wage hike (Y5)', desc: '+20% fixed costs for WOS/JV (not franchise).', type: 'news', year: 5, countries: [...CODES] },
+    y3_weather: { enabled: false, label: 'Extreme Weather (Y3)', desc: '-25% sales (outlets closed 1 quarter).', type: 'crisis', year: 3, countries: [] },
+    y4_opportunism: { enabled: false, label: 'Partner Opportunism (Y4–Y5)', desc: '-25% revenue, JV/Franchise only, lasts 2 years.', type: 'crisis', year: 4, countries: [] },
+    y5_political: { enabled: true, label: 'Political Crisis (Y5)', desc: 'Forces WOS exit from high-risk countries; JV/F survive with -50% rev.', type: 'crisis', year: 5, countries: [...HIGH_RISK_POLITICAL] },
+  };
+}
+
+// Returns a dict keyed by country for a given year: per-country modifiers to apply
+function getYearEventImpacts(eventConfig, year, positions) {
+  const impacts = {};
+  // Y3 Financial
+  if (eventConfig.y3_financial.enabled && year === 3) {
+    for (const c of eventConfig.y3_financial.countries) {
+      if (!positions[c]) continue;
+      const mult = (c === 'CN' || c === 'IN') ? 0.90 : 0.80;
+      impacts[c] = impacts[c] || { revMult: 1, tariffAmp: 1, fixedMult: 1, marginExtra: 0, tags: [] };
+      impacts[c].revMult *= mult;
+      impacts[c].tags.push('Financial Crisis');
+    }
+  }
+  // Y4+Y5 Trade war
+  if (eventConfig.y4_trade_war.enabled && (year === 4 || year === 5)) {
+    for (const c of eventConfig.y4_trade_war.countries) {
+      if (!positions[c]) continue;
+      impacts[c] = impacts[c] || { revMult: 1, tariffAmp: 1, fixedMult: 1, marginExtra: 0, tags: [] };
+      impacts[c].tariffAmp *= 2.0;
+      impacts[c].revMult *= 0.95;
+      impacts[c].tags.push('Trade War');
+    }
+  }
+  // Y5 Minimum wage
+  if (eventConfig.y5_minimum_wage.enabled && year === 5) {
+    for (const c of eventConfig.y5_minimum_wage.countries) {
+      if (!positions[c]) continue;
+      impacts[c] = impacts[c] || { revMult: 1, tariffAmp: 1, fixedMult: 1, marginExtra: 0, tags: [] };
+      impacts[c].fixedMult *= 1.20;
+      impacts[c].tags.push('Minimum Wage');
+    }
+  }
+  // Y3 Weather
+  if (eventConfig.y3_weather.enabled && year === 3) {
+    for (const c of eventConfig.y3_weather.countries) {
+      if (!positions[c]) continue;
+      impacts[c] = impacts[c] || { revMult: 1, tariffAmp: 1, fixedMult: 1, marginExtra: 0, tags: [] };
+      impacts[c].revMult *= 0.75;
+      impacts[c].tags.push('Extreme Weather');
+    }
+  }
+  // Y4+Y5 Opportunism (2 years, JV/F only)
+  if (eventConfig.y4_opportunism.enabled && (year === 4 || year === 5)) {
+    for (const c of eventConfig.y4_opportunism.countries) {
+      if (!positions[c]) continue;
+      if (positions[c].mode === 'WOS') continue;
+      impacts[c] = impacts[c] || { revMult: 1, tariffAmp: 1, fixedMult: 1, marginExtra: 0, tags: [] };
+      impacts[c].revMult *= 0.75;
+      impacts[c].tags.push('Partner Opportunism');
+    }
+  }
+  // Y5 Political crisis
+  if (eventConfig.y5_political.enabled && year === 5) {
+    for (const c of eventConfig.y5_political.countries) {
+      if (!positions[c]) continue;
+      impacts[c] = impacts[c] || { revMult: 1, tariffAmp: 1, fixedMult: 1, marginExtra: 0, tags: [] };
+      if (positions[c].mode === 'WOS') {
+        impacts[c].forceExit = true;
+        impacts[c].tags.push('Political Crisis (forced exit)');
+      } else {
+        impacts[c].revMult *= 0.50;
+        impacts[c].tags.push('Political Crisis');
+      }
+    }
+  }
+  return impacts;
+}
+
+// ============================================================================
+// GAME STATE
+// ============================================================================
+let game = null;
+function freshGame() {
+  return {
+    phase: 'setup',      // 'setup' | 'decisions' | 'results' | 'done'
+    home: 'CA',
+    companyName: '',
+    year: 1,
+    cash: 3000000,
+    cumProfit: 0,
+    bonus25: false,
+    bonus50: false,
+    positions: {},       // code -> {country, mode, outlets, enteredYear, decision}
+    exited: new Set(),
+    yearly: [],          // history of yearly records
+    params: null,
+    rng: null,
+    eventConfig: defaultEventConfig(),
+    pending: { enter: {}, grow: {}, exit: {}, marketing: {} },
+    seed: 42,
+  };
+}
+game = freshGame();
+
+// ============================================================================
+// NAVIGATION
+// ============================================================================
+function goto(screen) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  const el = document.getElementById('screen-' + screen);
+  if (el) el.classList.add('active');
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  document.querySelectorAll('#top-nav button').forEach(b => b.classList.toggle('active', b.dataset.goto === screen));
+  // Render logic on entering certain screens
+  if (screen === 'country-info') renderCountryInfo();
+  if (screen === 'event-config') renderEventConfig();
+  if (screen === 'news') renderNews();
+  if (screen === 'entry-overview') renderEntryOverview();
+  if (screen === 'market-entry') renderMarketEntry();
+  if (screen === 'exit') renderExit();
+  if (screen === 'marketing-overview') renderMarketingOverview();
+  if (screen === 'summary-results') renderSummaryResults();
+  if (screen === 'country-results') renderCountryResults();
+  if (screen === 'glossary') renderGlossary();
+  if (screen === 'strategy-lab') setupStrategyLab();
+}
+document.querySelectorAll('#top-nav button').forEach(b => {
+  b.addEventListener('click', () => goto(b.dataset.goto));
+});
+
+// ============================================================================
+// WELCOME / SETUP
+// ============================================================================
+function populateSelect(sel, selected) {
+  sel.innerHTML = CODES.map(c => `<option value="${c}">${COUNTRIES[c].name}</option>`).join('');
+  if (selected) sel.value = selected;
+}
+populateSelect(document.getElementById('f-home'), 'CA');
+
+function commitWelcome() {
+  game.home = document.getElementById('f-home').value;
+  game.companyName = document.getElementById('f-company').value || 'Your Company';
+  goto('country-info');
+}
+
+// ============================================================================
+// EVENT CONFIG SCREEN
+// ============================================================================
+function renderEventConfig() {
+  const newsDiv = document.getElementById('event-news-list');
+  const crisDiv = document.getElementById('event-crisis-list');
+  newsDiv.innerHTML = '';
+  crisDiv.innerHTML = '';
+  for (const [key, ev] of Object.entries(game.eventConfig)) {
+    const canEditCountries = !['y3_financial', 'y4_trade_war'].includes(key);
+    const row = document.createElement('div');
+    row.className = 'event-config-row';
+    row.innerHTML = `
+      <div>
+        <strong>${ev.label}</strong>
+        <div class="meta">${ev.desc}</div>
+        ${canEditCountries ? `
+          <div class="chip-row">
+            ${CODES.map(c => `<span class="country-chip ${ev.countries.includes(c)?'selected':''}" data-ev="${key}" data-c="${c}">${COUNTRIES[c].name}</span>`).join('')}
+          </div>` : `<div class="meta"><em>Applies to all countries.</em></div>`}
+      </div>
+      <label class="toggle">
+        <input type="checkbox" ${ev.enabled?'checked':''} data-ev-toggle="${key}">
+        <span class="slider"></span>
+      </label>
+    `;
+    (ev.type === 'news' ? newsDiv : crisDiv).appendChild(row);
+  }
+  document.querySelectorAll('[data-ev-toggle]').forEach(el => {
+    el.addEventListener('change', () => {
+      const key = el.dataset.evToggle;
+      game.eventConfig[key].enabled = el.checked;
+    });
+  });
+  document.querySelectorAll('.country-chip').forEach(el => {
+    el.addEventListener('click', () => {
+      const key = el.dataset.ev; const c = el.dataset.c;
+      const list = game.eventConfig[key].countries;
+      const idx = list.indexOf(c);
+      if (idx >= 0) list.splice(idx, 1); else list.push(c);
+      el.classList.toggle('selected');
+    });
+  });
+}
+
+// ============================================================================
+// COUNTRY INFO SCREEN
+// ============================================================================
+let chartGdp, chartGrowth;
+function renderCountryInfo() {
+  const home = game.home;
+  // GDP bar chart
+  const sorted = [...CODES].sort((a,b) => COUNTRIES[b].gdp - COUNTRIES[a].gdp);
+  if (chartGdp) chartGdp.destroy();
+  chartGdp = new Chart(document.getElementById('chart-gdp'), {
+    type: 'bar',
+    data: {
+      labels: sorted.map(c => COUNTRIES[c].name),
+      datasets: [{ label: 'GDP/cap (USD)', data: sorted.map(c => COUNTRIES[c].gdp), backgroundColor: sorted.map(c => c === home ? '#D97757' : '#C4B5A0'), borderWidth: 0 }]
+    },
+    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => '$' + ctx.parsed.x.toLocaleString() } } },
+      scales: { x: { ticks: { callback: v => '$' + (v/1000).toFixed(0) + 'K', color: '#6B6B66' }, grid: { color: 'rgba(20,20,19,0.06)' } }, y: { grid: { display: false }, ticks: { color: '#141413' } } }
+    }
+  });
+  // Growth dual bar
+  if (chartGrowth) chartGrowth.destroy();
+  chartGrowth = new Chart(document.getElementById('chart-growth'), {
+    type: 'bar',
+    data: {
+      labels: CODES.map(c => COUNTRIES[c].name),
+      datasets: [
+        { label: 'GDP growth %', data: CODES.map(c => COUNTRIES[c].growth), backgroundColor: '#D97757' },
+        { label: 'Population growth %', data: CODES.map(c => COUNTRIES[c].pop), backgroundColor: '#141413' },
+      ]
+    },
+    options: { responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'top', labels: { color: '#3D3D3A' } } },
+      scales: { x: { grid: { display: false }, ticks: { color: '#141413' } }, y: { ticks: { callback: v => v + '%', color: '#6B6B66' }, grid: { color: 'rgba(20,20,19,0.06)' } } }
+    }
+  });
+
+  // Country info table
+  const tbl = document.getElementById('tbl-country-info');
+  let html = '<thead><tr><th>Country</th><th>Country Risk</th><th>Trade Barriers</th><th>Industry Rivalry</th><th>Cultural Distance</th><th>Indulgence</th></tr></thead><tbody>';
+  for (const c of CODES) {
+    const cat = forioCategories(home, c);
+    const homeMark = c === home ? ' <span class="pill pill-accent">HOME</span>' : '';
+    html += `<tr>
+      <td><strong>${COUNTRIES[c].name}</strong>${homeMark}</td>
+      <td style="${catColor(cat.risk, true)}">${cat.risk}</td>
+      <td style="${catColor(cat.bar, false)}">${cat.bar}</td>
+      <td style="${catColor(cat.riv, false)}">${cat.riv}</td>
+      <td style="${catColor(cat.cultDist, false)}">${cat.cultDist}</td>
+      <td style="${catColor(cat.ind, true)}">${cat.ind}</td>
+    </tr>`;
+  }
+  html += '</tbody>';
+  tbl.innerHTML = html;
+
+  // GDP detail table
+  const tbl2 = document.getElementById('tbl-gdp-detail');
+  let html2 = '<thead><tr><th>Country</th><th class="t-num">GDP / capita</th><th class="t-num">GDP growth</th><th class="t-num">Population growth</th><th class="t-num">Tariff avg</th></tr></thead><tbody>';
+  for (const c of CODES) {
+    const d = COUNTRIES[c];
+    html2 += `<tr><td>${d.name}${c === home ? ' (home)' : ''}</td><td class="t-num">$${d.gdp.toLocaleString()}</td><td class="t-num">${d.growth.toFixed(1)}%</td><td class="t-num">${d.pop.toFixed(2)}%</td><td class="t-num">${d.tar.toFixed(1)}%</td></tr>`;
+  }
+  html2 += '</tbody>';
+  tbl2.innerHTML = html2;
+}
+
+// ============================================================================
+// GAME START
+// ============================================================================
+function startGame() {
+  game.seed = parseInt((Math.random() * 100000) | 0) || 42;
+  game.params = randomParams(makeRNG(game.seed));
+  game.rng = makeRNG(game.seed + 1);
+  game.phase = 'decisions';
+  game.year = 1;
+  goto('news');
+}
+
+function replayGame() {
+  const cfg = game.eventConfig;
+  const home = game.home;
+  const company = game.companyName;
+  game = freshGame();
+  game.eventConfig = cfg;
+  game.home = home;
+  game.companyName = company;
+  goto('welcome');
+}
+
+// ============================================================================
+// NEWS SCREEN
+// ============================================================================
+const NEWS_TEXT = {
+  1: { title: 'The economy is strong and consumers are optimistic.', body: 'Growth is steady, consumer confidence is high, and international travel has rebounded. Several analysts are calling this "peak globalization." It looks like a good time to plant flags abroad. Competitors are moving fast — but not yet recklessly.' },
+  2: { title: 'Growth continues. Competitors are raising prices.', body: 'Another solid year. Inflation is creeping in and competitors have started raising menu prices. A small number of economists warn that the expansion cannot last, but consumer confidence remains high.' },
+  3: { title: 'Global Financial Crisis.', body: 'Markets have cracked. Consumer spending has dropped sharply in most economies — roughly 20% — though China and India are holding up better (~10% decline). Now is not the time to enter aggressively, but this is an ideal moment to consolidate and grow the best existing markets cheaply.' },
+  4: { title: 'Trade war escalates.', body: 'New tariffs have been announced on imported ingredients. Any market where you source globally will see margins compress. Players who switch to local sourcing protect their margin — but give up the 2% sourcing royalty (for franchises).' },
+  5: { title: 'Minimum-wage hike. Political tensions rising.', body: 'A new minimum-wage law adds ~20% to fixed costs for company-owned outlets (WOS/JV). Franchise outlets are untouched — their fixed cost sits with the franchisee. Meanwhile political unrest is flaring in higher-risk markets, and facilitators may force WOS exits from those countries.' },
+  6: { title: 'Trade war ends. Demand recovers.', body: 'Tariffs revert to baseline. Global sourcing is attractive again — switch back for the sourcing margin. This is a harvest year: grow top markets rather than entering new ones.' },
+};
+
+function renderNews() {
+  document.getElementById('news-title').textContent = `News, Year ${game.year}`;
+  const tabs = document.getElementById('news-tabs');
+  tabs.innerHTML = '';
+  for (let y = 1; y <= 6; y++) {
+    const b = document.createElement('button');
+    b.className = 'news-tab' + (y === game.year ? ' active' : '');
+    b.textContent = `News Yr${y}`;
+    if (y > game.year) b.disabled = true;
+    else b.addEventListener('click', () => { game.year = y; renderNews(); });
+    tabs.appendChild(b);
+  }
+  const nt = NEWS_TEXT[game.year];
+  document.getElementById('news-body').innerHTML = `<h3>${nt.title}</h3><p>${nt.body}</p>`;
+
+  // Show active news events for THIS year
+  const evDiv = document.getElementById('news-events');
+  const impacts = getYearEventImpacts(game.eventConfig, game.year, game.positions);
+  const activeEvents = new Set();
+  for (const c in impacts) for (const t of impacts[c].tags) activeEvents.add(t);
+  let evHtml = '';
+  if (activeEvents.size) {
+    for (const t of activeEvents) {
+      const cls = t.includes('Financial') || t.includes('Trade War') || t.includes('Minimum') ? '' : 'crisis';
+      evHtml += `<div class="event-alert ${cls}"><strong>${t}</strong> active this year — affects: ${
+        Object.keys(impacts).filter(c => impacts[c].tags.includes(t)).map(c => COUNTRIES[c].name).join(', ') || '—'
+      }</div>`;
+    }
+  }
+  evDiv.innerHTML = evHtml;
+
+  // Coach panel
+  const coach = document.getElementById('news-coach');
+  coach.innerHTML = renderCoachForYear(game.year);
+}
+
+function renderCoachForYear(year) {
+  const tips = {
+    1: [
+      'Enter 2 markets (not 3+!) via <strong>Franchising</strong> — low capital, fast scale.',
+      'Pick low cultural-distance targets (if home = CA/US/UK: enter UK/AU/US).',
+      'Source globally — earn the 2% sourcing royalty in Y1/Y2.',
+      'Menu: Standardized. Keep costs low.',
+    ],
+    2: [
+      'Add 1 more franchise market — total 3 countries.',
+      'Grow your best Year-1 market (doubles outlets for just outlet-opening cost).',
+      'For any WOS/JV: set promotion to ~$50K (above diminishing-returns kink).',
+    ],
+    3: [
+      '<strong>Financial Crisis hits</strong>. Demand down 20% (10% in CN/IN).',
+      'Do NOT exit — investment is written off. Ride it out.',
+      'Grow cautiously — cheap outlets in existing markets.',
+    ],
+    4: [
+      '<strong>Trade War begins.</strong> Switch ALL sourcing to <em>Mostly Local</em> immediately.',
+      'Grow top markets. Maybe add one final franchise entry if cash > $1.5M.',
+    ],
+    5: [
+      '<strong>Political Crisis</strong> may force WOS exits from BR/CN/EG/IN/ZA.',
+      '<strong>Minimum Wage hike</strong> adds 20% fixed cost to WOS/JV. Franchise is safe.',
+      'Keep local sourcing.',
+    ],
+    6: [
+      '<strong>Trade war ends.</strong> Switch sourcing back to <em>Mostly Global</em> for the 2% margin.',
+      'For franchise markets, consider <em>Localized</em> menu — franchisees can absorb the cost.',
+      'Harvest year: grow top markets rather than entering new ones.',
+    ],
+  };
+  return `
+    <div class="coach">
+      <span class="coach-label">Coach — Year ${year} playbook</span>
+      <h3>What to do this year</h3>
+      <ul>${tips[year].map(t => `<li>${t}</li>`).join('')}</ul>
+    </div>
+  `;
+}
+
+// ============================================================================
+// ENTRY OVERVIEW
+// ============================================================================
+function renderEntryOverview() {
+  document.getElementById('ov-company').textContent = game.companyName;
+  document.getElementById('ov-home').textContent = COUNTRIES[game.home].name;
+  document.getElementById('ov-year').textContent = game.year;
+  document.getElementById('ov-cash').textContent = fmtMoney(game.cash);
+  document.getElementById('ov-cumprofit').textContent = fmtMoney(game.cumProfit);
+}
+
+// ============================================================================
+// MARKET ENTRY (real-time budget)
+// ============================================================================
+function computePendingSpend() {
+  let spend = 0;
+  for (const [c, mode] of Object.entries(game.pending.enter)) {
+    if (!mode) continue;
+    const spec = MODE_SPEC[mode];
+    spend += spec.entry + spec.open;
+    if (mode === 'F') spend -= spec.fee * spec.outlets;  // franchise fees credited in
+  }
+  for (const c of Object.keys(game.pending.grow)) {
+    if (!game.pending.grow[c]) continue;
+    const pos = game.positions[c];
+    if (!pos) continue;
+    const perOutlet = MODE_SPEC[pos.mode].open / MODE_SPEC[pos.mode].outlets;
+    const cost = perOutlet * pos.outlets;   // doubling: add N outlets
+    spend += cost;
+    if (pos.mode === 'F') spend -= MODE_SPEC.F.fee * pos.outlets;
+  }
+  // Exit refund
+  let refund = 0;
+  for (const c of Object.keys(game.pending.exit)) if (game.pending.exit[c]) refund += 250000;
+  return spend - refund;
+}
+
+function updateBudgetDisplay() {
+  const spend = computePendingSpend();
+  document.getElementById('be-start').textContent = fmtMoney(game.cash);
+  document.getElementById('be-spend').textContent = fmtMoney(spend);
+  document.getElementById('be-spend').className = 'value ' + (spend > 0 ? 'negative' : 'positive');
+  const remain = game.cash - spend;
+  document.getElementById('be-remain').textContent = fmtMoney(remain);
+  document.getElementById('be-remain').className = 'value ' + (remain < 0 ? 'negative' : '');
+}
+
+function renderMarketEntry() {
+  const rows = document.getElementById('entry-rows');
+  rows.innerHTML = '';
+  const available = CODES.filter(c => c !== game.home && !game.exited.has(c));
+  for (const c of available) {
+    const isActive = !!game.positions[c];
+    const row = document.createElement('div');
+    row.className = 'country-entry-row';
+    if (isActive) {
+      const pos = game.positions[c];
+      const perOutletCost = (MODE_SPEC[pos.mode].open / MODE_SPEC[pos.mode].outlets) * pos.outlets;
+      row.innerHTML = `
+        <div>
+          <div class="name">${COUNTRIES[c].name} <span class="mode-tag mode-${pos.mode}">${pos.mode}</span></div>
+          <div class="hint">Already active · ${pos.outlets} outlets</div>
+        </div>
+        <div>
+          <label style="font-size:13px;display:flex;align-items:center;gap:8px;">
+            <input type="checkbox" ${game.pending.grow[c]?'checked':''} data-grow="${c}">
+            <span>Grow to ${pos.outlets*2} outlets (${fmtMoney(perOutletCost)})</span>
+          </label>
+        </div>
+        <div class="hint">${game.pending.grow[c] ? 'Growing' : ''}</div>
+      `;
+    } else {
+      row.innerHTML = `
+        <div>
+          <div class="name">${COUNTRIES[c].name}</div>
+          <div class="hint">${forioCategories(game.home, c).cultDist === 'High' ? 'High cultural distance' : 'Low–Medium cultural distance'}</div>
+        </div>
+        <div>
+          <select data-enter="${c}">
+            <option value="">— Don't enter —</option>
+            <option value="F" ${game.pending.enter[c]==='F'?'selected':''}>Franchising ($750K, 25 outlets)</option>
+            <option value="JV" ${game.pending.enter[c]==='JV'?'selected':''}>Joint Venture ($500K, 5 outlets, 50% share)</option>
+            <option value="WOS" ${game.pending.enter[c]==='WOS'?'selected':''}>Wholly Owned ($750K, 5 outlets)</option>
+          </select>
+        </div>
+        <div class="hint">${game.pending.enter[c] ? `via ${game.pending.enter[c]}` : ''}</div>
+      `;
+    }
+    rows.appendChild(row);
+  }
+  rows.querySelectorAll('select[data-enter]').forEach(sel => {
+    sel.addEventListener('change', () => {
+      const c = sel.dataset.enter;
+      if (sel.value) game.pending.enter[c] = sel.value;
+      else delete game.pending.enter[c];
+      updateBudgetDisplay();
+    });
+  });
+  rows.querySelectorAll('input[data-grow]').forEach(inp => {
+    inp.addEventListener('change', () => {
+      game.pending.grow[inp.dataset.grow] = inp.checked;
+      updateBudgetDisplay();
+    });
+  });
+  updateBudgetDisplay();
+}
+
+// ============================================================================
+// EXIT
+// ============================================================================
+function renderExit() {
+  const div = document.getElementById('exit-rows');
+  const active = Object.keys(game.positions);
+  if (!active.length) {
+    div.innerHTML = '<p class="muted">No active markets yet.</p>';
+    return;
+  }
+  div.innerHTML = '';
+  for (const c of active) {
+    const pos = game.positions[c];
+    const row = document.createElement('div');
+    row.className = 'country-entry-row';
+    row.innerHTML = `
+      <div>
+        <div class="name">${COUNTRIES[c].name} <span class="mode-tag mode-${pos.mode}">${pos.mode}</span></div>
+        <div class="hint">${pos.outlets} outlets</div>
+      </div>
+      <div>
+        <label class="toggle"><input type="checkbox" ${game.pending.exit[c]?'checked':''} data-exit="${c}"><span class="slider"></span></label>
+      </div>
+      <div class="hint">${game.pending.exit[c]?'Exiting (+$250K)':''}</div>
+    `;
+    div.appendChild(row);
+  }
+  div.querySelectorAll('input[data-exit]').forEach(inp => {
+    inp.addEventListener('change', () => { game.pending.exit[inp.dataset.exit] = inp.checked; });
+  });
+}
+
+// ============================================================================
+// MARKETING OVERVIEW
+// ============================================================================
+function projectedActiveCountries() {
+  const set = new Set(Object.keys(game.positions));
+  for (const c in game.pending.enter) if (game.pending.enter[c]) set.add(c);
+  for (const c in game.pending.exit) if (game.pending.exit[c]) set.delete(c);
+  return [...set];
+}
+
+function renderMarketingOverview() {
+  const div = document.getElementById('marketing-list');
+  const active = projectedActiveCountries();
+  if (!active.length) {
+    div.innerHTML = '<p class="muted">No active markets this year. Enter one on the Market Entry screen.</p>';
+    return;
+  }
+  div.innerHTML = '';
+  for (const c of active) {
+    const mode = game.positions[c] ? game.positions[c].mode : game.pending.enter[c];
+    const done = !!game.pending.marketing[c];
+    const card = document.createElement('div');
+    card.className = 'country-card' + (done ? ' done' : '');
+    card.innerHTML = `
+      <div>
+        <div class="name">${COUNTRIES[c].name}</div>
+        <div class="hint">${MODE_SPEC[mode].label} · ${mode === 'F' ? '2 decisions' : '4 decisions'}</div>
+      </div>
+      <div>${done ? '<span class="pill pill-green">✓ Set</span>' : `<span class="mode-tag mode-${mode}">${mode}</span>`}</div>
+    `;
+    card.addEventListener('click', () => openCountryMarketing(c));
+    div.appendChild(card);
+  }
+}
+
+// ============================================================================
+// COUNTRY MARKETING
+// ============================================================================
+let currentMarketingCountry = null;
+function openCountryMarketing(c) {
+  currentMarketingCountry = c;
+  const mode = game.positions[c] ? game.positions[c].mode : game.pending.enter[c];
+  document.getElementById('cm-title').textContent = `${COUNTRIES[c].name} · ${MODE_SPEC[mode].label}`;
+  document.getElementById('cm-eyebrow').textContent = mode === 'F' ? 'Screen 9 · Marketing (Franchise)' : 'Screen 8 · Marketing (WOS/JV)';
+
+  // Country table
+  const cat = forioCategories(game.home, c);
+  const distNum = cultDistance(game.home, c);
+  const geoDist = distNum < 100 ? 'Low' : distNum < 200 ? 'Medium' : 'High';
+  document.getElementById('cm-country-table').innerHTML = `
+    <tbody>
+      <tr><th>Geographic Distance</th><td style="${catColor(geoDist,false)}">${geoDist}</td></tr>
+      <tr><th>Trade Barriers</th><td style="${catColor(cat.bar,false)}">${cat.bar}</td></tr>
+      <tr><th>Cultural Distance</th><td style="${catColor(cat.cultDist,false)}">${cat.cultDist}</td></tr>
+      <tr><th>Indulgence</th><td style="${catColor(cat.ind,true)}">${cat.ind}</td></tr>
+      <tr><th>Industry Rivalry</th><td style="${catColor(cat.riv,false)}">${cat.riv}</td></tr>
+    </tbody>
+  `;
+
+  // Load saved decisions or smart defaults
+  const saved = game.pending.marketing[c] || smartDefaultDecision(game.home, c, mode);
+  document.getElementById('cm-menu').value = saved.menuLoc;
+  document.getElementById('cm-source').value = saved.sourcing;
+  document.getElementById('cm-price').value = saved.price || pppPrice(c);
+  document.getElementById('cm-promo').value = saved.promo || 25000;
+
+  // Hide/show WOS/JV fields
+  const isFranchise = mode === 'F';
+  document.getElementById('cm-wosjv-fields').style.display = isFranchise ? 'none' : 'grid';
+  document.getElementById('cm-cost-card').style.display = isFranchise ? 'none' : 'block';
+
+  // Coach
+  updateCountryMarketingCoach(c, mode);
+
+  // Listeners for live update
+  ['cm-menu','cm-source','cm-price','cm-promo'].forEach(id => {
+    const el = document.getElementById(id);
+    el.oninput = () => updateCountryMarketingLive(c, mode);
+  });
+
+  updateCountryMarketingLive(c, mode);
+  goto('country-marketing');
+}
+
+function smartDefaultDecision(home, country, mode) {
+  const d = cultDistance(home, country);
+  const loc = d < 100 ? 'low' : d >= 200 ? 'high' : 'some';
+  const tar = COUNTRIES[country].tar;
+  const src = tar > 8 ? 'local' : tar < 3.5 ? 'mix' : 'mix';
+  return { menuLoc: loc, sourcing: src, price: pppPrice(country), promo: 25000 };
+}
+
+function updateCountryMarketingLive(c, mode) {
+  const menu = document.getElementById('cm-menu').value;
+  const src = document.getElementById('cm-source').value;
+  const price = parseFloat(document.getElementById('cm-price').value);
+  const promo = parseFloat(document.getElementById('cm-promo').value);
+  document.getElementById('cm-price-val').textContent = '$' + price.toFixed(1);
+  document.getElementById('cm-promo-val').textContent = '$' + (promo/1000).toFixed(0) + 'K';
+  // Live variable cost (params may be null in setup, use light-weight defaults)
+  const fakeParams = game.params || { };
+  const vc = variableCostPerMeal(c, menu, src, fakeParams);
+  document.getElementById('cm-vc').textContent = '$' + vc.toFixed(2);
+  const comp = pppPrice(c);
+  document.getElementById('cm-comp').textContent = '$' + comp.toFixed(2);
+  const gm = (price - vc) / price;
+  document.getElementById('cm-margin').textContent = (gm*100).toFixed(1) + '%';
+}
+
+function updateCountryMarketingCoach(c, mode) {
+  const coach = document.getElementById('cm-coach');
+  coach.classList.remove('hidden');
+  document.getElementById('cm-coach-title').textContent = `Recommended for ${COUNTRIES[c].name}`;
+  const list = document.getElementById('cm-coach-list');
+  const dist = cultDistance(game.home, c);
+  const tips = [];
+  if (dist >= 200) tips.push('High cultural distance — use <strong>Localized</strong> menu.');
+  else if (dist < 100) tips.push('Low cultural distance — <strong>Standardized</strong> menu keeps costs down.');
+  else tips.push('Medium cultural distance — <strong>Some Localization</strong>.');
+  if (game.year === 4 || game.year === 5) tips.push('Trade war active — switch sourcing to <strong>Mostly Local</strong>.');
+  else if (game.year === 6) tips.push('Trade war ended — switch sourcing back to <strong>Mostly Global</strong> (2% margin if franchise).');
+  else tips.push('Low-tariff year — <strong>Mostly Global</strong> sourcing captures economies of scale.');
+  if (mode !== 'F') {
+    tips.push(`Price near <strong>$${pppPrice(c).toFixed(2)}</strong> (competitor PPP-adjusted).`);
+    tips.push('Promotion ~<strong>$50K/outlet</strong> hits the diminishing-returns kink.');
+  }
+  list.innerHTML = tips.map(t => `<li>${t}</li>`).join('');
+}
+
+function saveCountryMarketing() {
+  const c = currentMarketingCountry;
+  const mode = game.positions[c] ? game.positions[c].mode : game.pending.enter[c];
+  game.pending.marketing[c] = {
+    menuLoc: document.getElementById('cm-menu').value,
+    sourcing: document.getElementById('cm-source').value,
+    price: parseFloat(document.getElementById('cm-price').value),
+    promo: parseFloat(document.getElementById('cm-promo').value),
+  };
+  goto('marketing-overview');
+}
+
+// ============================================================================
+// CONFIRM YEAR → RUN SIMULATION
+// ============================================================================
+function confirmYear() {
+  // Apply pending exits
+  for (const c in game.pending.exit) {
+    if (game.pending.exit[c] && game.positions[c]) {
+      delete game.positions[c];
+      game.exited.add(c);
+      game.cash += 250000;
+    }
+  }
+  // Apply pending entries
+  const newThisYear = new Set();
+  for (const [c, mode] of Object.entries(game.pending.enter)) {
+    if (!mode) continue;
+    if (c === game.home || game.positions[c] || game.exited.has(c)) continue;
+    const spec = MODE_SPEC[mode];
+    const cost = spec.entry + spec.open;
+    if (game.cash < cost) continue;
+    game.cash -= cost;
+    let outlets = spec.outlets;
+    if (mode === 'F') game.cash += spec.fee * outlets;   // franchise fees collected
+    game.positions[c] = {
+      country: c, mode, outlets, enteredYear: game.year,
+      decision: game.pending.marketing[c] || smartDefaultDecision(game.home, c, mode),
+    };
+    newThisYear.add(c);
+  }
+  // Apply pending growth
+  const grownThisYear = new Set();
+  for (const c in game.pending.grow) {
+    if (!game.pending.grow[c]) continue;
+    const pos = game.positions[c];
+    if (!pos) continue;
+    const perOutlet = MODE_SPEC[pos.mode].open / MODE_SPEC[pos.mode].outlets;
+    const cost = perOutlet * pos.outlets;
+    if (game.cash < cost) continue;
+    game.cash -= cost;
+    if (pos.mode === 'F') game.cash += MODE_SPEC.F.fee * pos.outlets;
+    pos.outlets *= 2;
+    grownThisYear.add(c);
+  }
+  // Apply marketing decisions
+  for (const c in game.positions) {
+    const saved = game.pending.marketing[c];
+    if (saved) game.positions[c].decision = { ...saved };
+    else if (!game.positions[c].decision) game.positions[c].decision = smartDefaultDecision(game.home, c, game.positions[c].mode);
+  }
+
+  // Get event impacts
+  const impacts = getYearEventImpacts(game.eventConfig, game.year, game.positions);
+
+  // Process forced WOS exits from political crisis
+  const forcedExits = [];
+  for (const c in impacts) {
+    if (impacts[c].forceExit && game.positions[c] && game.positions[c].mode === 'WOS') {
+      forcedExits.push(c);
+    }
+  }
+  for (const c of forcedExits) {
+    delete game.positions[c];
+    game.exited.add(c);
+    game.cash += 250000;  // forced exit still yields refund
+  }
+
+  // Compute per-country economics
+  const activeEntriesThisYear = newThisYear.size + grownThisYear.size;
+  const brandCount = Object.keys(game.positions).length;
+  const countryResults = {};
+  let yearProfit = 0;
+  const componentsTotal = { revenue: 0, variableCost: 0, promotion: 0, fixedCost: 0, operatingProfit: 0 };
+
+  for (const c in game.positions) {
+    const pos = game.positions[c];
+    const imp = impacts[c] || { revMult: 1, tariffAmp: 1, fixedMult: 1, marginExtra: 0, tags: [] };
+    const r = countryEconomics({
+      home: game.home, country: c, mode: pos.mode, outlets: pos.outlets, decision: pos.decision,
+      year: game.year, enteredYear: pos.enteredYear, isNewThisYear: newThisYear.has(c),
+      brandCount, entriesThisYear: activeEntriesThisYear,
+      crisisRevMult: imp.revMult, crisisMarginExtra: imp.marginExtra, crisisTariffAmp: imp.tariffAmp,
+      fixedCostMult: imp.fixedMult, forceZeroRevenue: false,
+    }, game.params, game.rng);
+    countryResults[c] = { ...r, mode: pos.mode, outlets: pos.outlets, tags: imp.tags };
+    yearProfit += r.playerProfit;
+    componentsTotal.revenue += r.revenue;
+    componentsTotal.variableCost += r.variableCost;
+    componentsTotal.promotion += r.promotion;
+    componentsTotal.fixedCost += r.fixedCost;
+    componentsTotal.operatingProfit += r.operatingProfit;
+  }
+
+  // Entry/opening/growth cost for income statement
+  let entryOpeningCost = 0;
+  for (const c of newThisYear) {
+    const m = game.positions[c].mode;
+    entryOpeningCost += MODE_SPEC[m].entry + MODE_SPEC[m].open;
+  }
+  let growthCost = 0;
+  for (const c of grownThisYear) {
+    const pos = game.positions[c];
+    // outlets is already doubled, so original = pos.outlets/2
+    const added = pos.outlets / 2;
+    growthCost += (MODE_SPEC[pos.mode].open / MODE_SPEC[pos.mode].outlets) * added;
+  }
+
+  game.cash += yearProfit;
+  game.cumProfit += yearProfit;
+
+  const bonusMessages = [];
+  if (!game.bonus25 && game.cumProfit >= 25000000) { game.cash += 250000; game.bonus25 = true; bonusMessages.push('$25M bonus (+$250K)'); }
+  if (!game.bonus50 && game.cumProfit >= 50000000) { game.cash += 500000; game.bonus50 = true; bonusMessages.push('$50M bonus (+$500K)'); }
+
+  // Record
+  game.yearly.push({
+    year: game.year,
+    yearProfit, cumProfit: game.cumProfit, cash: game.cash,
+    countryResults,
+    positions: Object.fromEntries(Object.entries(game.positions).map(([k,v]) => [k, { outlets: v.outlets, mode: v.mode }])),
+    newThisYear: [...newThisYear], grownThisYear: [...grownThisYear],
+    forcedExits, activeTags: new Set(Object.values(impacts).flatMap(i => i.tags)),
+    entryOpeningCost, growthCost,
+    componentsTotal, bonusMessages,
+  });
+
+  // Reset pending
+  game.pending = { enter: {}, grow: {}, exit: {}, marketing: {} };
+
+  goto('summary-results');
+}
+
+// ============================================================================
+// SUMMARY RESULTS
+// ============================================================================
+let chartAnnual, chartCum;
+function renderSummaryResults() {
+  const y = game.yearly[game.yearly.length - 1];
+  document.getElementById('sr-title').textContent = `Results — Year ${y.year}`;
+  document.getElementById('sr-year-profit').textContent = fmtMoney(y.yearProfit);
+  document.getElementById('sr-cum-profit').textContent = fmtMoney(y.cumProfit);
+  document.getElementById('sr-cash').textContent = fmtMoney(y.cash);
+  document.getElementById('sr-outlets').textContent = Object.values(y.positions).reduce((s,p) => s + p.outlets, 0);
+  document.getElementById('sr-countries').textContent = Object.keys(y.positions).length;
+
+  // Feedback text
+  const fb = document.getElementById('sr-feedback');
+  let cls = 'feedback-good', msg = '';
+  if (y.cumProfit >= 100000000) { cls = 'feedback-excellent'; msg = `<strong>Target hit.</strong> Cumulative profit of ${fmtMoney(y.cumProfit)} beats the $100M goal.`; }
+  else if (y.cumProfit >= 50000000) { cls = 'feedback-excellent'; msg = `<strong>Strong performance.</strong> ${fmtMoney(y.cumProfit)} cumulative. $50M bonus triggered.`; }
+  else if (y.cumProfit >= 25000000) { cls = 'feedback-good'; msg = `<strong>On track.</strong> ${fmtMoney(y.cumProfit)} cumulative. $25M bonus triggered.`; }
+  else if (y.cumProfit >= 0) { cls = 'feedback-good'; msg = `<strong>Profitable.</strong> ${fmtMoney(y.cumProfit)} cumulative — keep investing.`; }
+  else { cls = 'feedback-poor'; msg = `<strong>Underwater.</strong> ${fmtMoney(y.cumProfit)} cumulative. Review mode selection and sourcing.`; }
+  if (y.forcedExits.length) msg += ` <br><strong>Forced exits this year:</strong> ${y.forcedExits.map(c => COUNTRIES[c].name).join(', ')} (Political Crisis).`;
+  if (y.bonusMessages.length) msg += ` <br>${y.bonusMessages.join(' · ')}`;
+  fb.innerHTML = `<div class="feedback-box ${cls}">${msg}</div>`;
+
+  // Charts
+  const yrs = game.yearly.map(yr => `Y${yr.year}`);
+  const annuals = game.yearly.map(yr => yr.yearProfit / 1e6);
+  const cums = game.yearly.map(yr => yr.cumProfit / 1e6);
+  if (chartAnnual) chartAnnual.destroy();
+  chartAnnual = new Chart(document.getElementById('chart-annual-profit'), {
+    type: 'bar',
+    data: { labels: yrs, datasets: [{ label: 'Annual profit ($M)', data: annuals, backgroundColor: annuals.map(v => v >= 0 ? '#D97757' : '#B3433B') }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => '$' + ctx.parsed.y.toFixed(2) + 'M' } } },
+      scales: { y: { ticks: { callback: v => '$' + v + 'M', color: '#6B6B66' }, grid: { color: 'rgba(20,20,19,0.06)' } }, x: { grid: { display: false } } } }
+  });
+  if (chartCum) chartCum.destroy();
+  chartCum = new Chart(document.getElementById('chart-cum-profit'), {
+    type: 'line',
+    data: { labels: yrs, datasets: [{ label: 'Cumulative profit ($M)', data: cums, borderColor: '#D97757', backgroundColor: 'rgba(217,119,87,0.12)', fill: true, tension: 0.3, borderWidth: 2, pointBackgroundColor: '#D97757', pointRadius: 5 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => '$' + ctx.parsed.y.toFixed(2) + 'M' } } },
+      scales: { y: { ticks: { callback: v => '$' + v + 'M', color: '#6B6B66' }, grid: { color: 'rgba(20,20,19,0.06)' } }, x: { grid: { display: false } } } }
+  });
+
+  // Income statement
+  const tbl = document.getElementById('tbl-income');
+  let html = `<thead><tr><th>Line Item</th>${game.yearly.map(yr => `<th class="t-num">Y${yr.year}</th>`).join('')}<th class="t-num">Total</th></tr></thead><tbody>`;
+  const rows = [
+    ['Revenue', game.yearly.map(yr => yr.componentsTotal.revenue), false],
+    ['Variable costs', game.yearly.map(yr => -yr.componentsTotal.variableCost), false],
+    ['Promotion', game.yearly.map(yr => -yr.componentsTotal.promotion), false],
+    ['Fixed costs', game.yearly.map(yr => -yr.componentsTotal.fixedCost), false],
+    ['Entry/Opening costs', game.yearly.map(yr => -yr.entryOpeningCost), false],
+    ['Growth costs', game.yearly.map(yr => -yr.growthCost), false],
+  ];
+  for (const [label, arr] of rows) {
+    const total = arr.reduce((a,b) => a+b, 0);
+    html += `<tr><td>${label}</td>${arr.map(v => `<td class="t-num">${fmtMoney(v)}</td>`).join('')}<td class="t-num">${fmtMoney(total)}</td></tr>`;
+  }
+  const opProfits = game.yearly.map(yr => yr.componentsTotal.operatingProfit - yr.entryOpeningCost - yr.growthCost);
+  const opTotal = opProfits.reduce((a,b) => a+b, 0);
+  html += `<tr class="subtotal"><td>Operating profit</td>${opProfits.map(v => `<td class="t-num">${fmtMoney(v)}</td>`).join('')}<td class="t-num">${fmtMoney(opTotal)}</td></tr>`;
+  const playerProfits = game.yearly.map(yr => yr.yearProfit);
+  const playerTotal = playerProfits.reduce((a,b) => a+b, 0);
+  html += `<tr class="total"><td>Player profit (after JV/Franchise share)</td>${playerProfits.map(v => `<td class="t-num">${fmtMoney(v)}</td>`).join('')}<td class="t-num">${fmtMoney(playerTotal)}</td></tr>`;
+  html += '</tbody>';
+  tbl.innerHTML = html;
+
+  // Profit by country
+  const pbc = document.getElementById('tbl-profit-country');
+  const allCountries = new Set();
+  game.yearly.forEach(yr => Object.keys(yr.countryResults).forEach(c => allCountries.add(c)));
+  let pbcHtml = `<thead><tr><th>Country</th>${game.yearly.map(yr => `<th class="t-num">Y${yr.year}</th>`).join('')}<th class="t-num">Total</th></tr></thead><tbody>`;
+  for (const c of allCountries) {
+    const vals = game.yearly.map(yr => yr.countryResults[c] ? yr.countryResults[c].playerProfit : 0);
+    const total = vals.reduce((a,b) => a+b, 0);
+    pbcHtml += `<tr><td>${COUNTRIES[c].name}</td>${vals.map(v => `<td class="t-num">${fmtMoney(v)}</td>`).join('')}<td class="t-num"><strong>${fmtMoney(total)}</strong></td></tr>`;
+  }
+  pbcHtml += '</tbody>';
+  pbc.innerHTML = pbcHtml;
+
+  // Profit by ownership
+  const pbo = document.getElementById('tbl-profit-ownership');
+  const modes = ['F','JV','WOS'];
+  let pboHtml = `<thead><tr><th>Ownership</th>${game.yearly.map(yr => `<th class="t-num">Y${yr.year}</th>`).join('')}<th class="t-num">Total</th></tr></thead><tbody>`;
+  for (const m of modes) {
+    const vals = game.yearly.map(yr => Object.values(yr.countryResults).filter(r => r.mode === m).reduce((s,r) => s + r.playerProfit, 0));
+    const total = vals.reduce((a,b) => a+b, 0);
+    pboHtml += `<tr><td>${MODE_SPEC[m].label}</td>${vals.map(v => `<td class="t-num">${fmtMoney(v)}</td>`).join('')}<td class="t-num"><strong>${fmtMoney(total)}</strong></td></tr>`;
+  }
+  pboHtml += '</tbody>';
+  pbo.innerHTML = pboHtml;
+
+  // Next year button logic
+  const btn = document.getElementById('btn-next-year');
+  if (game.year >= 6) { btn.textContent = 'Game complete — Restart'; btn.onclick = () => replayGame(); }
+  else { btn.textContent = 'News for next year →'; btn.onclick = () => nextYear(); }
+}
+
+function nextYear() {
+  game.year += 1;
+  goto('news');
+}
+
+function goToCountryResults() { goto('country-results'); }
+
+// ============================================================================
+// COUNTRY RESULTS
+// ============================================================================
+let crCharts = [];
+function renderCountryResults() {
+  const tabs = document.getElementById('cr-tabs');
+  const allCountries = new Set();
+  game.yearly.forEach(yr => Object.keys(yr.countryResults).forEach(c => allCountries.add(c)));
+  const list = [...allCountries];
+  if (!list.length) {
+    document.getElementById('cr-body').innerHTML = '<p class="muted">No active markets yet.</p>';
+    tabs.innerHTML = '';
+    return;
+  }
+  tabs.innerHTML = '';
+  list.forEach((c, i) => {
+    const b = document.createElement('button');
+    b.className = i === 0 ? 'active' : '';
+    b.textContent = COUNTRIES[c].name;
+    b.addEventListener('click', () => {
+      tabs.querySelectorAll('button').forEach(x => x.classList.remove('active'));
+      b.classList.add('active');
+      renderSingleCountryResult(c);
+    });
+    tabs.appendChild(b);
+  });
+  renderSingleCountryResult(list[0]);
+}
+
+function renderSingleCountryResult(c) {
+  const body = document.getElementById('cr-body');
+  const yrResults = game.yearly.map(yr => ({ year: yr.year, r: yr.countryResults[c] })).filter(x => x.r);
+  if (!yrResults.length) { body.innerHTML = `<p class="muted">No data for ${COUNTRIES[c].name}.</p>`; return; }
+  crCharts.forEach(ch => ch.destroy()); crCharts = [];
+  const revs = yrResults.map(x => x.r.revenue / 1e6);
+  const ops = yrResults.map(x => x.r.operatingProfit / 1e6);
+  let cum = 0; const cums = yrResults.map(x => { cum += x.r.playerProfit; return cum / 1e6; });
+  const labels = yrResults.map(x => 'Y' + x.year);
+  const mode = yrResults[yrResults.length-1].r.mode;
+
+  const comments = generateCustomerComments(c, game.positions[c] ? game.positions[c].decision : {menuLoc:'some', sourcing:'mix', price:25, promo:25000}, mode);
+
+  body.innerHTML = `
+    <div class="feedback-box feedback-good"><strong>${COUNTRIES[c].name}</strong> · ${MODE_SPEC[mode].label} · Cumulative player profit: <strong>${fmtMoney(cum * 1e6)}</strong></div>
+    <div class="grid-3">
+      <div class="card"><h3 class="card-title">Revenue</h3><div class="chart-box small"><canvas id="cr-rev"></canvas></div></div>
+      <div class="card"><h3 class="card-title">Operating Profit</h3><div class="chart-box small"><canvas id="cr-op"></canvas></div></div>
+      <div class="card"><h3 class="card-title">Cumulative Profit</h3><div class="chart-box small"><canvas id="cr-cum"></canvas></div></div>
+    </div>
+    <div class="card">
+      <h3 class="card-title">Country income statement</h3>
+      <div style="overflow-x:auto;"><table class="income-table" id="cr-tbl"></table></div>
+    </div>
+    <div class="card">
+      <h3 class="card-title">Customer comments</h3>
+      ${comments.map(cm => `<div class="customer-comment">${cm}</div>`).join('')}
+    </div>
+  `;
+
+  crCharts.push(new Chart(document.getElementById('cr-rev'), {
+    type: 'bar', data: { labels, datasets: [{ data: revs, backgroundColor: '#D97757' }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => '$' + ctx.parsed.y.toFixed(2) + 'M' } } },
+      scales: { y: { ticks: { callback: v => '$' + v + 'M', color: '#6B6B66' } }, x: { grid: { display: false } } } }
+  }));
+  crCharts.push(new Chart(document.getElementById('cr-op'), {
+    type: 'bar', data: { labels, datasets: [{ data: ops, backgroundColor: ops.map(v => v >= 0 ? '#2B7A5C' : '#B3433B') }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => '$' + ctx.parsed.y.toFixed(2) + 'M' } } },
+      scales: { y: { ticks: { callback: v => '$' + v + 'M', color: '#6B6B66' } }, x: { grid: { display: false } } } }
+  }));
+  crCharts.push(new Chart(document.getElementById('cr-cum'), {
+    type: 'line', data: { labels, datasets: [{ data: cums, borderColor: '#141413', backgroundColor: 'rgba(20,20,19,0.08)', fill: true, tension: 0.3 }] },
+    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false }, tooltip: { callbacks: { label: ctx => '$' + ctx.parsed.y.toFixed(2) + 'M' } } },
+      scales: { y: { ticks: { callback: v => '$' + v + 'M', color: '#6B6B66' } }, x: { grid: { display: false } } } }
+  }));
+
+  // Country income table
+  const tbl = document.getElementById('cr-tbl');
+  let html = `<thead><tr><th>Line</th>${yrResults.map(x => `<th class="t-num">Y${x.year}</th>`).join('')}</tr></thead><tbody>`;
+  const addRow = (label, arr, cls) => {
+    html += `<tr${cls ? ' class="'+cls+'"' : ''}><td>${label}</td>${arr.map(v => `<td class="t-num">${fmtMoney(v)}</td>`).join('')}</tr>`;
+  };
+  addRow('Revenue', yrResults.map(x => x.r.revenue));
+  addRow('Variable costs', yrResults.map(x => -x.r.variableCost));
+  addRow('Promotion', yrResults.map(x => -x.r.promotion));
+  addRow('Fixed costs', yrResults.map(x => -x.r.fixedCost));
+  addRow('Operating profit', yrResults.map(x => x.r.operatingProfit), 'subtotal');
+  addRow('Player profit (your share)', yrResults.map(x => x.r.playerProfit), 'total');
+  html += '</tbody>';
+  tbl.innerHTML = html;
+}
+
+function generateCustomerComments(country, dec, mode) {
+  const out = [];
+  const loc = dec.menuLoc || 'some';
+  const src = dec.sourcing || 'mix';
+  const dist = cultDistance(game.home, country);
+  if (loc === 'low' && dist >= 200) out.push('"The menu feels foreign. They should adapt to our tastes."');
+  if (loc === 'high' && dist < 100) out.push('"It\'s ok but a bit gimmicky — they\'re trying too hard to be local."');
+  if (loc === 'high' && dist >= 200) out.push('"Finally a chain that actually understands what we eat here."');
+  if (src === 'home') out.push('"Ingredients taste a bit imported — consistent but not as fresh."');
+  if (src === 'local') out.push('"Fresh local ingredients — I can taste the difference."');
+  if (dec.price && dec.price > pppPrice(country) * 1.15) out.push('"Pricey for what it is. I\'d eat here less often."');
+  if (dec.price && dec.price < pppPrice(country) * 0.85) out.push('"Great value! Tell a friend."');
+  if (dec.promo && dec.promo >= 50000) out.push('"Saw them everywhere on social media — had to try it."');
+  if (!out.length) out.push('"Solid experience. I\'d come back."');
+  return out.slice(0, 4);
+}
+
+// ============================================================================
+// GLOSSARY
+// ============================================================================
+const GLOSSARY = [
+  ['Franchising', 'A local partner (franchisee) opens and runs outlets using your brand. They pay a one-off fee and 6% royalty. You also earn a sourcing margin (2% global / 1% mix / 0% local) and pay $12.5K/outlet in support costs. Low capital exposure, 25 outlets per market.'],
+  ['Joint Venture', 'Shared ownership with a local partner (50/50). Moderate capital outlay, 5 outlets, you take 50% of operating profit. Vulnerable to Partner Opportunism.'],
+  ['Wholly Owned Subsidiary (WOS)', 'Full control and 100% of profit, but you shoulder all costs and risk. 5 outlets. Suffers from "liability of foreignness" — the more culturally distant, the more sales are reduced.'],
+  ['Cultural Distance', 'A composite of the six Hofstede dimensions between home and target. Larger distance → consumers respond worse to standardized offerings, WOS suffers most.'],
+  ['Indulgence (IVR)', 'Hofstede dimension capturing willingness to spend on enjoyment. High IVR markets spend more on casual dining.'],
+  ['Country Risk', 'Overall political/economic stability. Low-risk countries are safer for WOS; high-risk favors Franchise.'],
+  ['Industry Rivalry', 'Competitive intensity. High-rivalry markets demand more promotion to get noticed.'],
+  ['Trade Barriers', 'Tariff level for imported ingredients. High tariffs punish "Mostly Global" sourcing.'],
+  ['Entry Penalty', 'Entering/growing 3 or more countries in the same year reduces sales across ALL outlets. Pace yourself.'],
+  ['First-Year Factor', 'In the year of entry, outlets open mid-year → revenue and fixed costs are 50%.'],
+  ['Brand Awareness Bonus', 'When you operate in ≥3 countries, each additional country gives a small sales lift globally (+2% per country above 2).'],
+  ['Liability of Foreignness', 'WOS only — the greater the cultural distance, the more sales are reduced (up to 15%).'],
+  ['Sourcing Margin', 'For Franchise only: 2% of revenue if Global, 1% if Mix, 0% if Local. Disappears during trade wars (margin compressed).'],
+  ['Global Financial Crisis', 'Y3 news event. -20% meals sold in most countries; -10% in CN and IN.'],
+  ['Trade War', 'Y4 news event. Tariffs double on imported ingredients. Ends in Y6.'],
+  ['Minimum Wage Hike', 'Y5 news event. +20% fixed costs for WOS/JV outlets (not franchise).'],
+  ['Political Crisis', 'Y5 crisis. Forces WOS to exit high-risk countries (+$250K refund, investment written off). JV/F survive but revenue -50%.'],
+  ['Partner Opportunism', 'Optional crisis. -25% revenue for JV/Franchise only. Lasts 2 years. WOS immune.'],
+  ['Extreme Weather', 'Optional crisis. -25% sales (outlets closed one quarter).'],
+  ['$25M / $50M Bonus', '+$250K cash when you first cross $25M cumulative profit; +$500K at $50M.'],
+  ['Exit Refund', '+$250K when exiting a market. Investment is written off and you cannot re-enter.'],
+];
+function renderGlossary() {
+  document.getElementById('glossary-body').innerHTML = GLOSSARY.map(([k,v]) => `<dt>${k}</dt><dd>${v}</dd>`).join('');
+}
+
+// ============================================================================
+// STRATEGY LAB — Monte Carlo
+// ============================================================================
+function attractivenessRank(home, exclude = new Set()) {
+  const ex = new Set(exclude); ex.add(home);
+  const scores = [];
+  for (const c of CODES) {
+    if (ex.has(c)) continue;
+    const d = COUNTRIES[c];
+    const gdpScore = (d.gdp / 85000) * 100;
+    const ivrScore = d.h[5];
+    const tariffPen = (20 - d.tar) * 5;
+    const cultPen = Math.max(0, 100 - cultDistance(home, c) / 4);
+    const rivalryPen = 100 - d.rival;
+    const score = gdpScore*0.30 + ivrScore*0.20 + cultPen*0.20 + d.risk*0.15 + tariffPen*0.10 + rivalryPen*0.05;
+    scores.push([c, score]);
+  }
+  scores.sort((a,b) => b[1] - a[1]);
+  return scores.map(s => s[0]);
+}
+function pickGrowable(state, n, reserve = 300000) {
+  const sorted = Object.entries(state.positions).sort((a,b) => b[1].outlets - a[1].outlets);
+  const out = []; let avail = state.cash - reserve;
+  for (const [c, pos] of sorted) {
+    if (out.length >= n) break;
+    const perOutlet = MODE_SPEC[pos.mode].open / MODE_SPEC[pos.mode].outlets;
+    const cost = perOutlet * pos.outlets;
+    if (cost <= avail) { out.push(c); avail -= cost; }
+  }
+  return out;
+}
+function stratAnglo(state, year) {
+  const anglo = ['US','UK','AU','CA'].filter(c => c !== state.home && !state.exited.has(c));
+  const a = { enter: [], grow: [], exit: [] };
+  if (year === 1) a.enter = anglo.slice(0,2).map(c => [c,'F']);
+  else if (year === 2) { const u = anglo.filter(c => !state.positions[c]); if (u.length && state.cash > 800000) a.enter = [[u[0],'F']]; if (state.cash > 600000) a.grow = pickGrowable(state, 1); }
+  else if (year >= 3) { if (state.cash > 1000000) a.grow = pickGrowable(state, 2); else if (state.cash > 500000) a.grow = pickGrowable(state, 1); }
+  return a;
+}
+function stratMaxFranchise(state, year) {
+  const rank = attractivenessRank(state.home, state.exited);
+  const a = { enter: [], grow: [], exit: [] };
+  if (year === 1) a.enter = rank.slice(0,2).map(c => [c,'F']);
+  else if (year === 2) { a.enter = rank.filter(c => !state.positions[c] && !state.exited.has(c)).slice(0,1).map(c=>[c,'F']); if (state.cash > 600000) a.grow = pickGrowable(state,1); }
+  else if (year >= 3) { if (state.cash > 1200000) a.grow = pickGrowable(state,2); else if (state.cash > 500000) a.grow = pickGrowable(state,1); }
+  return a;
+}
+function stratBlitz(state, year) {
+  const rank = attractivenessRank(state.home, state.exited);
+  const a = { enter: [], grow: [], exit: [] };
+  if (year === 1) a.enter = rank.slice(0,2).map(c => [c,'F']);
+  else if (year === 2) { const u = rank.filter(c => !state.positions[c] && !state.exited.has(c)); if (u.length && state.cash > 800000) a.enter = [[u[0],'F']]; if (state.cash > 500000) a.grow = pickGrowable(state,1); }
+  else if (year === 3) { if (state.cash > 1200000) a.grow = pickGrowable(state,2); }
+  else if (year === 4) { const u = rank.filter(c => !state.positions[c] && !state.exited.has(c)); if (u.length && state.cash > 1500000) a.enter = [[u[0],'F']]; if (state.cash > 500000) a.grow = pickGrowable(state,1); }
+  else if (year >= 5) { if (state.cash > 1000000) a.grow = pickGrowable(state,2); }
+  return a;
+}
+function stratHybrid(state, year) {
+  const rank = attractivenessRank(state.home, state.exited);
+  const a = { enter: [], grow: [], exit: [] };
+  if (year === 1) a.enter = rank.slice(0,2).map(c => [c,'F']);
+  else if (year === 2) { const u = rank.filter(c => !state.positions[c] && !state.exited.has(c)); if (u.length && state.cash > 800000) a.enter = [[u[0],'F']]; if (state.cash > 500000) a.grow = pickGrowable(state,1); }
+  else if (year === 3) { const u = rank.filter(c => !state.positions[c] && !state.exited.has(c)); const w = u.find(c => COUNTRIES[c].gdp > 40000); if (w && state.cash > 1000000) a.enter = [[w,'WOS']]; if (state.cash > 500000) a.grow = pickGrowable(state,1); }
+  else if (year >= 4) { if (state.cash > 1200000) a.grow = pickGrowable(state,2); else if (state.cash > 500000) a.grow = pickGrowable(state,1); }
+  return a;
+}
+function stratWos(state, year) {
+  const rank = attractivenessRank(state.home, state.exited).filter(c => !LOW_INCOME.includes(c));
+  const a = { enter: [], grow: [], exit: [] };
+  if (year === 1) a.enter = rank.slice(0,2).map(c => [c,'WOS']);
+  else if (year === 2) { const u = rank.filter(c => !state.positions[c]); if (u.length && state.cash > 800000) a.enter = [[u[0],'WOS']]; if (state.cash > 500000) a.grow = pickGrowable(state,1); }
+  else if (year >= 3) { if (state.cash > 1000000) a.grow = pickGrowable(state,2); else if (state.cash > 500000) a.grow = pickGrowable(state,1); }
+  return a;
+}
+function stratBalanced(state, year) {
+  const rank = attractivenessRank(state.home, state.exited);
+  const a = { enter: [], grow: [], exit: [] };
+  if (year === 1) a.enter = [[rank[0],'WOS'],[rank[1],'F']];
+  else if (year === 2) { const u = rank.filter(c => !state.positions[c] && !state.exited.has(c)); if (u.length && state.cash > 800000) a.enter = [[u[0],'F']]; if (state.cash > 500000) a.grow = pickGrowable(state,1); }
+  else if (year === 3) { if (state.cash > 1200000) a.grow = pickGrowable(state,2); }
+  else if (year === 4) { const u = rank.filter(c => !state.positions[c] && !state.exited.has(c)); if (u.length && state.cash > 1200000) a.enter = [[u[0],'F']]; }
+  else if (year >= 5) { if (state.cash > 600000) a.grow = pickGrowable(state,1); }
+  return a;
+}
+function stratShotgunJV(state, year) {
+  const rank = attractivenessRank(state.home, state.exited);
+  const a = { enter: [], grow: [], exit: [] };
+  if (year === 1) a.enter = rank.slice(0,2).map(c => [c,'JV']);  // 2 not 6 (respect 3+ penalty)
+  else if (year === 2) { const u = rank.filter(c => !state.positions[c]); if (u.length && state.cash > 500000) a.enter = [[u[0],'JV']]; if (state.cash > 400000) a.grow = pickGrowable(state,1); }
+  else if (year >= 3) { if (state.cash > 500000) a.grow = pickGrowable(state, Math.min(2, Object.keys(state.positions).length)); }
+  return a;
+}
+function stratGrowth(state, year) {
+  const growth = ['IN','CN','BR'].filter(c => c !== state.home && !state.exited.has(c));
+  const a = { enter: [], grow: [], exit: [] };
+  if (year === 1) a.enter = growth.slice(0,2).map(c => [c,'F']);
+  else if (year === 2) { const u = growth.filter(c => !state.positions[c]); if (u.length && state.cash > 800000) a.enter = [[u[0],'F']]; if (state.cash > 500000) a.grow = pickGrowable(state,1); }
+  else if (year >= 3) { if (state.cash > 600000) a.grow = pickGrowable(state,1); }
+  return a;
+}
+
+const STRATEGIES = [
+  { id:'anglo', name:'Anglo Fortress', fn:stratAnglo },
+  { id:'max', name:'Max Franchise', fn:stratMaxFranchise },
+  { id:'blitz', name:'Franchise Blitz', fn:stratBlitz },
+  { id:'hybrid', name:'Hybrid Optimal', fn:stratHybrid },
+  { id:'wos', name:'WOS Premium', fn:stratWos },
+  { id:'balanced', name:'Balanced', fn:stratBalanced },
+  { id:'shotgun', name:'Shotgun JV', fn:stratShotgunJV },
+  { id:'growth', name:'Growth Chaser', fn:stratGrowth },
+];
+
+// Headless runSim for Monte Carlo — uses default (on) events
+function runHeadless(strategy, home, params, seed, eventConfig) {
+  const rng = makeRNG(seed);
+  const state = { home, cash: 3000000, cumProfit: 0, bonus25: false, bonus50: false, positions: {}, exited: new Set() };
+  for (let year = 1; year <= 6; year++) {
+    const action = strategy(state, year);
+    for (const c of (action.exit || [])) {
+      if (state.positions[c]) { delete state.positions[c]; state.exited.add(c); state.cash += 250000; }
+    }
+    const newThisYear = new Set();
+    for (const [c, mode] of (action.enter || [])) {
+      if (c === home || state.positions[c] || state.exited.has(c)) continue;
+      const spec = MODE_SPEC[mode]; const cost = spec.entry + spec.open;
+      if (state.cash < cost) continue;
+      state.cash -= cost;
+      if (mode === 'F') state.cash += spec.fee * spec.outlets;
+      state.positions[c] = { country: c, mode, outlets: spec.outlets, enteredYear: year, decision: smartDefaultDecision(home, c, mode) };
+      newThisYear.add(c);
+    }
+    const grownThisYear = new Set();
+    for (const c of (action.grow || [])) {
+      const pos = state.positions[c]; if (!pos) continue;
+      const perOutlet = MODE_SPEC[pos.mode].open / MODE_SPEC[pos.mode].outlets;
+      const cost = perOutlet * pos.outlets;
+      if (state.cash < cost) continue;
+      state.cash -= cost;
+      if (pos.mode === 'F') state.cash += MODE_SPEC.F.fee * pos.outlets;
+      pos.outlets *= 2;
+      grownThisYear.add(c);
+    }
+    // Adapt sourcing/menu to year context
+    for (const c in state.positions) {
+      const pos = state.positions[c];
+      const d = cultDistance(home, c);
+      pos.decision.menuLoc = d < 100 ? 'low' : d >= 200 ? 'high' : 'some';
+      pos.decision.sourcing = (year === 4 || year === 5) ? 'local' : (year === 6 ? 'home' : 'home');
+      if (pos.mode !== 'F') { pos.decision.price = pppPrice(c); pos.decision.promo = 50000; }
+    }
+    const impacts = getYearEventImpacts(eventConfig, year, state.positions);
+    const forced = [];
+    for (const c in impacts) if (impacts[c].forceExit && state.positions[c] && state.positions[c].mode === 'WOS') forced.push(c);
+    for (const c of forced) { delete state.positions[c]; state.exited.add(c); state.cash += 250000; }
+    const brandCount = Object.keys(state.positions).length;
+    const activeEntries = newThisYear.size + grownThisYear.size;
+    let yearProfit = 0;
+    for (const c in state.positions) {
+      const pos = state.positions[c];
+      const imp = impacts[c] || { revMult:1, tariffAmp:1, fixedMult:1, marginExtra:0 };
+      const r = countryEconomics({
+        home, country: c, mode: pos.mode, outlets: pos.outlets, decision: pos.decision,
+        year, enteredYear: pos.enteredYear, isNewThisYear: newThisYear.has(c),
+        brandCount, entriesThisYear: activeEntries,
+        crisisRevMult: imp.revMult, crisisMarginExtra: imp.marginExtra, crisisTariffAmp: imp.tariffAmp, fixedCostMult: imp.fixedMult,
+      }, params, rng);
+      yearProfit += r.playerProfit;
+    }
+    state.cash += yearProfit; state.cumProfit += yearProfit;
+    if (!state.bonus25 && state.cumProfit >= 25e6) { state.cash += 250000; state.bonus25 = true; }
+    if (!state.bonus50 && state.cumProfit >= 50e6) { state.cash += 500000; state.bonus50 = true; }
+  }
+  return { finalCumProfit: state.cumProfit };
+}
+
+function mean(a) { return a.reduce((s,x)=>s+x,0)/a.length; }
+function median(a) { const s=[...a].sort((x,y)=>x-y); return s[Math.floor(s.length/2)]; }
+function percentile(sorted, p) { return sorted[Math.min(sorted.length-1, Math.max(0, Math.floor(p*sorted.length)))]; }
+
+let mcChartWin, mcChartDist;
+function setupStrategyLab() {
+  const mcHome = document.getElementById('mc-home');
+  if (!mcHome.options.length) populateSelect(mcHome, 'CA');
+}
+document.getElementById('mc-run').addEventListener('click', async () => {
+  const home = document.getElementById('mc-home').value;
+  const trials = parseInt(document.getElementById('mc-trials').value);
+  const seed = parseInt(document.getElementById('mc-seed').value) || 42;
+  const btn = document.getElementById('mc-run');
+  const prog = document.getElementById('mc-progress');
+  const bar = document.getElementById('mc-progress-bar');
+  const status = document.getElementById('mc-status');
+  btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Running…';
+  prog.classList.remove('hidden'); bar.style.width = '0%';
+  document.getElementById('mc-results').classList.add('hidden');
+
+  const masterRng = makeRNG(seed);
+  const results = {}; const wins = {};
+  STRATEGIES.forEach(s => { results[s.id] = []; wins[s.id] = 0; });
+  const trialSeeds = [];
+  for (let i = 0; i < trials; i++) trialSeeds.push([masterRng.randint(0,1<<30), masterRng.randint(0,1<<30)]);
+  const BATCH = Math.max(10, Math.floor(trials/40));
+  const eventCfg = defaultEventConfig();
+
+  for (let i = 0; i < trials; i += BATCH) {
+    await new Promise(r => setTimeout(() => {
+      for (let j = i; j < Math.min(i+BATCH, trials); j++) {
+        const [pSeed, cSeed] = trialSeeds[j];
+        const params = randomParams(makeRNG(pSeed));
+        let best = { id: null, profit: -Infinity };
+        for (const s of STRATEGIES) {
+          const r = runHeadless(s.fn, home, params, cSeed, eventCfg);
+          results[s.id].push(r.finalCumProfit);
+          if (r.finalCumProfit > best.profit) best = { id: s.id, profit: r.finalCumProfit };
+        }
+        wins[best.id]++;
+      }
+      r();
+    }, 0));
+    const done = Math.min(i+BATCH, trials);
+    bar.style.width = (done/trials*100) + '%';
+    status.textContent = `${done} / ${trials} trials`;
+  }
+  const summary = STRATEGIES.map(s => {
+    const arr = results[s.id]; const sorted = [...arr].sort((a,b)=>a-b);
+    return { id: s.id, name: s.name, mean: mean(arr), median: median(arr), p10: percentile(sorted,0.1), p90: percentile(sorted,0.9), winRate: wins[s.id]/trials };
+  }).sort((a,b) => b.winRate - a.winRate);
+
+  btn.disabled = false; btn.textContent = 'Run simulation';
+  prog.classList.add('hidden');
+  document.getElementById('mc-results').classList.remove('hidden');
+
+  if (mcChartWin) mcChartWin.destroy();
+  mcChartWin = new Chart(document.getElementById('mc-chart-win'), {
+    type: 'bar',
+    data: { labels: summary.map(s=>s.name), datasets: [{ data: summary.map(s=>s.winRate*100), backgroundColor: summary.map((_,i)=>i===0?'#D97757':'#C4B5A0') }] },
+    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { display: false }, tooltip: { callbacks: { label: c => c.parsed.x.toFixed(1)+'%' } } },
+      scales: { x: { max: 100, ticks: { callback: v => v+'%', color: '#6B6B66' } }, y: { grid: { display: false } } } }
+  });
+  if (mcChartDist) mcChartDist.destroy();
+  mcChartDist = new Chart(document.getElementById('mc-chart-dist'), {
+    type: 'bar',
+    data: { labels: summary.map(s=>s.name), datasets: [
+      { label: 'Median', data: summary.map(s=>s.median/1e6), backgroundColor: '#D97757' },
+      { label: 'P10', data: summary.map(s=>s.p10/1e6), type:'scatter', backgroundColor: '#141413', pointRadius: 6 },
+      { label: 'P90', data: summary.map(s=>s.p90/1e6), type:'scatter', backgroundColor: '#141413', pointRadius: 6, pointStyle: 'crossRot' },
+    ]},
+    options: { indexAxis: 'y', responsive: true, maintainAspectRatio: false,
+      plugins: { legend: { position: 'top' }, tooltip: { callbacks: { label: c => `${c.dataset.label}: $${c.parsed.x.toFixed(1)}M` } } },
+      scales: { x: { ticks: { callback: v => '$'+v+'M', color: '#6B6B66' } }, y: { grid: { display: false } } } }
+  });
+  const tbl = document.getElementById('mc-table');
+  tbl.innerHTML = `<thead><tr><th>#</th><th>Strategy</th><th>Win rate</th><th class="t-num">Mean</th><th class="t-num">Median</th><th class="t-num">P10</th><th class="t-num">P90</th></tr></thead><tbody>${
+    summary.map((s,i) => `<tr><td>${i+1}</td><td><strong>${s.name}</strong></td><td><span class="pill ${i===0?'pill-accent':''}">${fmtPct(s.winRate)}</span></td><td class="t-num">${fmtMoney(s.mean)}</td><td class="t-num">${fmtMoney(s.median)}</td><td class="t-num">${fmtMoney(s.p10)}</td><td class="t-num">${fmtMoney(s.p90)}</td></tr>`).join('')
+  }</tbody>`;
+});
+
+// ============================================================================
+// INIT
+// ============================================================================
+goto('welcome');
+</script>
+</body>
+</html>
